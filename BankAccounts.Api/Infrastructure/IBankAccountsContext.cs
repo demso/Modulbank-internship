@@ -6,7 +6,7 @@ namespace BankAccounts.Api.Infrastructure;
 
 public interface IBankAccountsContext
 {
-    DbSet<Account> Accounts { get; set; }
-    DbSet<Transaction> Transactions { get; set; }
+    DbSet<Account> Accounts { get; }
+    DbSet<Transaction> Transactions { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

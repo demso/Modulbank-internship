@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BankAccounts.Api.Infrastructure;
 
-public class BankAccountsContext(DbContextOptions<BankAccountsContext> options) : DbContext(options)
+public class BankAccountsContext(DbContextOptions<BankAccountsContext> options) : DbContext(options), IBankAccountsContext
 {
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Transaction> Transactions => Set<Transaction>();

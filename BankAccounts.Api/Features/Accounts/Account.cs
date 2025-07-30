@@ -7,11 +7,11 @@ namespace BankAccounts.Api.Features.Accounts;
 public class Account
 {
     public Guid AccountId { get; init; }
-    public Guid OwnerId { get; set; }
-    public AccountType AccountType { get; set; }
-    public required string Currency { get; set; }
+    public Guid OwnerId { get; init; }
+    public AccountType AccountType { get; init; }
+    public required string Currency { get; init; }
     public decimal Balance { get; set; }
     public decimal? InterestRate { get; set; }
-    public DateTime OpenDate { get; set; }
-    public DateTime CloseDate { get; set; }
+    public DateTime OpenDate { get; init; }
+    public DateTime CloseDate { get; init; }
 }
