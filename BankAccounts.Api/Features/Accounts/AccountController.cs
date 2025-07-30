@@ -9,10 +9,10 @@ namespace BankAccounts.Api.Features.Accounts;
 [Route("api/[controller]")]
 public class AccountController(IMapper mapper) : CustomController
 {
-    [HttpGet("{ownerId:guid}")]
-    public async Task<ActionResult<List<AccountDto>>> GetAllAccounts(Guid ownerId)
+    [HttpGet]
+    public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
-        var query = new GetAllAccountsForUser.Query(ownerId);
+        var query = mapper.Map<GetAllAccountsForUser.Query>(getAllAccountsForUserDto);
         var accountList = await Mediator.Send(query);
         return Ok(accountList);
     }
@@ -28,8 +28,8 @@ public class AccountController(IMapper mapper) : CustomController
     [HttpPost]
     public async Task<ActionResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
-        var query = mapper.Map<CreateAccount.Command>(createAccountDto);
-        var accountId = await Mediator.Send(query);
+        var command = mapper.Map<CreateAccount.Command>(createAccountDto);
+        var accountId = await Mediator.Send(command);
         return Ok(accountId);
     }
 }

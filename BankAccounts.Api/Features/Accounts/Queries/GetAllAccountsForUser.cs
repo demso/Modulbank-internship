@@ -10,14 +10,14 @@ namespace BankAccounts.Api.Features.Accounts.Queries;
 
 public class GetAllAccountsForUser
 {
-    public record Query(Guid UserId) : IRequest<List<AccountDto>>;
+    public record Query(Guid OwnerId) : IRequest<List<AccountDto>>;
 
     public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, List<AccountDto>>
     {
         public async Task<List<AccountDto>> Handle(Query request, CancellationToken cancellationToken)
         {
             var entities = await dbContext.Accounts
-                .Where(account => account.OwnerId == request.UserId)
+                .Where(account => account.OwnerId == request.OwnerId)
                 .ProjectTo<AccountDto>(mapper.ConfigurationProvider)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

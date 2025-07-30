@@ -1,5 +1,7 @@
 using System.Reflection;
+using AutoMapper;
 using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Mapping;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +11,11 @@ try
         .AddDbContext<BankAccountsContext>()
         .AddScoped<IBankAccountsContext>(provider =>
             provider.GetRequiredService<BankAccountsContext>()!)
+        .AddAutoMapper(options => options
+            .AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly())))
         .AddMediatR(options => options
-            .RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            .RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
+        .AddControllers();
 }
 catch (Exception exception)
 {
@@ -27,7 +32,7 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 var app = builder.Build();
 
 app.UseRouting();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 app.MapControllers();
