@@ -6,7 +6,12 @@ namespace BankAccounts.Api.Features.Accounts.Commands;
 
 public static class CreateAccount
 {
-    public record Command(CreateAccountDto CreateDto) : IRequest<Guid>;
+    public record Command(
+        Guid OwnerId,
+        AccountType AccountType,
+        string Currency,
+        decimal InterestRate
+    ) : IRequest<Guid>;
 
     public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command, Guid>
     {
@@ -14,10 +19,10 @@ public static class CreateAccount
         {
             var account = new Account
             {
-                OwnerId = request.CreateDto.OwnerId,
-                AccountType = request.CreateDto.AccountType,
-                Currency = request.CreateDto.Currency,
-                InterestRate = request.CreateDto.InterestRate,
+                OwnerId = request.OwnerId,
+                AccountType = request.AccountType,
+                Currency = request.Currency,
+                InterestRate = request.InterestRate,
                 OpenDate = DateTime.Now
             };
 
