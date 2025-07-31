@@ -17,8 +17,6 @@ public class BankAccountsContext(DbContextOptions<BankAccountsContext> options) 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new AccountConfiguration());
-        modelBuilder.ApplyConfiguration(new TransactionConfiguration());
         base.OnModelCreating(modelBuilder);
     }
 }

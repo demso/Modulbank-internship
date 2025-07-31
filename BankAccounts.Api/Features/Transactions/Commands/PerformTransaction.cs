@@ -34,7 +34,6 @@ public class PerformTransaction
             var transaction = new Transaction()
             {
                 AccountId = account.AccountId,
-                Account = account,
                 Amount = request.Amount,
                 Currency = account.Currency,
                 DateTime = DateTime.Now

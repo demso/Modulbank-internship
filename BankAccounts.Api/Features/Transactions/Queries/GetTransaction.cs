@@ -18,10 +18,10 @@ public static class GetTransaction
         public async Task<TransactionDto> Handle(Query request, CancellationToken cancellationToken)
         {
             var entity = await dbContext.Transactions.FirstOrDefaultAsync(transaction =>
-                transaction.TransactionId == request.TransactionId && transaction.Account.OwnerId == request.UserId, cancellationToken);
-            if (entity == null || !entity.Account.OwnerId.Equals(request.UserId))
+                transaction.TransactionId == request.TransactionId, cancellationToken);
+            if (entity == null)
             {
-                throw new NotFoundException(nameof(Transaction), request.TransactionId + " " + request.UserId);
+                throw new NotFoundException(nameof(Transaction), request.TransactionId);
             }
 
             return mapper.Map<TransactionDto>(entity);
