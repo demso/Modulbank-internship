@@ -9,25 +9,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
-public class GetTransaction
+public static class GetTransaction
 {
-    public static class GetAccount
+    public record Query(Guid TransactionId, Guid UserId) : IRequest<TransactionDto>;
+
+    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, TransactionDto>
     {
-        public record Query(Guid TransactionId, Guid UserId) : IRequest<TransactionDto>;
-
-        public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, TransactionDto>
+        public async Task<TransactionDto> Handle(Query request, CancellationToken cancellationToken)
         {
-            public async Task<TransactionDto> Handle(Query request, CancellationToken cancellationToken)
+            var entity = await dbContext.Transactions.FirstOrDefaultAsync(transaction =>
+                transaction.TransactionId == request.TransactionId && transaction.Account.OwnerId == request.UserId, cancellationToken);
+            if (entity == null || !entity.Account.OwnerId.Equals(request.UserId))
             {
-                var entity = await dbContext.Transactions.FirstOrDefaultAsync(transaction =>
-                    transaction.TransactionId == request.TransactionId && transaction.Account.OwnerId == request.UserId, cancellationToken);
-                if (entity == null || !entity.Account.OwnerId.Equals(request.UserId))
-                {
-                    throw new NotFoundException(nameof(Transaction), request.TransactionId + " " + request.UserId);
-                }
-
-                return mapper.Map<TransactionDto>(entity);
+                throw new NotFoundException(nameof(Transaction), request.TransactionId + " " + request.UserId);
             }
+
+            return mapper.Map<TransactionDto>(entity);
         }
     }
+    
 }

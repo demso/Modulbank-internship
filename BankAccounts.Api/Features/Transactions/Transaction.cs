@@ -11,7 +11,7 @@ public class Transaction
     public Account? CounterpartyAccount { get; set; }
     public decimal Amount { get; set; }
     public CurrencyService.Currencies Currency { get; set; }
-    public TransactionType Type { get; set; }
+    public TransactionType TransactionType { get; set; }
     public string? Description { get; set; }
     public DateTime DateTime { get; set; }
 }

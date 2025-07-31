@@ -9,7 +9,7 @@ public record TransactionDto(
     Account? CounterpartyAccount,
     decimal Amount,
     CurrencyService.Currencies Currency,
-    TransactionType TransactionType,
+    TransactionType? TransactionType,
     string? Description,
     DateTime DateTime
     );

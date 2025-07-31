@@ -8,7 +8,7 @@ public record AccountDto(
     int AccountId,
     Guid OwnerId,
     AccountType AccountType,
-    string Currency,
+    CurrencyService.Currencies Currency,
     decimal Balance,
     decimal? InterestRate,
     DateTime OpenDate,

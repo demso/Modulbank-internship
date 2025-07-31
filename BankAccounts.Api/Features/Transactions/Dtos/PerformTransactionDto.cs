@@ -3,6 +3,6 @@
 public record PerformTransactionDto(
     Guid OwnerId,
     int AccountId,
-    TransactionType Type,
+    TransactionType TransactionType,
     decimal Amount
 );

@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using BankAccounts.Api;
 using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 try
@@ -13,6 +14,7 @@ try
         .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
         .AddControllers()
         .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    
 }
 catch (Exception exception)
 {

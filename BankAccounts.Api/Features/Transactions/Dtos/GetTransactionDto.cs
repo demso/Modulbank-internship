@@ -1,3 +1,3 @@
 ﻿namespace BankAccounts.Api.Features.Transactions.Dtos;
 
-public record GetTransactionDto(Guid TransactionId, Guid UserId);
+public record GetTransactionDto(Guid UserId);

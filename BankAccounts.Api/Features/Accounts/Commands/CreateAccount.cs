@@ -9,7 +9,7 @@ public static class CreateAccount
     public record Command(
         Guid OwnerId,
         AccountType AccountType,
-        string Currency,
+        CurrencyService.Currencies Currency,
         decimal InterestRate
     ) : IRequest<int>;
 

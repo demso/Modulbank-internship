@@ -9,7 +9,7 @@ public class PerformTransaction
     public record Command(
         Guid OwnerId,
         int AccountId,
-        TransactionType Type,
+        TransactionType TransactionType,
         decimal Amount
     ) : IRequest<Guid>;
 

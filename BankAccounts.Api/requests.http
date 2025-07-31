@@ -1,4 +1,4 @@
-﻿### Create game
+﻿### Create account
 POST http://localhost:5102/api/accounts
 Content-Type: application/json
 
@@ -17,10 +17,37 @@ Content-Type: application/json
 }
 
 ### Get
-GET http://localhost:5102/api/accounts/3
+GET http://localhost:5102/api/accounts/1
 Content-Type: application/json
 
 {
     "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
 }
 
+### Perform transaction
+POST http://localhost:5102/api/transactions
+Content-Type: application/json
+
+{
+    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
+    "accountId": 1,
+    "transactionType": "Debit",
+    "amount": 100.00
+}
+
+### Get
+GET http://localhost:5102/api/transactions/
+Content-Type: application/json
+
+{
+    "userId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
+    "accountId": 1
+}
+
+### Get
+GET http://localhost:5102/api/transactions/302fc2f7-4e67-497f-9f81-60e1ffb20fe2
+Content-Type: application/json
+
+{
+    "userId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
+}

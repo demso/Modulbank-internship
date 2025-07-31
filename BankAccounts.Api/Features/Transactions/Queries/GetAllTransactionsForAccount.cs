@@ -8,16 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
-public class GetAllTransactionsForAccount
+public static class GetAllTransactionsForAccount
 {
-    public record Command(
+    public record Query(
         Guid UserId,
         int AccountId
     ) : IRequest<List<TransactionDto>>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, List<TransactionDto>>
+    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, List<TransactionDto>>
     {
-        public async Task<List<TransactionDto>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<List<TransactionDto>> Handle(Query request, CancellationToken cancellationToken)
         {
             var entities = await dbContext.Transactions
                 .Where(transaction => transaction.Account.OwnerId == request.UserId && transaction.AccountId == request.AccountId)
