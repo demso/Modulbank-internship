@@ -53,12 +53,14 @@ Content-Type: application/json
 
 ### Get all transaction for account 2025-07-31
 GET http://localhost:5102/api/accounts/2/transactions/
+Content-Type: application/json
+
 {
-  "fromDate": 2025-07-30,
-  "toDate": 2025-08-01
+  "fromDate": "2025-07-30",
+  "toDate": "2025-08-01"
 }
 
-### Get
+### Get transaction by Guid
 GET http://localhost:5102/api/accounts/transactions/4f2feff3-0055-4a28-bd63-4162826219aa
 
 ### Perform transfer

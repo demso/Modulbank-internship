@@ -3,6 +3,6 @@
 namespace BankAccounts.Api.Features.Transactions.Dtos;
 
 public record GetTransactionForAccountDto(
-    DateTime? FromDate,
-    DateTime? ToDate
+    DateOnly? FromDate,
+    DateOnly? ToDate
 );

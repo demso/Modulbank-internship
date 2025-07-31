@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts;
@@ -13,8 +14,8 @@ public static class GetTransactionsForAccount
 {
     public record Query(
         int AccountId,
-        DateTime? FromDate,
-        DateTime? ToDate
+        DateOnly? FromDate,
+        DateOnly? ToDate
     ) : IRequest<List<TransactionDto>>;
 
     public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, List<TransactionDto>>
@@ -24,11 +25,10 @@ public static class GetTransactionsForAccount
             var account = await dbContext.Accounts.FindAsync(request.AccountId);
             if (account == null)
                 throw new NotFoundException(nameof(Account), request.AccountId);
-
             var entities = await dbContext.Transactions
                 .Where(transaction => transaction.AccountId == request.AccountId
-                    && (request.FromDate == null || transaction.DateTime.Date >= request.FromDate.Value.Date) 
-                    && (request.ToDate == null || transaction.DateTime.Date < request.ToDate.Value.Date))
+                    && (request.FromDate == null || DateOnly.FromDateTime(transaction.DateTime) >= request.FromDate.Value) 
+                    && (request.ToDate == null || DateOnly.FromDateTime(transaction.DateTime) < request.ToDate.Value))
                 .ProjectTo<TransactionDto>(mapper.ConfigurationProvider)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
