@@ -2,8 +2,8 @@
 
 namespace BankAccounts.Api.Features.Transactions.Dtos;
 
-public record PerformTransactionDto(
+public record GetTransactionForAccountDto(
     [Required] int? AccountId,
-    [Required] TransactionType? TransactionType,
-    [Required] decimal? Amount
+    DateTime? FromDate,
+    DateTime? ToDate
 );

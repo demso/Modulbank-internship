@@ -1,6 +1,7 @@
 ﻿using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure;
+using FluentValidation;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
@@ -57,6 +58,16 @@ public class PerformTransfer
             await dbContext.Transactions.AddAsync(transactionFrom, cancellationToken);
             await dbContext.Transactions.AddAsync(transactionTo, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public class CommandValidator : AbstractValidator<Command>
+    {
+        public CommandValidator()
+        {
+            RuleFor(command => command.FromAccountId).GreaterThan(0).NotEqual(command => command.ToAccountId);
+            RuleFor(command => command.ToAccountId).GreaterThan(0);
+            RuleFor(command => command.Amount).GreaterThan(0);
         }
     }
 }

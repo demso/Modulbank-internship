@@ -9,10 +9,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
-public static class GetAllTransactionsForAccount
+public static class GetTransactionsForAccount
 {
     public record Query(
-        int AccountId
+        int AccountId,
+        DateTime? FromDate,
+        DateTime? ToDate
     ) : IRequest<List<TransactionDto>>;
 
     public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, List<TransactionDto>>
@@ -24,7 +26,9 @@ public static class GetAllTransactionsForAccount
                 throw new NotFoundException(nameof(Account), request.AccountId);
 
             var entities = await dbContext.Transactions
-                .Where(transaction => transaction.AccountId == request.AccountId)
+                .Where(transaction => transaction.AccountId == request.AccountId
+                    && (request.FromDate == null || transaction.DateTime.Date >= request.FromDate.Value.Date) 
+                    && (request.ToDate == null || transaction.DateTime.Date < request.ToDate.Value.Date))
                 .ProjectTo<TransactionDto>(mapper.ConfigurationProvider)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

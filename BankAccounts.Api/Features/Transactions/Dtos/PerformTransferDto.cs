@@ -1,7 +1,9 @@
-﻿namespace BankAccounts.Api.Features.Transactions.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BankAccounts.Api.Features.Transactions.Dtos;
 
 public record PerformTransferDto(
-    int FromAccountId,
-    int ToAccountId,
-    decimal Amount
+    [Required] int? FromAccountId,
+    [Required] int? ToAccountId,
+    [Required] decimal? Amount
 );

@@ -1,8 +1,11 @@
-﻿namespace BankAccounts.Api.Features.Accounts.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+
+namespace BankAccounts.Api.Features.Accounts.Dtos;
 
 public record CreateAccountDto(
-    Guid OwnerId,
-    AccountType AccountType,
-    string Currency,
-    decimal? InterestRate
+    [Required] Guid? OwnerId,
+    [Required] AccountType? AccountType,
+    [Required] CurrencyService.Currencies? Currency,
+     decimal? InterestRate
 );

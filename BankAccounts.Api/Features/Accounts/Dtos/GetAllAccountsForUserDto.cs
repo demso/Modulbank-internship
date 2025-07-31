@@ -1,3 +1,7 @@
-﻿namespace BankAccounts.Api.Features.Accounts.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record GetAllAccountsForUserDto(Guid OwnerId);
+namespace BankAccounts.Api.Features.Accounts.Dtos;
+
+public record GetAllAccountsForUserDto(
+    [Required] Guid? OwnerId
+);

@@ -5,7 +5,7 @@ namespace BankAccounts.Api.Features
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class CustomController : ControllerBase
+    public class CustomControllerBase : Microsoft.AspNetCore.Mvc.ControllerBase
     {
         private IMediator _mediator;
 

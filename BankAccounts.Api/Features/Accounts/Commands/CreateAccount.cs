@@ -1,5 +1,6 @@
 ﻿using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
+using FluentValidation;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
@@ -33,6 +34,15 @@ public static class CreateAccount
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return account.AccountId;
+        }
+    }
+
+    public class CommandValidator : AbstractValidator<Command>
+    {
+        public CommandValidator(IBankAccountsContext dbContext)
+        {
+            RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
+            RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);
         }
     }
 }

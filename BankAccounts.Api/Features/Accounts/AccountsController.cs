@@ -10,20 +10,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace BankAccounts.Api.Features.Accounts;
 
 [Route("api/accounts")]
-public class AccountController(IMapper mapper) : CustomController
+public class AccountsController(IMapper mapper) : CustomControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
-        var query = new GetAllAccountsForUser.Query(getAllAccountsForUserDto.OwnerId);
+        var query = new GetAllAccountsForUser.Query((Guid)getAllAccountsForUserDto.OwnerId!);
         var accountList = await Mediator.Send(query);
         return Ok(accountList);
     }
-    
+
     [HttpGet("{accountId:int}")]
     public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
     {
-        var query = new GetAccount.Query(accountId, getAccountDto.OwnerId);
+        var query = new GetAccount.Query(accountId, (Guid)getAccountDto.OwnerId!);
         var account = await Mediator.Send(query);
         return Ok(account);
     }
@@ -33,23 +33,25 @@ public class AccountController(IMapper mapper) : CustomController
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
         var accountId = await Mediator.Send(command);
-        return Ok(accountId);
+        return CreatedAtAction(nameof(GetAccount), accountId);
     }
-}
 
-[Route("api/transactions")]
-public class TransactionController(IMapper mapper) : CustomController
-{
-    [HttpGet]
-    public async Task<ActionResult<List<TransactionDto>>> GetAllTransaction([FromBody] GetAllTransactionForAccountDto getAllTransactionForAccountDto)
+    [HttpGet("{accountId}/transactions")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<TransactionDto>>> GetAllTransaction(
+        [FromBody] GetTransactionForAccountDto getTransactionForAccountDto)
     {
-        var query = new GetAllTransactionsForAccount.Query( getAllTransactionForAccountDto.AccountId);
+        var query = new GetTransactionsForAccount.Query((int)getTransactionForAccountDto.AccountId!, 
+            getTransactionForAccountDto.FromDate, 
+            getTransactionForAccountDto.ToDate);
         var transactionList = await Mediator.Send(query);
         return Ok(transactionList);
     }
 
     [HttpGet("{transactionId:guid}")]
-    public async Task<ActionResult<TransactionDto>> GetAccount(Guid transactionId)
+    public async Task<ActionResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
         var query = new GetTransaction.Query(transactionId);
         var transaction = await Mediator.Send(query);
@@ -61,7 +63,7 @@ public class TransactionController(IMapper mapper) : CustomController
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
         var transactionId = await Mediator.Send(command);
-        return Ok(transactionId);
+        return CreatedAtAction(nameof(GetTransaction), transactionId);
     }
 
     [HttpPost("transfer")]
@@ -69,6 +71,7 @@ public class TransactionController(IMapper mapper) : CustomController
     {
         var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
         await Mediator.Send(command);
-        return Ok("Трансфер произведен успешно");
+        return CreatedAtAction(nameof(GetAccount), performTransferDto.FromAccountId);
     }
 }
+
