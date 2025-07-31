@@ -43,15 +43,15 @@ public class TransactionController(IMapper mapper) : CustomController
     [HttpGet]
     public async Task<ActionResult<List<TransactionDto>>> GetAllTransaction([FromBody] GetAllTransactionForAccountDto getAllTransactionForAccountDto)
     {
-        var query = new GetAllTransactionsForAccount.Query(getAllTransactionForAccountDto.UserId, getAllTransactionForAccountDto.AccountId);
+        var query = new GetAllTransactionsForAccount.Query( getAllTransactionForAccountDto.AccountId);
         var transactionList = await Mediator.Send(query);
         return Ok(transactionList);
     }
 
     [HttpGet("{transactionId:guid}")]
-    public async Task<ActionResult<TransactionDto>> GetAccount(Guid transactionId, [FromBody] GetTransactionDto getTransactionDto)
+    public async Task<ActionResult<TransactionDto>> GetAccount(Guid transactionId)
     {
-        var query = new GetTransaction.Query(transactionId, getTransactionDto.UserId);
+        var query = new GetTransaction.Query(transactionId);
         var transaction = await Mediator.Send(query);
         return Ok(transaction);
     }

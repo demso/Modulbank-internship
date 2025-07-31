@@ -13,7 +13,6 @@ namespace BankAccounts.Api.Features.Transactions.Queries;
 public static class GetAllTransactionsForAccount
 {
     public record Query(
-        Guid UserId,
         int AccountId
     ) : IRequest<List<TransactionDto>>;
 
@@ -26,7 +25,7 @@ public static class GetAllTransactionsForAccount
                 throw new NotFoundException(nameof(Account), request.AccountId);
 
             var entities = await dbContext.Transactions
-                .Where(transaction => transaction.AccountId == request.AccountId && account.OwnerId == request.UserId)
+                .Where(transaction => transaction.AccountId == request.AccountId)
                 .ProjectTo<TransactionDto>(mapper.ConfigurationProvider)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

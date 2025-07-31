@@ -31,7 +31,7 @@ Content-Type: application/json
 {
     "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountId": 1,
-    "transactionType": "Debit",
+    "transactionType": "Credit",
     "amount": 100.00
 }
 
@@ -40,14 +40,8 @@ GET http://localhost:5102/api/transactions/
 Content-Type: application/json
 
 {
-    "userId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountId": 1
 }
 
 ### Get
-GET http://localhost:5102/api/transactions/4e6472f7-9fb1-4114-ac78-9528b94f43c1
-Content-Type: application/json
-
-{
-    "userId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
-}
+GET http://localhost:5102/api/transactions/fd3905b1-b57c-4e8a-aecd-2716d4985781

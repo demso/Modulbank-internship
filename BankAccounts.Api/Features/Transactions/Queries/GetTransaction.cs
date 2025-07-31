@@ -11,7 +11,7 @@ namespace BankAccounts.Api.Features.Transactions.Queries;
 
 public static class GetTransaction
 {
-    public record Query(Guid TransactionId, Guid UserId) : IRequest<TransactionDto>;
+    public record Query(Guid TransactionId) : IRequest<TransactionDto>;
 
     public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, TransactionDto>
     {
