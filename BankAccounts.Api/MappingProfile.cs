@@ -1,9 +1,7 @@
-﻿using System.Transactions;
-using AutoMapper;
+﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Features.Accounts.Dtos;
-using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using Transaction = BankAccounts.Api.Features.Transactions.Transaction;
@@ -26,5 +24,7 @@ public class MappingProfile : Profile
         CreateMap<Transaction, TransactionDto>();
 
         CreateMap<PerformTransactionDto, PerformTransaction.Command>();
+
+        CreateMap<PerformTransferDto, PerformTransfer.Command>();
     }
 }

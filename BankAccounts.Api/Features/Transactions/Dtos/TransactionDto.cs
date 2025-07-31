@@ -1,6 +1,4 @@
-﻿using BankAccounts.Api.Features.Accounts;
-
-namespace BankAccounts.Api.Features.Transactions.Dtos;
+﻿namespace BankAccounts.Api.Features.Transactions.Dtos;
 
 public record TransactionDto(
     Guid TransactionId,

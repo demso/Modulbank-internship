@@ -1,6 +1,4 @@
-﻿using BankAccounts.Api.Features.Accounts;
-
-namespace BankAccounts.Api.Features.Transactions;
+﻿namespace BankAccounts.Api.Features.Transactions;
 
 public class Transaction
 {

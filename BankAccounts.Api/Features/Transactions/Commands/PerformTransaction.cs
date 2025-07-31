@@ -1,5 +1,4 @@
-﻿using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Infrastructure;
+﻿using BankAccounts.Api.Infrastructure;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Transactions.Commands;

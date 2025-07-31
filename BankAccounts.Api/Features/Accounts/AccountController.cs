@@ -63,4 +63,12 @@ public class TransactionController(IMapper mapper) : CustomController
         var transactionId = await Mediator.Send(command);
         return Ok(transactionId);
     }
+
+    [HttpPost("transfer")]
+    public async Task<ActionResult> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
+    {
+        var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
+        await Mediator.Send(command);
+        return Ok("Трансфер произведен успешно");
+    }
 }

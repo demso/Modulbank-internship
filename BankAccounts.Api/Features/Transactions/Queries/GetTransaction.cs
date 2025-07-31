@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Exceptions;
-using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using MediatR;

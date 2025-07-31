@@ -8,7 +8,7 @@ Content-Type: application/json
     "currency": "rub"
 }
 
-### Get
+### Get all user acounts
 GET http://localhost:5102/api/accounts/
 Content-Type: application/json
 
@@ -29,19 +29,28 @@ POST http://localhost:5102/api/transactions
 Content-Type: application/json
 
 {
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountId": 1,
-    "transactionType": "Credit",
+    "transactionType": "Debit",
     "amount": 100.00
 }
 
-### Get
+### Get all transaction for account
 GET http://localhost:5102/api/transactions/
 Content-Type: application/json
 
 {
-    "accountId": 1
+    "accountId": 2
 }
 
 ### Get
-GET http://localhost:5102/api/transactions/fd3905b1-b57c-4e8a-aecd-2716d4985781
+GET http://localhost:5102/api/transactions/4f2feff3-0055-4a28-bd63-4162826219aa
+
+### Perform transfer
+POST http://localhost:5102/api/transactions/transfer
+Content-Type: application/json
+
+{
+    "fromAccountId": 1,
+    "toAccountId": 2,
+    "amount": 100.00
+}
