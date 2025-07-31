@@ -33,6 +33,20 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 }));
 
 var app = builder.Build();
+//print app routes in console
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    var endpointDataSource = app.Services.GetRequiredService<EndpointDataSource>();
+    var endpoints = endpointDataSource.Endpoints;
+
+    foreach (var endpoint in endpoints)
+    {
+        if (endpoint is RouteEndpoint routeEndpoint)
+        {
+            Console.WriteLine($"Route: {routeEndpoint.RoutePattern.RawText}");
+        }
+    }
+});
 
 app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 app.UseRouting();

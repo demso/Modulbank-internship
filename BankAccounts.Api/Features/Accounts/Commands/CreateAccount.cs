@@ -1,4 +1,5 @@
-﻿using BankAccounts.Api.Features.Accounts.Dtos;
+﻿using AutoMapper;
+using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -12,11 +13,11 @@ public static class CreateAccount
         AccountType AccountType,
         CurrencyService.Currencies Currency,
         decimal InterestRate
-    ) : IRequest<int>;
+    ) : IRequest<AccountDto>;
 
-    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command, int>
+    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, AccountDto>
     {
-        public async Task<int> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
         {
             if (request.OwnerId == Guid.Empty)
                 throw new Exception("Поле OwnerId в CreateAccount.Command не должно быть пустым Guid.");
@@ -33,7 +34,7 @@ public static class CreateAccount
             await dbContext.Accounts.AddAsync(account, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return account.AccountId;
+            return mapper.Map<AccountDto>(account);
         }
     }
 

@@ -1,5 +1,7 @@
-﻿using BankAccounts.Api.Exceptions;
+﻿using AutoMapper;
+using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts;
+using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -12,11 +14,11 @@ public class PerformTransfer
         int FromAccountId,
         int ToAccountId,
         decimal Amount
-    ) : IRequest;
+    ) : IRequest<TransactionDto>;
 
-    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command>
+    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
     {
-        public async Task Handle(Command request, CancellationToken cancellationToken)
+        public async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
 
             var fromAccount = await dbContext.Accounts.FindAsync(request.FromAccountId, cancellationToken);
@@ -58,6 +60,8 @@ public class PerformTransfer
             await dbContext.Transactions.AddAsync(transactionFrom, cancellationToken);
             await dbContext.Transactions.AddAsync(transactionTo, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            return mapper.Map<TransactionDto>(transactionFrom);
         }
     }
 

@@ -1,4 +1,6 @@
-﻿using BankAccounts.Api.Infrastructure;
+﻿using AutoMapper;
+using BankAccounts.Api.Features.Transactions.Dtos;
+using BankAccounts.Api.Infrastructure;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
@@ -9,11 +11,11 @@ public class PerformTransaction
         int AccountId,
         TransactionType TransactionType,
         decimal Amount
-    ) : IRequest<Guid>;
+    ) : IRequest<TransactionDto>;
 
-    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command, Guid>
+    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
     {
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
             
             var account = await dbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
@@ -40,7 +42,7 @@ public class PerformTransaction
             await dbContext.Transactions.AddAsync(transaction, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return transaction.TransactionId;
+            return mapper.Map<TransactionDto>(transaction);
         }
     }
 }

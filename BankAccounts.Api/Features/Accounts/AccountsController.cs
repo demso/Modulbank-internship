@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Accounts;
 
-[Route("api")]
+[Route("api/[controller]")]
 public class AccountsController(IMapper mapper) : CustomControllerBase
 {
-    [HttpGet("accounts/all")]
+    [HttpGet("all")]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
         var query = new GetAllAccountsForUser.Query((Guid)getAllAccountsForUserDto.OwnerId!);
@@ -20,7 +20,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(accountList);
     }
 
-    [HttpGet("accounts/{accountId:int}")]
+    [HttpGet("{accountId:int}")]
     public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
     {
         var query = new GetAccount.Query(accountId, (Guid)getAccountDto.OwnerId!);
@@ -28,22 +28,19 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(account);
     }
 
-    [HttpPost("accounts")]
+    [HttpPost]
     public async Task<ActionResult<int>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
-        var accountId = await Mediator.Send(command);
-        return CreatedAtAction(nameof(GetAccount), accountId);
+        var result = await Mediator.Send(command);
+        return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
     }
 
-    [HttpGet("accounts/{accountId}/transactions")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<TransactionDto>>> GetAllTransaction(
+    [HttpGet("{accountId}/transactions")]
+    public async Task<ActionResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
         [FromBody] GetTransactionForAccountDto getTransactionForAccountDto)
     {
-        var query = new GetTransactionsForAccount.Query((int)getTransactionForAccountDto.AccountId!, 
+        var query = new GetTransactionsForAccount.Query(accountId, 
             getTransactionForAccountDto.FromDate, 
             getTransactionForAccountDto.ToDate);
         var transactionList = await Mediator.Send(query);
@@ -62,16 +59,16 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult<Guid>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
-        var transactionId = await Mediator.Send(command);
-        return CreatedAtAction(nameof(GetTransaction), transactionId);
+        var result = await Mediator.Send(command);
+        return CreatedAtAction(nameof(GetTransaction), new {transactionId = result.TransactionId}, result);
     }
 
     [HttpPost("transfer")]
     public async Task<ActionResult> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
         var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
-        await Mediator.Send(command);
-        return CreatedAtAction(nameof(GetAccount), performTransferDto.FromAccountId);
+        var result = await Mediator.Send(command);
+        return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
     }
 }
 
