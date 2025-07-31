@@ -3,7 +3,7 @@
 public class TransactionDto
 {
     public Guid TransactionId { get; set; }
-    public Guid AccountId { get; set; }
+    public int AccountId { get; set; }
     public Guid? CounterpartyAccountId { get; set; }
     public decimal Amount { get; set; }
     public required string Currency { get; set; }

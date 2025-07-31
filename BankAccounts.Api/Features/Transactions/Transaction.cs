@@ -5,7 +5,7 @@ namespace BankAccounts.Api.Features.Transactions;
 public class Transaction
 {
     public Guid TransactionId { get; set; }
-    public Guid AccountId { get; set; }
+    public int AccountId { get; set; }
     public required Account Account { get; set; }
     public Guid? CounterpartyAccountId { get; set; }
     public Account? CounterpartyAccount { get; set; }
