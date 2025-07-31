@@ -1,6 +1,6 @@
 ﻿namespace BankAccounts.Api.Features.Transactions.Commands;
 
-public class CreateTransaction
+public class PerformTransfer
 {
     
 }

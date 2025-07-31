@@ -17,7 +17,7 @@ namespace BankAccounts.Api.Features.Accounts.Queries
             {
                 var entity = await dbContext.Accounts.FirstOrDefaultAsync(account => 
                     account.AccountId == request.AccountId && account.OwnerId == request.OwnerId, cancellationToken);
-                if (entity == null || !entity.OwnerId.Equals(entity.OwnerId))
+                if (entity == null || !request.OwnerId.Equals(entity.OwnerId))
                 {
                     throw new NotFoundException(nameof(Account), request.AccountId);
                 }

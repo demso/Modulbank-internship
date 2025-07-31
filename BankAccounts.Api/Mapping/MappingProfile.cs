@@ -1,11 +1,13 @@
-﻿using AutoMapper;
+﻿using System.Transactions;
+using AutoMapper;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Accounts.Queries;
+using BankAccounts.Api.Features.Transactions.Dtos;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace BankAccounts.Api;
+namespace BankAccounts.Api.Mapping;
 
 public class MappingProfile : Profile
 {
@@ -19,5 +21,7 @@ public class MappingProfile : Profile
         CreateMap<Account, AccountDto>();
 
         CreateMap<CreateAccountDto, CreateAccount.Command>();
+
+        CreateMap<Transaction, TransactionDto>();
     }
 }

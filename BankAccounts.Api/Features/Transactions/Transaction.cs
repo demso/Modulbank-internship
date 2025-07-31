@@ -10,7 +10,7 @@ public class Transaction
     public Guid? CounterpartyAccountId { get; set; }
     public Account? CounterpartyAccount { get; set; }
     public decimal Amount { get; set; }
-    public string Currency { get; set; }
+    public CurrencyService.Currencies Currency { get; set; }
     public TransactionType Type { get; set; }
     public string? Description { get; set; }
     public DateTime DateTime { get; set; }
