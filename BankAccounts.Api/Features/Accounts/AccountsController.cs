@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Accounts;
 
-[Route("api/accounts")]
+[Route("api")]
 public class AccountsController(IMapper mapper) : CustomControllerBase
 {
-    [HttpGet]
+    [HttpGet("accounts/all")]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
         var query = new GetAllAccountsForUser.Query((Guid)getAllAccountsForUserDto.OwnerId!);
@@ -20,7 +20,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(accountList);
     }
 
-    [HttpGet("{accountId:int}")]
+    [HttpGet("accounts/{accountId:int}")]
     public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
     {
         var query = new GetAccount.Query(accountId, (Guid)getAccountDto.OwnerId!);
@@ -28,7 +28,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(account);
     }
 
-    [HttpPost]
+    [HttpPost("accounts")]
     public async Task<ActionResult<int>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
@@ -36,7 +36,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return CreatedAtAction(nameof(GetAccount), accountId);
     }
 
-    [HttpGet("{accountId}/transactions")]
+    [HttpGet("accounts/{accountId}/transactions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,7 +50,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(transactionList);
     }
 
-    [HttpGet("{transactionId:guid}")]
+    [HttpGet("transactions/{transactionId:guid}")]
     public async Task<ActionResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
         var query = new GetTransaction.Query(transactionId);
@@ -58,7 +58,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(transaction);
     }
 
-    [HttpPost]
+    [HttpPost("transactions")]
     public async Task<ActionResult<Guid>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
