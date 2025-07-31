@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using MediatR;
@@ -20,10 +21,10 @@ public class PerformTransaction
             
             var account = await dbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
             if (account is null)
-                throw new Exception($"Счет с id = {request.AccountId} не найден.");
+                throw new ValidationException($"Счет с id = {request.AccountId} не найден.");
 
             if (request.Amount <= 0)
-                throw new Exception("Количество переводимых средств должно быть больше нуля.");
+                throw new ValidationException("Количество переводимых средств должно быть больше нуля.");
 
             if (request.TransactionType == TransactionType.Debit)
                 account.Balance += request.Amount;

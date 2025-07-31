@@ -28,8 +28,16 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         return Ok(account);
     }
 
+    [HttpDelete("{accountId:int}")]
+    public async Task<ActionResult> DeleteAccount(int accountId)
+    {
+        var command = new DeleteAccount.Command(accountId);
+        await Mediator.Send(command);
+        return NoContent();
+    }
+
     [HttpPost]
-    public async Task<ActionResult<int>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
+    public async Task<ActionResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
         var result = await Mediator.Send(command);
@@ -56,7 +64,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     }
 
     [HttpPost("transactions")]
-    public async Task<ActionResult<Guid>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
+    public async Task<ActionResult<TransactionDto>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
         var result = await Mediator.Send(command);
@@ -64,7 +72,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     }
 
     [HttpPost("transfer")]
-    public async Task<ActionResult> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
+    public async Task<ActionResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
         var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
         var result = await Mediator.Send(command);

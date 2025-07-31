@@ -30,7 +30,7 @@ public class PerformTransfer
                 throw new NotFoundException(nameof(Account), request.ToAccountId);
 
             if (request.Amount <= 0)
-                throw new Exception("Количество переводимых средств должно быть больше нуля.");
+                throw new BadHttpRequestException("Количество переводимых средств должно быть больше нуля.");
 
             var transactionFrom = new Transaction()
             {
