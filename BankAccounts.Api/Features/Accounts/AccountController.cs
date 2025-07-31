@@ -6,21 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Accounts;
 
-[Route("api/[controller]")]
+[Route("api/user/accounts")]
 public class AccountController(IMapper mapper) : CustomController
 {
     [HttpGet]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
-        var query = mapper.Map<GetAllAccountsForUser.Query>(getAllAccountsForUserDto);
+        var query = new GetAllAccountsForUser.Query(getAllAccountsForUserDto.UserId);
         var accountList = await Mediator.Send(query);
         return Ok(accountList);
     }
     
     [HttpGet("{accountId:guid}")]
-    public async Task<ActionResult<AccountDto>> GetAccount(Guid accountId)
+    public async Task<ActionResult<AccountDto>> GetAccount(Guid accountId, [FromBody] GetAccountDto getAccountDto)
     {
-        var query = new GetAccount.Query(accountId);
+        var query = new GetAccount.Query(accountId, getAccountDto.UserId);
         var account = await Mediator.Send(query);
         return Ok(account);
     }

@@ -13,5 +13,5 @@ public class Account
     public decimal Balance { get; set; }
     public decimal? InterestRate { get; set; }
     public DateTime OpenDate { get; init; }
-    public DateTime CloseDate { get; init; }
+    public DateTime? CloseDate { get; init; }
 }

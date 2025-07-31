@@ -5,6 +5,7 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Mapping;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
