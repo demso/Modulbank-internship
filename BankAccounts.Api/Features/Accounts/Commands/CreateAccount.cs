@@ -17,6 +17,9 @@ public static class CreateAccount
     {
         public async Task<int> Handle(Command request, CancellationToken cancellationToken)
         {
+            if (request.OwnerId == Guid.Empty)
+                throw new Exception("Поле OwnerId в CreateAccount.Command не должно быть пустым Guid.");
+
             var account = new Account
             {
                 OwnerId = request.OwnerId,
