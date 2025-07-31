@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using BankAccounts.Api;
 using BankAccounts.Api.Infrastructure;
-using BankAccounts.Api.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 try

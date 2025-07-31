@@ -8,7 +8,7 @@ using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using Transaction = BankAccounts.Api.Features.Transactions.Transaction;
 
-namespace BankAccounts.Api.Mapping;
+namespace BankAccounts.Api;
 
 public class MappingProfile : Profile
 {
