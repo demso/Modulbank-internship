@@ -1,0 +1,26 @@
+﻿### Create game
+POST http://localhost:5102/api/accounts
+Content-Type: application/json
+
+{
+    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
+    "accountType": "Deposit",
+    "currency": "rub"
+}
+
+### Get
+GET http://localhost:5102/api/accounts/
+Content-Type: application/json
+
+{
+    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
+}
+
+### Get
+GET http://localhost:5102/api/accounts/3
+Content-Type: application/json
+
+{
+    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
+}
+

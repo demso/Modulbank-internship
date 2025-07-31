@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Mapping;
 
