@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Accounts;
 
-[Route("api/user/accounts")]
+[Route("api/accounts")]
 public class AccountController(IMapper mapper) : CustomController
 {
     [HttpGet]

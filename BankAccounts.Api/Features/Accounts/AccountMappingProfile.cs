@@ -42,9 +42,5 @@ public class AccountMappingProfile : Profile
                 opt => opt.MapFrom(createDto => createDto.Currency))
             .ForMember(createCommand => createCommand.InterestRate,
                 opt => opt.MapFrom(createDto => createDto.InterestRate));
-
-        CreateMap<GetAllAccountsForUserDto, GetAllAccountsForUser.Query>()
-            .ForMember(getAllCommand => getAllCommand.OwnerId,
-                opt => opt.MapFrom(getAllDto => getAllDto.UserId));
     }
 }
