@@ -11,11 +11,11 @@ public static class CreateAccount
         AccountType AccountType,
         string Currency,
         decimal InterestRate
-    ) : IRequest<Guid>;
+    ) : IRequest<int>;
 
-    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command, Guid>
+    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command, int>
     {
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<int> Handle(Command request, CancellationToken cancellationToken)
         {
             var account = new Account
             {

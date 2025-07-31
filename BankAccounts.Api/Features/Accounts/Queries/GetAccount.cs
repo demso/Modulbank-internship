@@ -9,14 +9,14 @@ namespace BankAccounts.Api.Features.Accounts.Queries
 {
     public static class GetAccount
     {
-        public record Query(Guid AccountId, Guid UserId) : IRequest<AccountDto>;
+        public record Query(int AccountId, Guid OwnerId) : IRequest<AccountDto>;
         
         public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, AccountDto>
         {
             public async Task<AccountDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 var entity = await dbContext.Accounts.FirstOrDefaultAsync(account => 
-                    account.AccountId == request.AccountId && account.OwnerId == request.UserId, cancellationToken);
+                    account.AccountId == request.AccountId && account.OwnerId == request.OwnerId, cancellationToken);
                 if (entity == null || !entity.OwnerId.Equals(entity.OwnerId))
                 {
                     throw new NotFoundException(nameof(Account), request.AccountId);

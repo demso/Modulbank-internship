@@ -5,7 +5,7 @@ using BankAccounts.Api.Mapping;
 namespace BankAccounts.Api.Features.Accounts.Dtos;
 
 public record AccountDto(
-    Guid AccountId,
+    int AccountId,
     Guid OwnerId,
     AccountType AccountType,
     string Currency,

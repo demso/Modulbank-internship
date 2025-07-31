@@ -6,7 +6,7 @@ namespace BankAccounts.Api.Features.Accounts;
 
 public class Account
 {
-    public Guid AccountId { get; init; }
+    public int AccountId { get; init; }
     public Guid OwnerId { get; init; }
     public AccountType AccountType { get; init; }
     public required string Currency { get; init; }

@@ -12,15 +12,15 @@ public class AccountController(IMapper mapper) : CustomController
     [HttpGet]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
-        var query = new GetAllAccountsForUser.Query(getAllAccountsForUserDto.UserId);
+        var query = new GetAllAccountsForUser.Query(getAllAccountsForUserDto.OwnerId);
         var accountList = await Mediator.Send(query);
         return Ok(accountList);
     }
     
-    [HttpGet("{accountId:guid}")]
-    public async Task<ActionResult<AccountDto>> GetAccount(Guid accountId, [FromBody] GetAccountDto getAccountDto)
+    [HttpGet("{accountId:int}")]
+    public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
     {
-        var query = new GetAccount.Query(accountId, getAccountDto.UserId);
+        var query = new GetAccount.Query(accountId, getAccountDto.OwnerId);
         var account = await Mediator.Send(query);
         return Ok(account);
     }
