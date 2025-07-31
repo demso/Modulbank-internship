@@ -30,7 +30,7 @@ public class PerformTransfer
                 throw new NotFoundException(nameof(Account), request.ToAccountId);
 
             if (request.Amount <= 0)
-                throw new BadHttpRequestException("Количество переводимых средств должно быть больше нуля.");
+                throw new Exception("Количество переводимых средств должно быть больше нуля.");
 
             var transactionFrom = new Transaction()
             {
@@ -38,7 +38,8 @@ public class PerformTransfer
                 Amount = request.Amount,
                 Currency = fromAccount.Currency,
                 TransactionType = TransactionType.Credit,
-                DateTime = DateTime.Now
+                DateTime = DateTime.Now,
+                Description = $"Transaction from {fromAccount.AccountId} account."
             };
 
             fromAccount.Balance -= request.Amount;
@@ -49,13 +50,14 @@ public class PerformTransfer
                 Amount = request.Amount,
                 Currency = toAccount.Currency,
                 TransactionType = TransactionType.Debit,
-                DateTime = DateTime.Now
+                DateTime = DateTime.Now,
+                Description = $"Transaction to {toAccount.AccountId} account."
             };
 
-            toAccount.Balance += request.Amount;
+            toAccount.Balance += CurrencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
 
-            dbContext.Accounts.Update(toAccount);
             dbContext.Accounts.Update(fromAccount);
+            dbContext.Accounts.Update(toAccount);
             
             await dbContext.Transactions.AddAsync(transactionFrom, cancellationToken);
             await dbContext.Transactions.AddAsync(transactionTo, cancellationToken);

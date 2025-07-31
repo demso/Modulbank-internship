@@ -11,7 +11,8 @@ public class PerformTransaction
     public record Command(
         int AccountId,
         TransactionType TransactionType,
-        decimal Amount
+        decimal Amount,
+        string Description
     ) : IRequest<TransactionDto>;
 
     public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
@@ -21,10 +22,10 @@ public class PerformTransaction
             
             var account = await dbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
             if (account is null)
-                throw new ValidationException($"Счет с id = {request.AccountId} не найден.");
+                throw new Exception($"Счет с id = {request.AccountId} не найден.");
 
             if (request.Amount <= 0)
-                throw new ValidationException("Количество переводимых средств должно быть больше нуля.");
+                throw new Exception("Количество переводимых средств должно быть больше нуля.");
 
             if (request.TransactionType == TransactionType.Debit)
                 account.Balance += request.Amount;
@@ -37,7 +38,8 @@ public class PerformTransaction
                 Amount = request.Amount,
                 Currency = account.Currency,
                 TransactionType = request.TransactionType,
-                DateTime = DateTime.Now
+                DateTime = DateTime.Now,
+                Description = request.Description
             };
 
             await dbContext.Transactions.AddAsync(transaction, cancellationToken);

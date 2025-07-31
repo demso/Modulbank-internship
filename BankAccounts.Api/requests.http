@@ -4,8 +4,18 @@ Content-Type: application/json
 
 {
     "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
-    "accountType": "Deposit",
+    "accountType": "Credit",
     "currency": "rub"
+}
+
+### Create account
+POST http://localhost:5102/api/Accounts
+Content-Type: application/json
+
+{
+    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
+    "accountType": "Deposit",
+    "currency": "eur"
 }
 
 ### Get all user acounts
@@ -16,13 +26,19 @@ Content-Type: application/json
     "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
 }
 
-### Get
+### Get account
 GET http://localhost:5102/api/accounts/1
 Content-Type: application/json
 
 {
     "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
 }
+
+### Delete account
+DELETE http://localhost:5102/api/accounts/1
+
+### Patch account
+PATCH http://localhost:5102/api/accounts/1?interestRate=10.00&close=false
 
 ### Perform transaction
 POST http://localhost:5102/api/accounts/transactions
@@ -31,15 +47,15 @@ Content-Type: application/json
 {
     "accountId": 1,
     "transactionType": "Debit",
-    "amount": 100.00
+    "amount": 100.00,
+    "description" : "New transaction"
 }
 
-### Get all transaction for account
-GET http://localhost:5102/api/accounts/1/transactions/
-Content-Type: application/json
-
+### Get all transaction for account 2025-07-31
+GET http://localhost:5102/api/accounts/2/transactions/
 {
-    "accountId": 2
+  "fromDate": 2025-07-30,
+  "toDate": 2025-08-01
 }
 
 ### Get

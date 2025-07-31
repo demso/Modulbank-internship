@@ -5,18 +5,19 @@ using BankAccounts.Api.Features.Accounts.Queries;
 using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Features.Transactions.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Accounts;
 
 [Route("api/[controller]")]
-public class AccountsController(IMapper mapper) : CustomControllerBase
+public class AccountsController(IMapper mapper, IMediator mediator) : ControllerBase
 {
     [HttpGet("all")]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
         var query = new GetAllAccountsForUser.Query((Guid)getAllAccountsForUserDto.OwnerId!);
-        var accountList = await Mediator.Send(query);
+        var accountList = await mediator.Send(query);
         return Ok(accountList);
     }
 
@@ -24,7 +25,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
     {
         var query = new GetAccount.Query(accountId, (Guid)getAccountDto.OwnerId!);
-        var account = await Mediator.Send(query);
+        var account = await mediator.Send(query);
         return Ok(account);
     }
 
@@ -32,7 +33,15 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult> DeleteAccount(int accountId)
     {
         var command = new DeleteAccount.Command(accountId);
-        await Mediator.Send(command);
+        await mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpPatch("{accountId:int}")]
+    public async Task<ActionResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
+    {
+        var command = new UpdateAccount.Command(accountId, interestRate, close);
+        await mediator.Send(command);
         return NoContent();
     }
 
@@ -40,7 +49,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
-        var result = await Mediator.Send(command);
+        var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
     }
 
@@ -51,7 +60,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
         var query = new GetTransactionsForAccount.Query(accountId, 
             getTransactionForAccountDto.FromDate, 
             getTransactionForAccountDto.ToDate);
-        var transactionList = await Mediator.Send(query);
+        var transactionList = await mediator.Send(query);
         return Ok(transactionList);
     }
 
@@ -59,7 +68,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
         var query = new GetTransaction.Query(transactionId);
-        var transaction = await Mediator.Send(query);
+        var transaction = await mediator.Send(query);
         return Ok(transaction);
     }
 
@@ -67,7 +76,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult<TransactionDto>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
-        var result = await Mediator.Send(command);
+        var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetTransaction), new {transactionId = result.TransactionId}, result);
     }
 
@@ -75,7 +84,7 @@ public class AccountsController(IMapper mapper) : CustomControllerBase
     public async Task<ActionResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
         var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
-        var result = await Mediator.Send(command);
+        var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
     }
 }
