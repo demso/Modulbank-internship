@@ -1,18 +1,23 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using AutoMapper;
+using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Mapping;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 try
 {
     builder.Services
+        .Configure<JsonOptions>(options => options
+            .SerializerOptions.Converters.Add(new JsonStringEnumConverter()))
         .AddDbContext<BankAccountsContext>()
         .AddScoped<IBankAccountsContext>(provider =>
             provider.GetRequiredService<BankAccountsContext>()!)
         .AddAutoMapper(options => options
-            .AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly())))
+            .AddProfile(new AccountMappingProfile()))
         .AddMediatR(options => options
             .RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
         .AddControllers();
