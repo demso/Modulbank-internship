@@ -5,7 +5,7 @@ using MediatR;
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
-public class UpdateAccount
+public static class UpdateAccount
 {
     public record Command(
         int AccountId,

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Features.Accounts.Queries;
 
-public class GetAllAccountsForUser
+public static class GetAllAccountsForUser
 {
     public record Query(Guid OwnerId) : IRequest<List<AccountDto>>;
 

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
-public class DeleteAccount
+public static class DeleteAccount
 {
     public record Command(
         int AccountId
