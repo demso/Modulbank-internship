@@ -1,5 +1,5 @@
 ﻿@adress = https://localhost:80
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlOTNhZmJjYy00YzhkLTRkZDYtYmY5Ni1hNmE4ZTFjZjM3ZmYiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZG1pdHJpeV9rb3Bvc292IiwiZXhwIjoxNzU0MDY1ODg5LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIn0.omfVy1CHIknnP9mN5jaiaR5_SBweeua01683sUn_eMs
+@token = 
 POST {{adress}}/api/Accounts
 Authorization: Bearer {{token}}
 Content-Type: application/json
