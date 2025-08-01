@@ -18,12 +18,16 @@ public static class DeleteAccount
         public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var account = await dbDbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
+
             if (account == null || account.OwnerId != request.OwnerId)
                 throw new NotFoundException(nameof(Account), request.AccountId, "У вас нет такого счета.");
+
             if (account.Balance > 0)
                 throw new Exception("Невозможно удалить счет пока баланс больше 0.");
+
             dbDbContext.Accounts.Remove(account);
             await dbDbContext.SaveChangesAsync(cancellationToken);
+
             return Unit.Value;
         }
     }

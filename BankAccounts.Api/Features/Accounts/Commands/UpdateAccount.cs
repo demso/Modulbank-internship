@@ -21,9 +21,10 @@ public static class UpdateAccount
             var account = await dbDbContext.Accounts.FindAsync(request.AccountId);
             if (account == null || account.OwnerId != request.OwnerId)
                 throw new NotFoundException(nameof(Account), request.AccountId, "У вас нет такого счета.");
-            
+
             if (account.CloseDate == null && request.InterestRate.HasValue)
                 account.InterestRate = request.InterestRate.Value;
+
             if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
             {
                 if (account.Balance != 0)
