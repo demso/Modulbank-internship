@@ -29,12 +29,12 @@ public class AuthController(
         if (!result.Succeeded)
             return Problem("Login failed.");
 
-        var token = GenerateJwtToken(data.Username);
+        var token = GenerateJwtToken(user);
 
         return Ok(token);
     }
 
-    private string GenerateJwtToken(string username)
+    private string GenerateJwtToken(BankUser user)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -42,7 +42,8 @@ public class AuthController(
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, username)
+            new Claim(ClaimTypes.Name, user.UserName ?? ""),
+            new Claim(ClaimTypes.NameIdentifier, user.Id)
         };
 
         var token = new JwtSecurityToken(
