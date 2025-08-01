@@ -44,17 +44,19 @@ public class PerformTransfer
 
             fromAccount.Balance -= request.Amount;
 
+            var toAccountAmount = CurrencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
+
             var transactionTo = new Transaction()
             {
                 AccountId = toAccount.AccountId,
-                Amount = request.Amount,
+                Amount = toAccountAmount,
                 Currency = toAccount.Currency,
                 TransactionType = TransactionType.Debit,
                 DateTime = DateTime.Now,
                 Description = $"Transaction to {toAccount.AccountId} account."
             };
 
-            toAccount.Balance += CurrencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
+            toAccount.Balance += toAccountAmount;
 
             dbDbContext.Accounts.Update(fromAccount);
             dbDbContext.Accounts.Update(toAccount);
