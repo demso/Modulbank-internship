@@ -20,11 +20,15 @@ public static class UpdateAccount
             var account = await dbDbContext.Accounts.FindAsync(request.AccountId);
             if (account == null)
                 throw new NotFoundException(nameof(Account), request.AccountId);
-
+            
             if (account.CloseDate == null && request.InterestRate.HasValue)
                 account.InterestRate = request.InterestRate.Value;
             if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
+            {
+                if (account.Balance != 0)
+                    throw new Exception("Невозможно закрыть счет, на котором есть деньги.");
                 account.CloseDate = DateTime.Now;
+            }
 
             dbDbContext.Accounts.Update(account);
             await dbDbContext.SaveChangesAsync(cancellationToken);
