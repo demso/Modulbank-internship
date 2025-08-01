@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Accounts.Queries;
@@ -17,18 +18,20 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
 {
     [HttpGet("all")]
     [Authorize]
-    public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
+    public async Task<ActionResult<List<AccountDto>>> GetAllAccounts()
     {
-        var query = new GetAllAccountsForUser.Query((Guid)getAllAccountsForUserDto.OwnerId!);
+        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var query = new GetAllAccountsForUser.Query(ownerId);
         var accountList = await mediator.Send(query);
         return Ok(accountList);
     }
 
     [HttpGet("{accountId:int}")]
     [Authorize]
-    public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
+    public async Task<ActionResult<AccountDto>> GetAccount(int accountId)
     {
-        var query = new GetAccount.Query(accountId, (Guid)getAccountDto.OwnerId!);
+        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var query = new GetAccount.Query(ownerId, accountId);
         var account = await mediator.Send(query);
         return Ok(account);
     }
@@ -37,7 +40,8 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult> DeleteAccount(int accountId)
     {
-        var command = new DeleteAccount.Command(accountId);
+        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var command = new DeleteAccount.Command(ownerId, accountId);
         await mediator.Send(command);
         return NoContent();
     }
@@ -46,7 +50,8 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
     {
-        var command = new UpdateAccount.Command(accountId, interestRate, close);
+        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var command = new UpdateAccount.Command(ownerId, accountId, interestRate, close);
         await mediator.Send(command);
         return NoContent();
     }
@@ -56,6 +61,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     public async Task<ActionResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
+        command.OwnerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
     }
