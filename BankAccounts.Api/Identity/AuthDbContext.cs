@@ -1,6 +1,4 @@
-﻿using BankAccounts.Api.Features.Accounts;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Identity;
