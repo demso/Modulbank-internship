@@ -1,11 +1,12 @@
 ﻿@adress = https://localhost:80
-@token = 
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhZTFjZTc1NC1kOTEwLTQ4MDEtYTRkZi05ZDdkOGM1NjI1M2UiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZG1pdHJpeV9rb3Bvc292MiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiZWFhM2E1YjEtOGI0Zi00ZGExLTliZmEtOWZlZDQ3ZjVhNTYzIiwiZXhwIjoxNzU0MDgxMjY2LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIn0.t03lnDui3hk1Bpx5YJO-hE6cR-cNfmcS0MfBuptHt8k
+
+### Create account
 POST {{adress}}/api/Accounts
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountType": "Credit",
     "currency": "rub"
 }
@@ -16,7 +17,6 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountType": "Deposit",
     "currency": "eur"
 }
@@ -24,27 +24,17 @@ Content-Type: application/json
 ### Get all user acounts
 GET {{adress}}/api/accounts/all
 Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
-}
 
 ### Get account
 GET {{adress}}/api/accounts/1
 Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
-}
 
 ### Delete account
-DELETE {{adress}}/api/accounts/2
+DELETE {{adress}}/api/accounts/1
 Authorization: Bearer {{token}}
 
 ### Patch account
-PATCH {{adress}}/api/accounts/2?interestRate=10.00&close=true
+PATCH {{adress}}/api/accounts/1?interestRate=-10.00&close=true
 Authorization: Bearer {{token}}
 
 ### Perform transaction
