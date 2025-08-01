@@ -20,7 +20,7 @@ public static class DeleteAccount
             if (account == null)
                 throw new NotFoundException(nameof(Account), request.AccountId);
             if (account.Balance > 0)
-                throw new Exception("Невозможно ужалить счет пока баланс больше 0.");
+                throw new Exception("Невозможно удалить счет пока баланс больше 0.");
             dbDbContext.Accounts.Remove(account);
             await dbDbContext.SaveChangesAsync(cancellationToken);
         }
