@@ -8,12 +8,13 @@ namespace BankAccounts.Api.Features.Accounts.Commands;
 
 public static class CreateAccount
 {
-    public record Command(
-        Guid OwnerId,
-        AccountType AccountType,
-        CurrencyService.Currencies Currency,
-        decimal InterestRate
-    ) : IRequest<AccountDto>;
+    public record Command : IRequest<AccountDto>
+    {
+        public Guid OwnerId { get; set; }
+        public AccountType AccountType { get; init; }
+        public CurrencyService.Currencies Currency { get; init; }
+        public decimal InterestRate { get; init; }
+    };
 
     public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, AccountDto>
     {
