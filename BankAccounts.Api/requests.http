@@ -1,5 +1,5 @@
 ﻿### Create account
-POST http://localhost:5102/api/Accounts
+POST http://localhost:80/api/Accounts
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
 }
 
 ### Create account
-POST http://localhost:5102/api/Accounts
+POST http://localhost:80/api/Accounts
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 }
 
 ### Get all user acounts
-GET http://localhost:5102/api/accounts/all
+GET http://localhost:80/api/accounts/all
 Content-Type: application/json
 
 {
@@ -27,7 +27,7 @@ Content-Type: application/json
 }
 
 ### Get account
-GET http://localhost:5102/api/accounts/1
+GET http://localhost:80/api/accounts/1
 Content-Type: application/json
 
 {
@@ -35,13 +35,13 @@ Content-Type: application/json
 }
 
 ### Delete account
-DELETE http://localhost:5102/api/accounts/1
+DELETE http://localhost:80/api/accounts/1
 
 ### Patch account
-PATCH http://localhost:5102/api/accounts/1?interestRate=10.00&close=false
+PATCH http://localhost:80/api/accounts/1?interestRate=10.00&close=false
 
 ### Perform transaction
-POST http://localhost:5102/api/accounts/transactions
+POST http://localhost:80/api/accounts/transactions
 Content-Type: application/json
 
 {
@@ -52,7 +52,7 @@ Content-Type: application/json
 }
 
 ### Get all transaction for account 2025-07-31
-GET http://localhost:5102/api/accounts/2/transactions/
+GET http://localhost:80/api/accounts/2/transactions/
 Content-Type: application/json
 
 {
@@ -61,10 +61,10 @@ Content-Type: application/json
 }
 
 ### Get transaction by Guid
-GET http://localhost:5102/api/accounts/transactions/4f2feff3-0055-4a28-bd63-4162826219aa
+GET http://localhost:80/api/accounts/transactions/4f2feff3-0055-4a28-bd63-4162826219aa
 
 ### Perform transfer
-POST http://localhost:5102/api/accounts/transfer
+POST http://localhost:80/api/accounts/transfer
 Content-Type: application/json
 
 {
