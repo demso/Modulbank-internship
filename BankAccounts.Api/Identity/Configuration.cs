@@ -41,15 +41,15 @@ public class Configuration
                 RequirePkce = true,
                 RedirectUris =
                 {
-                    "http://localhost:80/signin-oidc"
+                    "https://localhost:80/signin-oidc"
                 },
                 AllowedCorsOrigins =
                 {
-                    "http://localhost:80"
+                    "https://localhost:80"
                 },
                 PostLogoutRedirectUris =
                 {
-                    "http://localhost:80/signout-oidc"
+                    "https://localhost:80/signout-oidc"
                 },
                 AllowedScopes =
                 {
