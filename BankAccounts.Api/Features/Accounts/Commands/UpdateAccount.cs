@@ -12,11 +12,11 @@ public static class UpdateAccount
         int AccountId,
         decimal? InterestRate,
         bool? Close
-    ) : IRequest;
+    ) : IRequest<Unit>;
 
-    public class Handler(IBankAccountsDbContext dbDbContext) : IRequestHandler<Command>
+    public class Handler(IBankAccountsDbContext dbDbContext) : IRequestHandler<Command, Unit>
     {
-        public async Task Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var account = await dbDbContext.Accounts.FindAsync(request.AccountId);
             if (account == null || account.OwnerId != request.OwnerId)
@@ -33,6 +33,7 @@ public static class UpdateAccount
 
             dbDbContext.Accounts.Update(account);
             await dbDbContext.SaveChangesAsync(cancellationToken);
+            return Unit.Value;
         }
     }
 
@@ -42,6 +43,9 @@ public static class UpdateAccount
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.AccountId).GreaterThan(0);
+            RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);
         }
     }
 }
+
+
