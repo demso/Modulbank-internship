@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,14 @@ public static class GetAllAccountsForUser
                 .ToListAsync(cancellationToken);
 
             return entities;
+        }
+    }
+
+    public class QueryValidator : AbstractValidator<Query>
+    {
+        public QueryValidator(IBankAccountsContext dbContext)
+        {
+            RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
         }
     }
 }
