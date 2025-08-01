@@ -6,14 +6,17 @@ using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Features.Transactions.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Accounts;
 
+[ApiController]
 [Route("api/[controller]")]
 public class AccountsController(IMapper mapper, IMediator mediator) : ControllerBase
 {
     [HttpGet("all")]
+    [Authorize]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts([FromBody] GetAllAccountsForUserDto getAllAccountsForUserDto)
     {
         var query = new GetAllAccountsForUser.Query((Guid)getAllAccountsForUserDto.OwnerId!);
@@ -22,6 +25,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpGet("{accountId:int}")]
+    [Authorize]
     public async Task<ActionResult<AccountDto>> GetAccount(int accountId, [FromBody] GetAccountDto getAccountDto)
     {
         var query = new GetAccount.Query(accountId, (Guid)getAccountDto.OwnerId!);
@@ -30,6 +34,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpDelete("{accountId:int}")]
+    [Authorize]
     public async Task<ActionResult> DeleteAccount(int accountId)
     {
         var command = new DeleteAccount.Command(accountId);
@@ -38,6 +43,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpPatch("{accountId:int}")]
+    [Authorize]
     public async Task<ActionResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
     {
         var command = new UpdateAccount.Command(accountId, interestRate, close);
@@ -46,6 +52,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
@@ -54,6 +61,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpGet("{accountId}/transactions")]
+    [Authorize]
     public async Task<ActionResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
         [FromBody] GetTransactionForAccountDto getTransactionForAccountDto)
     {
@@ -65,6 +73,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpGet("transactions/{transactionId:guid}")]
+    [Authorize]
     public async Task<ActionResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
         var query = new GetTransaction.Query(transactionId);
@@ -73,6 +82,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpPost("transactions")]
+    [Authorize]
     public async Task<ActionResult<TransactionDto>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
@@ -81,6 +91,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     }
 
     [HttpPost("transfer")]
+    [Authorize]
     public async Task<ActionResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
         var command = mapper.Map<PerformTransfer.Command>(performTransferDto);

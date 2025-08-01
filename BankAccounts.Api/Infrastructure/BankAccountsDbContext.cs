@@ -1,7 +1,6 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BankAccounts.Api.Infrastructure;
 

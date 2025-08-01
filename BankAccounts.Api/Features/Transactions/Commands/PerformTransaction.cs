@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AutoMapper;
+﻿using AutoMapper;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using MediatR;

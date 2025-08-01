@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts;

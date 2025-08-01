@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;

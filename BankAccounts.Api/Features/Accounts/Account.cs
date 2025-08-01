@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BankAccounts.Api.Features.Transactions;
-
-namespace BankAccounts.Api.Features.Accounts;
+﻿namespace BankAccounts.Api.Features.Accounts;
 
 public class Account
 {
