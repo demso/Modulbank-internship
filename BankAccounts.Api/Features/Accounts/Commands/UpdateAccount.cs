@@ -26,7 +26,7 @@ public static class UpdateAccount
             if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
             {
                 if (account.Balance != 0)
-                    throw new Exception("Невозможно закрыть счет, на котором есть деньги.");
+                    throw new Exception("Невозможно закрыть счет на котором есть деньги.");
                 account.CloseDate = DateTime.Now;
             }
 
