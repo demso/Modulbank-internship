@@ -80,6 +80,6 @@ public class AuthController(
     public async Task<ActionResult> Logout(string logoutId) {
         await signInManager.SignOutAsync();
         var logoutRequest = await interactionService.GetLogoutContextAsync(logoutId);
-        return Ok(logoutRequest.PostLogoutRedirectUri);
+        return Ok("Logged out.");
     }
 }
