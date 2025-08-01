@@ -15,7 +15,7 @@ public static class CreateAccount
         decimal InterestRate
     ) : IRequest<AccountDto>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, AccountDto>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, AccountDto>
     {
         public async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
         {
@@ -31,8 +31,8 @@ public static class CreateAccount
                 OpenDate = DateTime.Now
             };
 
-            await dbContext.Accounts.AddAsync(account, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbDbContext.Accounts.AddAsync(account, cancellationToken);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<AccountDto>(account);
         }
@@ -40,7 +40,7 @@ public static class CreateAccount
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsContext dbContext)
+        public CommandValidator(IBankAccountsDbContext dbDbContext)
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);

@@ -13,11 +13,11 @@ public static class UpdateAccount
         bool? Close
     ) : IRequest;
 
-    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command>
+    public class Handler(IBankAccountsDbContext dbDbContext) : IRequestHandler<Command>
     {
         public async Task Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await dbContext.Accounts.FindAsync(request.AccountId);
+            var account = await dbDbContext.Accounts.FindAsync(request.AccountId);
             if (account == null)
                 throw new NotFoundException(nameof(Account), request.AccountId);
 
@@ -26,14 +26,14 @@ public static class UpdateAccount
             if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
                 account.CloseDate = DateTime.Now;
 
-            dbContext.Accounts.Update(account);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            dbDbContext.Accounts.Update(account);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsContext dbContext)
+        public CommandValidator(IBankAccountsDbContext dbDbContext)
         {
             RuleFor(command => command.AccountId).GreaterThan(0);
         }

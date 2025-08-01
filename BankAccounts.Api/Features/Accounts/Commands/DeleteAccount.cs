@@ -14,23 +14,23 @@ public static class DeleteAccount
         int AccountId
     ) : IRequest;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command>
     {
         public async Task Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await dbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
+            var account = await dbDbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
             if (account == null)
                 throw new NotFoundException(nameof(Account), request.AccountId);
             if (account.Balance > 0)
                 throw new Exception("Невозможно ужалить счет пока баланс больше 0.");
-            dbContext.Accounts.Remove(account);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            dbDbContext.Accounts.Remove(account);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsContext dbContext)
+        public CommandValidator(IBankAccountsDbContext dbDbContext)
         {
             RuleFor(command => command.AccountId).GreaterThan(0);
         }

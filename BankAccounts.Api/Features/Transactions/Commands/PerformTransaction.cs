@@ -15,12 +15,12 @@ public class PerformTransaction
         string Description
     ) : IRequest<TransactionDto>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
     {
         public async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
             
-            var account = await dbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
+            var account = await dbDbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
             if (account is null)
                 throw new Exception($"Счет с id = {request.AccountId} не найден.");
 
@@ -42,8 +42,8 @@ public class PerformTransaction
                 Description = request.Description
             };
 
-            await dbContext.Transactions.AddAsync(transaction, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbDbContext.Transactions.AddAsync(transaction, cancellationToken);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<TransactionDto>(transaction);
         }

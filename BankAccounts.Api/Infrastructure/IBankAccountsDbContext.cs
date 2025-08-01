@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Infrastructure;
 
-public interface IBankAccountsContext
+public interface IBankAccountsDbContext
 {
     DbSet<Account> Accounts { get; }
     DbSet<Transaction> Transactions { get; }

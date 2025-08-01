@@ -15,11 +15,11 @@ namespace BankAccounts.Api.Features.Accounts.Queries
             Guid OwnerId
         ) : IRequest<AccountDto>;
         
-        public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, AccountDto>
+        public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Query, AccountDto>
         {
             public async Task<AccountDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var entity = await dbContext.Accounts.FirstOrDefaultAsync(account => 
+                var entity = await dbDbContext.Accounts.FirstOrDefaultAsync(account => 
                     account.AccountId == request.AccountId && account.OwnerId == request.OwnerId, cancellationToken);
                 if (entity == null || !request.OwnerId.Equals(entity.OwnerId))
                 {
@@ -32,7 +32,7 @@ namespace BankAccounts.Api.Features.Accounts.Queries
 
         public class QueryValidator : AbstractValidator<Query>
         {
-            public QueryValidator(IBankAccountsContext dbContext)
+            public QueryValidator(IBankAccountsDbContext dbDbContext)
             {
                 RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
                 RuleFor(command => command.AccountId).GreaterThan(0);

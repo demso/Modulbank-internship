@@ -18,14 +18,14 @@ public static class GetTransactionsForAccount
         DateOnly? ToDate
     ) : IRequest<List<TransactionDto>>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, List<TransactionDto>>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Query, List<TransactionDto>>
     {
         public async Task<List<TransactionDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var account = await dbContext.Accounts.FindAsync(request.AccountId);
+            var account = await dbDbContext.Accounts.FindAsync(request.AccountId);
             if (account == null)
                 throw new NotFoundException(nameof(Account), request.AccountId);
-            var entities = await dbContext.Transactions
+            var entities = await dbDbContext.Transactions
                 .Where(transaction => transaction.AccountId == request.AccountId
                     && (request.FromDate == null || DateOnly.FromDateTime(transaction.DateTime) >= request.FromDate.Value) 
                     && (request.ToDate == null || DateOnly.FromDateTime(transaction.DateTime) < request.ToDate.Value))

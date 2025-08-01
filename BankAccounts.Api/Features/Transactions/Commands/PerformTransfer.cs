@@ -16,13 +16,13 @@ public class PerformTransfer
         decimal Amount
     ) : IRequest<TransactionDto>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
     {
         public async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
 
-            var fromAccount = await dbContext.Accounts.FindAsync(request.FromAccountId, cancellationToken);
-            var toAccount = await dbContext.Accounts.FindAsync(request.ToAccountId, cancellationToken);
+            var fromAccount = await dbDbContext.Accounts.FindAsync(request.FromAccountId, cancellationToken);
+            var toAccount = await dbDbContext.Accounts.FindAsync(request.ToAccountId, cancellationToken);
 
             if (fromAccount is null)
                 throw new NotFoundException(nameof(Account), request.FromAccountId);
@@ -56,12 +56,12 @@ public class PerformTransfer
 
             toAccount.Balance += CurrencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
 
-            dbContext.Accounts.Update(fromAccount);
-            dbContext.Accounts.Update(toAccount);
+            dbDbContext.Accounts.Update(fromAccount);
+            dbDbContext.Accounts.Update(toAccount);
             
-            await dbContext.Transactions.AddAsync(transactionFrom, cancellationToken);
-            await dbContext.Transactions.AddAsync(transactionTo, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbDbContext.Transactions.AddAsync(transactionFrom, cancellationToken);
+            await dbDbContext.Transactions.AddAsync(transactionTo, cancellationToken);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<TransactionDto>(transactionFrom);
         }
