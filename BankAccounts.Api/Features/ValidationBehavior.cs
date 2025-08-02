@@ -13,7 +13,7 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
         var failure = validators
             .Select(validator => validator.Validate(context))
             .SelectMany(result => result.Errors)
-            .First(failure => failure != null); //вернем только первую ошибку
+            .FirstOrDefault(failure => failure != null); //вернем только первую ошибку
 
         if (failure is not null)
         {
