@@ -16,9 +16,9 @@ public static class CreateAccount
         public decimal InterestRate { get; init; }
     };
 
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, AccountDto>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, AccountDto>
     {
-        public async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
+        public override async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
         {
             var account = new Account
             {
