@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
@@ -13,14 +12,11 @@ public static class DeleteAccount
         int AccountId
     ) : IRequest<Unit>;
 
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, Unit>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, Unit>
     {
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await dbDbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
-
-            if (account == null || account.OwnerId != request.OwnerId)
-                throw new NotFoundException(nameof(Account), request.AccountId, "У вас нет такого счета.");
+            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
             if (account.Balance > 0)
                 throw new Exception("Невозможно удалить счет пока баланс больше 0.");
