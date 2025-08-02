@@ -41,7 +41,10 @@ public static class CreateAccount
         public CommandValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
-            RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);
+            RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0)
+                .When(command => command.AccountType is AccountType.Deposit or AccountType.Credit);
+            RuleFor(command => command.InterestRate).Equal(0)
+                .When(command => command.AccountType is AccountType.Checking);
         }
     }
 }
