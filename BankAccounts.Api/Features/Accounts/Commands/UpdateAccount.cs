@@ -1,5 +1,4 @@
-﻿using BankAccounts.Api.Exceptions;
-using BankAccounts.Api.Infrastructure;
+﻿using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
 
@@ -14,13 +13,11 @@ public static class UpdateAccount
         bool? Close
     ) : IRequest<Unit>;
 
-    public class Handler(IBankAccountsDbContext dbDbContext) : IRequestHandler<Command, Unit>
+    public class Handler(IBankAccountsDbContext dbDbContext) : BaseRequestHandler<Command, Unit>
     {
-        public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await dbDbContext.Accounts.FindAsync(request.AccountId);
-            if (account == null || account.OwnerId != request.OwnerId)
-                throw new NotFoundException(nameof(Account), request.AccountId, "У вас нет такого счета.");
+            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
             if (account.CloseDate == null && request.InterestRate.HasValue)
                 account.InterestRate = request.InterestRate.Value;
