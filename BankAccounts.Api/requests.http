@@ -1,5 +1,5 @@
 ﻿@adress = https://localhost:80
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhZTFjZTc1NC1kOTEwLTQ4MDEtYTRkZi05ZDdkOGM1NjI1M2UiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZG1pdHJpeV9rb3Bvc292MiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiZWFhM2E1YjEtOGI0Zi00ZGExLTliZmEtOWZlZDQ3ZjVhNTYzIiwiZXhwIjoxNzU0MDgxMjY2LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIn0.t03lnDui3hk1Bpx5YJO-hE6cR-cNfmcS0MfBuptHt8k
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZWU4MzcwMC02MGMzLTQ1ZjEtYjVkNy02MTM0NTAyYjU4MzAiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZG1pdHJpeV9rb3Bvc292MiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiM2VjYzdmNTEtOGY5YS00NTE0LTlhNmYtYzAwNmQ4ODVhOWI0IiwiZXhwIjoxNzU0MTIxOTE5LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIn0.HXT0JF5_hFROvWcpxeAt9z9qB8O9lMcEkiDTHXTBZaE
 
 ### Create account
 POST {{adress}}/api/Accounts
@@ -34,7 +34,7 @@ DELETE {{adress}}/api/accounts/1
 Authorization: Bearer {{token}}
 
 ### Patch account
-PATCH {{adress}}/api/accounts/1?interestRate=-10.00&close=true
+PATCH {{adress}}/api/accounts/1?interestRate=10.00&close=true
 Authorization: Bearer {{token}}
 
 ### Perform transaction
@@ -50,7 +50,7 @@ Content-Type: application/json
 }
 
 ### Get all transaction for account
-GET {{adress}}/api/accounts/2/transactions/
+GET {{adress}}/api/accounts/1/transactions/
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -60,7 +60,7 @@ Content-Type: application/json
 }
 
 ### Get transaction by Guid
-GET {{adress}}/api/accounts/transactions/4f2feff3-0055-4a28-bd63-4162826219aa
+GET {{adress}}/api/accounts/transactions/8cb51bfe-de5c-4bcc-a19f-c5e89e06bc24
 Authorization: Bearer {{token}}
 
 ### Perform transfer
