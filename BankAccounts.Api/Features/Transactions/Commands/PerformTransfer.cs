@@ -29,10 +29,7 @@ public static class PerformTransfer
 
             if (toAccount is null)
                 throw new AccountNotFoundException(request.ToAccountId);
-
-            if (request.Amount <= 0)
-                throw new Exception("Количество переводимых средств должно быть больше нуля.");
-
+            
             var transactionFrom = new Transaction
             {
                 AccountId = fromAccount.AccountId,
