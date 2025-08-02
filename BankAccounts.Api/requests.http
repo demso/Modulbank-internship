@@ -7,8 +7,9 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "accountType": "Credit",
-    "currency": "rub"
+    "accountType": "Checking",
+    "currency": "rub",
+    "interestRate": 0.00
 }
 
 ### Create account
@@ -50,7 +51,7 @@ Content-Type: application/json
 }
 
 ### Get all transaction for account
-GET {{adress}}/api/accounts/1/transactions/
+GET {{adress}}/api/accounts/1/transactions?fromDate=2025-07-30&toDate=2025-08-20
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
