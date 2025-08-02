@@ -7,10 +7,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,7 +59,6 @@ builder.Services.AddAuthentication(config =>
         config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-
     .AddJwtBearer("Bearer", options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -74,16 +75,25 @@ builder.Services.AddAuthentication(config =>
         };
     });
 
+builder.Services
+    .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
+    .AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI(config =>
+{
+    config.RoutePrefix = string.Empty;
+    config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts API");
+});
+app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseIdentityServer();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
 app.MapControllers();
 
