@@ -8,6 +8,7 @@ using BankAccounts.Api.Features.Transactions.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+// ReSharper disable HeuristicUnreachableCode
 
 namespace BankAccounts.Api.Features.Accounts;
 
@@ -37,6 +38,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [Authorize]
     public async Task<MbResult> DeleteAccount(int accountId)
     {
+        throw new NotSupportedException("Не стоить удалять счет, лучше его закрыть. Используйте PATCH https://.../?close=true.");
         var command = new DeleteAccount.Command(GetUserGuid(), accountId);
         await mediator.Send(command);
         return Success(StatusCodes.Status204NoContent);
