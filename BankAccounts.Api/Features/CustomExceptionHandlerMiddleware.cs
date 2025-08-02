@@ -43,7 +43,7 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
 
         if (result == string.Empty)
         {
-            result = JsonSerializer.Serialize(MbResult<object?>.Failure((int)code, exception?.Message));
+            result = JsonSerializer.Serialize(MbResult<object?>.Failure((int)code, exception?.GetType().Name + " " + exception?.Message));
         }
 
         return context.Response.WriteAsync(result);
