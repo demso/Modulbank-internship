@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 
 namespace BankAccounts.Api.Features;
@@ -9,14 +10,14 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
     public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var context = new ValidationContext<TRequest>(request);
-        var failures = validators
+        var failure = validators
             .Select(validator => validator.Validate(context))
             .SelectMany(result => result.Errors)
-            .Where(failure => failure != null)
-            .ToList();
-        if (failures.Count != 0)
+            .First(failure => failure != null); //вернем только первую ошибку
+
+        if (failure is not null)
         {
-            throw new ValidationException(failures);
+            throw new ValidationException(new List<ValidationFailure> { failure });
         }
 
         return next(cancellationToken);
