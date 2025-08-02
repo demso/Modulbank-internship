@@ -27,7 +27,7 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
         {
             case ValidationException validationException:
                 code = HttpStatusCode.BadRequest;
-                result = JsonSerializer.Serialize(validationException.Errors);
+                result = JsonSerializer.Serialize(MbResult<object?>.Failure((int)code, validationException.Errors.First().ToString()));
                 break;
             case AccountNotFoundException:
                 code = HttpStatusCode.NotFound;
@@ -35,13 +35,16 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
             case NotFoundException:
                 code = HttpStatusCode.NotFound;
                 break;
+            case not null:
+                code = HttpStatusCode.BadRequest;
+                break;
         }
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
 
         if (result == string.Empty)
         {
-            result = JsonSerializer.Serialize(new { error = exception.Message });
+            result = JsonSerializer.Serialize(MbResult<object?>.Failure((int)code, exception?.Message));
         }
 
         return context.Response.WriteAsync(result);
