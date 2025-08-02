@@ -37,7 +37,7 @@ public static class UpdateAccount
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsDbContext dbDbContext)
+        public CommandValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.AccountId).GreaterThan(0);

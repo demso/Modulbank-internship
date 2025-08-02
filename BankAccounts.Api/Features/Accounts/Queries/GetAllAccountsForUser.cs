@@ -28,7 +28,7 @@ public static class GetAllAccountsForUser
 
     public class QueryValidator : AbstractValidator<Query>
     {
-        public QueryValidator(IBankAccountsDbContext dbDbContext)
+        public QueryValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
         }

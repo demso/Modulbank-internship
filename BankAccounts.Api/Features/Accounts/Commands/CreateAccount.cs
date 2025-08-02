@@ -38,7 +38,7 @@ public static class CreateAccount
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsDbContext dbDbContext)
+        public CommandValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);
