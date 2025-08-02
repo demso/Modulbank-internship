@@ -1,33 +1,34 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
+using FluentValidation;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
 
-public class PerformTransaction
+public static class PerformTransaction
 {
-    public record Command(
-        int AccountId,
-        TransactionType TransactionType,
-        decimal Amount,
-        string Description
-    ) : IRequest<TransactionDto>;
-
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
+    public record Command : IRequest<TransactionDto>
     {
-        public async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
+        public Guid OwnerId { get; set; }
+        public int AccountId { get; set; }
+        public TransactionType TransactionType { get; set; }
+        public decimal Amount { get; set; }
+        public string? Description { get; set; }
+    }
+
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
+    {
+        public override async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
-            
-            var account = await dbDbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
-            if (account is null)
-                throw new Exception($"Счет с id = {request.AccountId} не найден.");
+            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
             if (request.Amount <= 0)
                 throw new Exception("Количество переводимых средств должно быть больше нуля.");
 
             if (request.TransactionType == TransactionType.Debit)
                 account.Balance += request.Amount;
+
             if (request.TransactionType == TransactionType.Credit)
                 account.Balance -= request.Amount;
 
@@ -45,6 +46,17 @@ public class PerformTransaction
             await dbDbContext.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<TransactionDto>(transaction);
+        }
+    }
+
+    public class CommandValidator : AbstractValidator<Command>
+    {
+        public CommandValidator()
+        {
+            RuleFor(command => command.OwnerId).NotEmpty();
+            RuleFor(command => command.AccountId).GreaterThan(0);
+            RuleFor(command => command.Description).MaximumLength(255);
+            RuleFor(command => command.Amount).NotEqual(0);
         }
     }
 }
