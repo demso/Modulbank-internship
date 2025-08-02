@@ -29,6 +29,9 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
                 code = HttpStatusCode.BadRequest;
                 result = JsonSerializer.Serialize(validationException.Errors);
                 break;
+            case AccountNotFoundException:
+                code = HttpStatusCode.NotFound;
+                break;
             case NotFoundException:
                 code = HttpStatusCode.NotFound;
                 break;
