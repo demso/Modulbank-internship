@@ -16,22 +16,22 @@ public class AuthController(
     SignInManager<BankUser> signInManager,
     UserManager<BankUser> userManager,
     IIdentityServerInteractionService interactionService, IConfiguration configuration, IdentityDbContext<BankUser> iDbContext)
-    : Controller
+    : CustomControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult> Login(LoginData data) {
+    public async Task<MbResult<string>> Login(LoginData data) {
         var user = await userManager.FindByNameAsync(data.Username);
         if (user == null)
-            return BadRequest("User not found");
+            return Failure(StatusCodes.Status404NotFound, "User not found");
 
         var result = await signInManager.PasswordSignInAsync(data.Username,
             data.Password, false, false);
         if (!result.Succeeded)
-            return Problem("Login failed.");
+            return Failure(StatusCodes.Status400BadRequest, "Login failed.");
 
         var token = GenerateJwtToken(user);
 
-        return Ok(token);
+        return Success(StatusCodes.Status200OK, token);
     }
 
     private string GenerateJwtToken(BankUser user)
@@ -58,7 +58,7 @@ public class AuthController(
     }
 
     [HttpPost]
-    public async Task<ActionResult> Register(RegisterData data)
+    public async Task<MbResult<string>> Register(RegisterData data)
     {
         var user = new BankUser {
             UserName = data.Username
@@ -68,11 +68,11 @@ public class AuthController(
         if (!result.Succeeded)
         {
             var errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
-            return Problem(errorMessage);
+            return Failure(StatusCodes.Status400BadRequest, errorMessage);
         }
         
         await signInManager.SignInAsync(user, false);
 
-        return Ok("Register succeed.");
+        return Success(StatusCodes.Status200OK, "Register succeed.");
     }
 }
