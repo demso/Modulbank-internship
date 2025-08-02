@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Exceptions;
-using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
@@ -8,26 +7,27 @@ using MediatR;
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
 
-public class PerformTransfer
+public static class PerformTransfer
 {
-    public record Command(
-        int FromAccountId,
-        int ToAccountId,
-        decimal Amount
-    ) : IRequest<TransactionDto>;
-
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Command, TransactionDto>
+    public record Command : IRequest<TransactionDto>
     {
-        public async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
+        public Guid OwnerId { get; set; }
+        public int FromAccountId { get; init; }
+        public int ToAccountId { get; init; }
+        public decimal Amount { get; init; }
+    }
+
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
+    {
+        public override async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
 
-            var fromAccount = await dbDbContext.Accounts.FindAsync(request.FromAccountId, cancellationToken);
+            var fromAccount = await GetValidAccount(dbDbContext, request.FromAccountId, request.OwnerId, cancellationToken);
+
             var toAccount = await dbDbContext.Accounts.FindAsync(request.ToAccountId, cancellationToken);
 
-            if (fromAccount is null)
-                throw new NotFoundException(nameof(Account), request.FromAccountId);
             if (toAccount is null)
-                throw new NotFoundException(nameof(Account), request.ToAccountId);
+                throw new AccountNotFoundException(request.ToAccountId);
 
             if (request.Amount <= 0)
                 throw new Exception("Количество переводимых средств должно быть больше нуля.");
@@ -73,6 +73,7 @@ public class PerformTransfer
     {
         public CommandValidator()
         {
+            RuleFor(command => command.OwnerId).NotEmpty();
             RuleFor(command => command.FromAccountId).GreaterThan(0).NotEqual(command => command.ToAccountId);
             RuleFor(command => command.ToAccountId).GreaterThan(0);
             RuleFor(command => command.Amount).GreaterThan(0);
