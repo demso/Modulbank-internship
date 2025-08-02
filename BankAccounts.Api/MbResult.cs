@@ -31,5 +31,5 @@ public record MbResult : MbResult<object?>
 {
     private MbResult(int statusCode, object? value) : base(statusCode, value) { }
 
-    public static MbResult Success(object? value) => new(StatusCodes.Status200OK, value);
+    public static MbResult Success(int code) => new(code, null);
 }
