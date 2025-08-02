@@ -2,4 +2,4 @@
 
 namespace BankAccounts.Api.Identity;
 
-public class BankUser : IdentityUser { }
+public class BankUser : IdentityUser;

@@ -4,9 +4,9 @@ public static class CurrencyService
 {
    public enum Currencies
    {
-       RUB,
-       USD,
-       EUR
+       Rub,
+       Usd,
+       Eur
    }
     //1 EUR = 90 RUB
     //1 USD = 80 RUB
@@ -20,26 +20,15 @@ public static class CurrencyService
     /// <exception cref="ArgumentOutOfRangeException"></exception>
    public static decimal Convert(decimal sum, Currencies from, Currencies to)
    {
-       switch ((from, to))
+       return (from, to) switch
        {
-           case (Currencies.RUB, Currencies.EUR):
-               return sum / 90m;
-           case (Currencies.RUB, Currencies.USD):
-               return sum / 80m;
-
-           case (Currencies.USD, Currencies.RUB):
-               return sum * 80m;
-           case (Currencies.USD, Currencies.EUR):
-               return sum * 80m/90m;
-
-           case (Currencies.EUR, Currencies.USD):
-               return sum * 1.125m;
-           case (Currencies.EUR, Currencies.RUB):
-               return sum * 90m;
-
-            default:
-               throw new ArgumentOutOfRangeException(nameof(from), from, null);
-       }
-
+           (Currencies.Rub, Currencies.Eur) => sum / 90m,
+           (Currencies.Rub, Currencies.Usd) => sum / 80m,
+           (Currencies.Usd, Currencies.Rub) => sum * 80m,
+           (Currencies.Usd, Currencies.Eur) => sum * 80m / 90m,
+           (Currencies.Eur, Currencies.Usd) => sum * 1.125m,
+           (Currencies.Eur, Currencies.Rub) => sum * 90m,
+           _ => throw new ArgumentOutOfRangeException(nameof(from), from, null)
+       };
    }
 }

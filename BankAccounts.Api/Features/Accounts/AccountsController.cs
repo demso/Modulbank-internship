@@ -61,7 +61,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
         return Success(StatusCodes.Status201Created, result);
     }
 
-    [HttpGet("{accountId}/transactions")]
+    [HttpGet("{accountId:int}/transactions")]
     [Authorize]
     public async Task<MbResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)

@@ -1,7 +1,7 @@
 ﻿@adress = https://localhost:80
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyZjQ2ODU3Zi1kZjJkLTQwM2EtYmE2OS03ODNmN2NjYmJmYTAiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZG1pdHJpeV9rb3Bvc292MiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiZjVjMWRlMzctYmEwYy00MmEwLWFiMTItYTI2Y2E2M2I2OTZkIiwiZXhwIjoxNzU0MTQwOTc5LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIn0.l7CtyMnRwPN6LHgIfZYNcK9_87rDf_eYk2oCVN-4ZU0
 
-### Create account
+### Create account 1
 POST {{adress}}/api/Accounts
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -12,7 +12,7 @@ Content-Type: application/json
     "interestRate": 0.00
 }
 
-### Create account
+### Create account 2
 POST {{adress}}/api/Accounts
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -22,23 +22,23 @@ Content-Type: application/json
     "currency": "eur"
 }
 
-### Get all user acounts
+### Get all user accounts
 GET {{adress}}/api/accounts/all
 Authorization: Bearer {{token}}
 
-### Get account
+### Get account 1
 GET {{adress}}/api/accounts/1
 Authorization: Bearer {{token}}
 
-### Delete account
+### Delete account 1
 DELETE {{adress}}/api/accounts/1
 Authorization: Bearer {{token}}
 
-### Patch account
+### Patch account 1
 PATCH {{adress}}/api/accounts/1?interestRate=10.00&close=true
 Authorization: Bearer {{token}}
 
-### Perform transaction
+### Perform transaction +100 rub to account 1
 POST {{adress}}/api/accounts/transactions
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -50,7 +50,7 @@ Content-Type: application/json
     "description" : "New transaction"
 }
 
-### Get all transaction for account
+### Get all transaction for account 1
 GET {{adress}}/api/accounts/1/transactions?fromDate=2025-07-30&toDate=2025-08-20
 Authorization: Bearer {{token}}
 
@@ -58,7 +58,7 @@ Authorization: Bearer {{token}}
 GET {{adress}}/api/accounts/transactions/bcfc6245-5c18-473e-a12a-f3d390722790
 Authorization: Bearer {{token}}
 
-### Perform transfer
+### Perform transfer from account 1 to 2 100 rub
 POST {{adress}}/api/accounts/transfer
 Authorization: Bearer {{token}}
 Content-Type: application/json

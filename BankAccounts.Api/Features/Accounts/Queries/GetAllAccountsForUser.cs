@@ -5,6 +5,7 @@ using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Accounts.Queries;
 

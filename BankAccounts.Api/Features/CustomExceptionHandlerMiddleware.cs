@@ -19,6 +19,7 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
         }
     }
 
+    // ReSharper disable once MemberCanBeMadeStatic.Local
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var code = HttpStatusCode.InternalServerError;
@@ -30,8 +31,6 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
                 result = JsonSerializer.Serialize(MbResult<object?>.Failure((int)code, validationException.Errors.First().ToString()));
                 break;
             case AccountNotFoundException:
-                code = HttpStatusCode.NotFound;
-                break;
             case NotFoundException:
                 code = HttpStatusCode.NotFound;
                 break;

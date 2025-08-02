@@ -1,9 +1,6 @@
-﻿using IdentityServer4.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Notes.Identity.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,17 +12,17 @@ namespace BankAccounts.Api.Identity;
 public class AuthController(
     SignInManager<BankUser> signInManager,
     UserManager<BankUser> userManager,
-    IIdentityServerInteractionService interactionService, IConfiguration configuration, IdentityDbContext<BankUser> iDbContext)
+    IConfiguration configuration)
     : CustomControllerBase
 {
     [HttpPost]
     public async Task<MbResult<string>> Login(LoginData data) {
-        var user = await userManager.FindByNameAsync(data.Username);
+        var user = await userManager.FindByNameAsync(data.Username!);
         if (user == null)
             return Failure(StatusCodes.Status404NotFound, "User not found");
 
-        var result = await signInManager.PasswordSignInAsync(data.Username,
-            data.Password, false, false);
+        var result = await signInManager.PasswordSignInAsync(data.Username!,
+            data.Password!, false, false);
         if (!result.Succeeded)
             return Failure(StatusCodes.Status400BadRequest, "Login failed.");
 
@@ -64,7 +61,7 @@ public class AuthController(
             UserName = data.Username
         };
 
-        var result = await userManager.CreateAsync(user, data.Password);
+        var result = await userManager.CreateAsync(user, data.Password!);
         if (!result.Succeeded)
         {
             var errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));

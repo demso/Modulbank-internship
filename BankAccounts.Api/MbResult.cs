@@ -1,4 +1,5 @@
-﻿namespace BankAccounts.Api;
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
+namespace BankAccounts.Api;
 
 public record MbResult<T>
 {

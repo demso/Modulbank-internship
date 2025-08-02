@@ -10,9 +10,9 @@ public abstract class BaseRequestHandler<TRequest, TResponse>
 {
     public abstract Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken);
 
-    public async Task<Account> GetValidAccount(IBankAccountsDbContext dbContext, int accountId, Guid ownerId, CancellationToken cancellationToken)
+    protected async Task<Account> GetValidAccount(IBankAccountsDbContext dbContext, int accountId, Guid ownerId, CancellationToken cancellationToken)
     {
-        var account = await dbContext.Accounts.FindAsync(accountId, cancellationToken);
+        var account = await dbContext.Accounts.FindAsync([accountId], cancellationToken);
 
         if (account == null || account.OwnerId != ownerId)
             throw new AccountNotFoundException(accountId);

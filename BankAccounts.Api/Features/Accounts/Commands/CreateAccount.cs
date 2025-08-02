@@ -3,6 +3,7 @@ using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
@@ -14,7 +15,7 @@ public static class CreateAccount
         public AccountType AccountType { get; init; }
         public CurrencyService.Currencies Currency { get; init; }
         public decimal InterestRate { get; init; }
-    };
+    }
 
     public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, AccountDto>
     {

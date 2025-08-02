@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using BankAccounts.Api.Infrastructure;
+﻿using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
@@ -12,7 +12,7 @@ public static class DeleteAccount
         int AccountId
     ) : IRequest<Unit>;
 
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, Unit>
+    public class Handler(IBankAccountsDbContext dbDbContext) : BaseRequestHandler<Command, Unit>
     {
         public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {

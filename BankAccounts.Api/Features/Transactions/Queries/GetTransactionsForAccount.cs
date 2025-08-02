@@ -5,6 +5,7 @@ using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
@@ -21,7 +22,7 @@ public static class GetTransactionsForAccount
     {
         public override async Task<List<TransactionDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+           await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
             var entities = await dbDbContext.Transactions
                 .Where(transaction => transaction.AccountId == request.AccountId

@@ -3,6 +3,7 @@ using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
 
@@ -11,10 +12,10 @@ public static class PerformTransaction
     public record Command : IRequest<TransactionDto>
     {
         public Guid OwnerId { get; set; }
-        public int AccountId { get; set; }
-        public TransactionType TransactionType { get; set; }
-        public decimal Amount { get; set; }
-        public string? Description { get; set; }
+        public int AccountId { get; init; }
+        public TransactionType TransactionType { get; init; }
+        public decimal Amount { get; init; }
+        public string? Description { get; init; }
     }
 
     public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
@@ -26,13 +27,18 @@ public static class PerformTransaction
             if (request.Amount <= 0)
                 throw new Exception("Количество переводимых средств должно быть больше нуля.");
 
-            if (request.TransactionType == TransactionType.Debit)
-                account.Balance += request.Amount;
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (request.TransactionType)
+            {
+                case TransactionType.Debit:
+                    account.Balance += request.Amount;
+                    break;
+                case TransactionType.Credit:
+                    account.Balance -= request.Amount;
+                    break;
+            }
 
-            if (request.TransactionType == TransactionType.Credit)
-                account.Balance -= request.Amount;
-
-            var transaction = new Transaction()
+            var transaction = new Transaction
             {
                 AccountId = account.AccountId,
                 Amount = request.Amount,

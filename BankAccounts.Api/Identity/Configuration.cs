@@ -4,12 +4,12 @@ using IdentityServer4.Models;
 
 namespace BankAccounts.Api.Identity;
 
-public class Configuration
+public static class Configuration
 {
     public static IEnumerable<ApiScope> ApiScopes =>
         new List<ApiScope>
         {
-            new ApiScope("BankAccountsWebAPI", "Web API")
+            new("BankAccountsWebAPI", "Web API")
         };
 
     public static IEnumerable<IdentityResource> IdentityResources =>
@@ -22,8 +22,7 @@ public class Configuration
     public static IEnumerable<ApiResource> ApiResources =>
         new List<ApiResource>
         {
-            new ApiResource("BankAccountsWebAPI", "Web API", new []
-                { JwtClaimTypes.Name})
+            new("BankAccountsWebAPI", "Web API", [JwtClaimTypes.Name])
             {
                 Scopes = { "BankAccountsWebAPI" }
             }
@@ -32,7 +31,7 @@ public class Configuration
     public static IEnumerable<Client> Clients =>
         new List<Client>
         {
-            new Client
+            new()
             {
                 ClientId = "bank-accounts-web-app",
                 ClientName = "Bank Accounts Web",

@@ -3,7 +3,6 @@
 public record TransactionDto(
     Guid TransactionId,
     int AccountId,
-    Guid? CounterpartyAccountId,
     decimal Amount,
     CurrencyService.Currencies Currency,
     TransactionType? TransactionType,

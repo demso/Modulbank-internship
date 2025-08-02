@@ -12,7 +12,7 @@ public class MappingProfile : Profile
 {
     /// <summary>
     /// Инициализирует новый экземпляр <see cref="MappingProfile"/>,
-    /// настраивая правила преобразования между <see cref="AccountCreateDto"/> и <see cref="Account"/>,
+    /// настраивая правила преобразования между <see cref="CreateAccountDto"/> и <see cref="Account"/>,
     /// а также между <see cref="Account"/> и <see cref="AccountDto"/>.
     /// </summary>
     public MappingProfile()
