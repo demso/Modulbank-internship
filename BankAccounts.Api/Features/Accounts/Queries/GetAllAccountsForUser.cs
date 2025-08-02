@@ -12,9 +12,9 @@ public static class GetAllAccountsForUser
 {
     public record Query(Guid OwnerId) : IRequest<List<AccountDto>>;
 
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : IRequestHandler<Query, List<AccountDto>>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, List<AccountDto>>
     {
-        public async Task<List<AccountDto>> Handle(Query request, CancellationToken cancellationToken)
+        public override async Task<List<AccountDto>> Handle(Query request, CancellationToken cancellationToken)
         {
             var entities = await dbDbContext.Accounts
                 .Where(account => account.OwnerId == request.OwnerId)
