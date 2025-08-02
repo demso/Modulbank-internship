@@ -20,8 +20,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult<List<AccountDto>>> GetAllAccounts()
     {
-        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        var query = new GetAllAccountsForUser.Query(ownerId);
+        var query = new GetAllAccountsForUser.Query(GetUserGuid());
         var accountList = await mediator.Send(query);
         return Ok(accountList);
     }
@@ -30,8 +29,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult<AccountDto>> GetAccount(int accountId)
     {
-        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        var query = new GetAccount.Query(ownerId, accountId);
+        var query = new GetAccount.Query(GetUserGuid(), accountId);
         var account = await mediator.Send(query);
         return Ok(account);
     }
@@ -40,8 +38,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult> DeleteAccount(int accountId)
     {
-        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        var command = new DeleteAccount.Command(ownerId, accountId);
+        var command = new DeleteAccount.Command(GetUserGuid(), accountId);
         await mediator.Send(command);
         return NoContent();
     }
@@ -50,8 +47,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
     {
-        var ownerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        var command = new UpdateAccount.Command(ownerId, accountId, interestRate, close);
+        var command = new UpdateAccount.Command(GetUserGuid(), accountId, interestRate, close);
         await mediator.Send(command);
         return NoContent();
     }
@@ -61,7 +57,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     public async Task<ActionResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
         var command = mapper.Map<CreateAccount.Command>(createAccountDto);
-        command.OwnerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        command.OwnerId = GetUserGuid();
         var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
     }
@@ -71,7 +67,8 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     public async Task<ActionResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
         [FromBody] GetTransactionForAccountDto getTransactionForAccountDto)
     {
-        var query = new GetTransactionsForAccount.Query(accountId, 
+        var query = new GetTransactionsForAccount.Query(GetUserGuid(), 
+            accountId, 
             getTransactionForAccountDto.FromDate, 
             getTransactionForAccountDto.ToDate);
         var transactionList = await mediator.Send(query);
@@ -82,7 +79,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [Authorize]
     public async Task<ActionResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
-        var query = new GetTransaction.Query(transactionId);
+        var query = new GetTransaction.Query(GetUserGuid(), transactionId);
         var transaction = await mediator.Send(query);
         return Ok(transaction);
     }
@@ -92,6 +89,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     public async Task<ActionResult<TransactionDto>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
+        command.OwnerId = GetUserGuid();
         var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetTransaction), new {transactionId = result.TransactionId}, result);
     }
@@ -101,8 +99,14 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     public async Task<ActionResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
         var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
+        command.OwnerId = GetUserGuid();
         var result = await mediator.Send(command);
         return CreatedAtAction(nameof(GetAccount), new { accountId = result.AccountId}, result);
+    }
+
+    private Guid GetUserGuid()
+    {
+        return Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
     }
 }
 
