@@ -36,4 +36,17 @@ public static class GetTransactionsForAccount
         }
     }
 
+    public class QueryValidator : AbstractValidator<Query>
+    {
+        public QueryValidator()
+        {
+            RuleFor(command => command.AccountId).GreaterThan(0);
+            RuleFor(command => command.FromDate)
+                .GreaterThan(new DateOnly(1900, 1, 1))
+                .DependentRules(() =>
+                    RuleFor(command => command.ToDate)
+                        .GreaterThan(command => command.FromDate)
+                        .WithMessage("Конец периода должен быть позже начала периода.")
+                );
+           
 }

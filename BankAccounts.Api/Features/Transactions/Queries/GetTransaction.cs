@@ -22,7 +22,12 @@ public static class GetTransaction
                 throw new NotFoundException(nameof(Transaction), request.TransactionId);
             }
 
-            return mapper.Map<TransactionDto>(entity);
+    public class QueryValidator : AbstractValidator<Query>
+    {
+        public QueryValidator()
+        {
+            RuleFor(command => command.OwnerId).NotEmpty();
+            RuleFor(command => command.TransactionId).NotEmpty();
         }
     }
     
