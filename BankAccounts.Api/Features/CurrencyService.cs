@@ -20,6 +20,9 @@ public static class CurrencyService
     /// <exception cref="ArgumentOutOfRangeException"></exception>
    public static decimal Convert(decimal sum, Currencies from, Currencies to)
    {
+       if (from.Equals(to))
+           return sum;
+
        return (from, to) switch
        {
            (Currencies.Rub, Currencies.Eur) => sum / 90m,
@@ -28,7 +31,7 @@ public static class CurrencyService
            (Currencies.Usd, Currencies.Eur) => sum * 80m / 90m,
            (Currencies.Eur, Currencies.Usd) => sum * 1.125m,
            (Currencies.Eur, Currencies.Rub) => sum * 90m,
-           _ => throw new ArgumentOutOfRangeException(nameof(from), from, null)
+           _ => throw new ArgumentOutOfRangeException(nameof(from), from, "from: " + from + " to: " + to)
        };
    }
 }
