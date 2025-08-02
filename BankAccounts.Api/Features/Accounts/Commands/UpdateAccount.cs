@@ -1,5 +1,4 @@
-﻿using BankAccounts.Api.Exceptions;
-using BankAccounts.Api.Infrastructure;
+﻿using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
 
@@ -8,34 +7,43 @@ namespace BankAccounts.Api.Features.Accounts.Commands;
 public static class UpdateAccount
 {
     public record Command(
+        Guid OwnerId,
         int AccountId,
         decimal? InterestRate,
         bool? Close
-    ) : IRequest;
+    ) : IRequest<Unit>;
 
-    public class Handler(IBankAccountsContext dbContext) : IRequestHandler<Command>
+    public class Handler(IBankAccountsDbContext dbDbContext) : BaseRequestHandler<Command, Unit>
     {
-        public async Task Handle(Command request, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await dbContext.Accounts.FindAsync(request.AccountId);
-            if (account == null)
-                throw new NotFoundException(nameof(Account), request.AccountId);
+            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
             if (account.CloseDate == null && request.InterestRate.HasValue)
                 account.InterestRate = request.InterestRate.Value;
-            if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
-                account.CloseDate = DateTime.Now;
 
-            dbContext.Accounts.Update(account);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
+            {
+                if (account.Balance != 0)
+                    throw new Exception("Невозможно закрыть счет на котором есть деньги.");
+                account.CloseDate = DateTime.Now;
+            }
+
+            dbDbContext.Accounts.Update(account);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
+            return Unit.Value;
         }
     }
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsContext dbContext)
+        public CommandValidator()
         {
+            RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.AccountId).GreaterThan(0);
+            RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);
         }
     }
 }
+
+

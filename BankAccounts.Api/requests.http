@@ -1,47 +1,45 @@
-﻿### Create account
-POST http://localhost:5102/api/Accounts
+﻿@adress = https://localhost:80
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZWU4MzcwMC02MGMzLTQ1ZjEtYjVkNy02MTM0NTAyYjU4MzAiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZG1pdHJpeV9rb3Bvc292MiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiM2VjYzdmNTEtOGY5YS00NTE0LTlhNmYtYzAwNmQ4ODVhOWI0IiwiZXhwIjoxNzU0MTIxOTE5LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIn0.HXT0JF5_hFROvWcpxeAt9z9qB8O9lMcEkiDTHXTBZaE
+
+### Create account
+POST {{adress}}/api/Accounts
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountType": "Credit",
     "currency": "rub"
 }
 
 ### Create account
-POST http://localhost:5102/api/Accounts
+POST {{adress}}/api/Accounts
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b",
     "accountType": "Deposit",
     "currency": "eur"
 }
 
 ### Get all user acounts
-GET http://localhost:5102/api/accounts/all
-Content-Type: application/json
-
-{
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
-}
+GET {{adress}}/api/accounts/all
+Authorization: Bearer {{token}}
 
 ### Get account
-GET http://localhost:5102/api/accounts/1
-Content-Type: application/json
-
-{
-    "ownerId": "32fa6b5e-8b1a-4c2a-9f4b-7c8d1e2f3a4b"
-}
+GET {{adress}}/api/accounts/1
+Authorization: Bearer {{token}}
 
 ### Delete account
-DELETE http://localhost:5102/api/accounts/1
+DELETE {{adress}}/api/accounts/1
+Authorization: Bearer {{token}}
 
 ### Patch account
-PATCH http://localhost:5102/api/accounts/1?interestRate=10.00&close=false
+PATCH {{adress}}/api/accounts/1?interestRate=10.00&close=true
+Authorization: Bearer {{token}}
 
 ### Perform transaction
-POST http://localhost:5102/api/accounts/transactions
+POST {{adress}}/api/accounts/transactions
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -51,20 +49,23 @@ Content-Type: application/json
     "description" : "New transaction"
 }
 
-### Get all transaction for account 2025-07-31
-GET http://localhost:5102/api/accounts/2/transactions/
+### Get all transaction for account
+GET {{adress}}/api/accounts/1/transactions/
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "fromDate": "2025-07-30",
-  "toDate": "2025-08-01"
+  "toDate": "2025-08-20"
 }
 
 ### Get transaction by Guid
-GET http://localhost:5102/api/accounts/transactions/4f2feff3-0055-4a28-bd63-4162826219aa
+GET {{adress}}/api/accounts/transactions/8cb51bfe-de5c-4bcc-a19f-c5e89e06bc24
+Authorization: Bearer {{token}}
 
 ### Perform transfer
-POST http://localhost:5102/api/accounts/transfer
+POST {{adress}}/api/accounts/transfer
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

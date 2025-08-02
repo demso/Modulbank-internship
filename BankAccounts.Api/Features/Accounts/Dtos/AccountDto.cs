@@ -2,7 +2,6 @@
 
 public record AccountDto(
     int AccountId,
-    Guid OwnerId,
     AccountType AccountType,
     CurrencyService.Currencies Currency,
     decimal Balance,

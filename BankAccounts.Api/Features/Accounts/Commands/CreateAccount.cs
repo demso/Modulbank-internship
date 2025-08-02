@@ -8,20 +8,18 @@ namespace BankAccounts.Api.Features.Accounts.Commands;
 
 public static class CreateAccount
 {
-    public record Command(
-        Guid OwnerId,
-        AccountType AccountType,
-        CurrencyService.Currencies Currency,
-        decimal InterestRate
-    ) : IRequest<AccountDto>;
-
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command, AccountDto>
+    public record Command : IRequest<AccountDto>
     {
-        public async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
-        {
-            if (request.OwnerId == Guid.Empty)
-                throw new Exception("Поле OwnerId в CreateAccount.Command не должно быть пустым Guid.");
+        public Guid OwnerId { get; set; }
+        public AccountType AccountType { get; init; }
+        public CurrencyService.Currencies Currency { get; init; }
+        public decimal InterestRate { get; init; }
+    };
 
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, AccountDto>
+    {
+        public override async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
+        {
             var account = new Account
             {
                 OwnerId = request.OwnerId,
@@ -31,8 +29,8 @@ public static class CreateAccount
                 OpenDate = DateTime.Now
             };
 
-            await dbContext.Accounts.AddAsync(account, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbDbContext.Accounts.AddAsync(account, cancellationToken);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<AccountDto>(account);
         }
@@ -40,7 +38,7 @@ public static class CreateAccount
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsContext dbContext)
+        public CommandValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.InterestRate).GreaterThanOrEqualTo(0);

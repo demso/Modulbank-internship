@@ -19,9 +19,7 @@ public class MappingProfile : Profile
     {
         CreateMap<Account, AccountDto>();
 
-        //CreateMap<CreateAccountDto, CreateAccount.Command>().ForAllMembers(cfg => cfg.DoNotAllowNull());
         CreateMap<CreateAccountDto, CreateAccount.Command>();
-
 
         CreateMap<Transaction, TransactionDto>();
 

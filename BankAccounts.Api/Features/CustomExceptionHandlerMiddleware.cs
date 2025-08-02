@@ -1,10 +1,7 @@
 ﻿using BankAccounts.Api.Exceptions;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using System;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace BankAccounts.Api.Features;
 
@@ -31,6 +28,9 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
             case ValidationException validationException:
                 code = HttpStatusCode.BadRequest;
                 result = JsonSerializer.Serialize(validationException.Errors);
+                break;
+            case AccountNotFoundException:
+                code = HttpStatusCode.NotFound;
                 break;
             case NotFoundException:
                 code = HttpStatusCode.NotFound;

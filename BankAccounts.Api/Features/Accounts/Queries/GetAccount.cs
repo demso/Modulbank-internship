@@ -1,42 +1,35 @@
 ﻿using AutoMapper;
-using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
-namespace BankAccounts.Api.Features.Accounts.Queries
+namespace BankAccounts.Api.Features.Accounts.Queries;
+
+public static class GetAccount
 {
-    public static class GetAccount
+    public record Query(
+        Guid OwnerId,
+        int AccountId
+    ) : IRequest<AccountDto>;
+    
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, AccountDto>
     {
-        public record Query(
-            int AccountId,
-            Guid OwnerId
-        ) : IRequest<AccountDto>;
-        
-        public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, AccountDto>
+        public override async Task<AccountDto> Handle(Query request, CancellationToken cancellationToken)
         {
-            public async Task<AccountDto> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var entity = await dbContext.Accounts.FirstOrDefaultAsync(account => 
-                    account.AccountId == request.AccountId && account.OwnerId == request.OwnerId, cancellationToken);
-                if (entity == null || !request.OwnerId.Equals(entity.OwnerId))
-                {
-                    throw new NotFoundException(nameof(Account), request.AccountId);
-                }
+            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
-                return mapper.Map<AccountDto>(entity);
-            }
+            return mapper.Map<AccountDto>(account);
         }
+    }
 
-        public class QueryValidator : AbstractValidator<Query>
+    public class QueryValidator : AbstractValidator<Query>
+    {
+        public QueryValidator()
         {
-            public QueryValidator(IBankAccountsContext dbContext)
-            {
-                RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
-                RuleFor(command => command.AccountId).GreaterThan(0);
-            }
+            RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
+            RuleFor(command => command.AccountId).GreaterThan(0);
         }
     }
 }
+

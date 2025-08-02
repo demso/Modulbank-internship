@@ -1,0 +1,20 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+@adress = https://localhost:80/api
+
+### Login
+POST {{adress}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "dmitriy_koposov2",
+    "password": "0000"
+}
+
+### Register
+POST {{adress}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "dmitriy_koposov2",
+    "password": "0000"
+}

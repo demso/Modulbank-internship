@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using BankAccounts.Api.Exceptions;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
@@ -13,11 +12,11 @@ public static class GetAllAccountsForUser
 {
     public record Query(Guid OwnerId) : IRequest<List<AccountDto>>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Query, List<AccountDto>>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, List<AccountDto>>
     {
-        public async Task<List<AccountDto>> Handle(Query request, CancellationToken cancellationToken)
+        public override async Task<List<AccountDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var entities = await dbContext.Accounts
+            var entities = await dbDbContext.Accounts
                 .Where(account => account.OwnerId == request.OwnerId)
                 .ProjectTo<AccountDto>(mapper.ConfigurationProvider)
                 .AsNoTracking()
@@ -29,7 +28,7 @@ public static class GetAllAccountsForUser
 
     public class QueryValidator : AbstractValidator<Query>
     {
-        public QueryValidator(IBankAccountsContext dbContext)
+        public QueryValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
         }

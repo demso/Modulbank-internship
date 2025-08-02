@@ -1,37 +1,38 @@
 ﻿using AutoMapper;
-using BankAccounts.Api.Exceptions;
-using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
 public static class DeleteAccount
 {
     public record Command(
+        Guid OwnerId,
         int AccountId
-    ) : IRequest;
+    ) : IRequest<Unit>;
 
-    public class Handler(IBankAccountsContext dbContext, IMapper mapper) : IRequestHandler<Command>
+    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, Unit>
     {
-        public async Task Handle(Command request, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await dbContext.Accounts.FindAsync(request.AccountId, cancellationToken);
-            if (account == null)
-                throw new NotFoundException(nameof(Account), request.AccountId);
+            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+
             if (account.Balance > 0)
-                throw new Exception("Невозможно ужалить счет пока баланс больше 0.");
-            dbContext.Accounts.Remove(account);
-            await dbContext.SaveChangesAsync(cancellationToken);
+                throw new Exception("Невозможно удалить счет пока баланс больше 0.");
+
+            dbDbContext.Accounts.Remove(account);
+            await dbDbContext.SaveChangesAsync(cancellationToken);
+
+            return Unit.Value;
         }
     }
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator(IBankAccountsContext dbContext)
+        public CommandValidator()
         {
+            RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
             RuleFor(command => command.AccountId).GreaterThan(0);
         }
     }
