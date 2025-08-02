@@ -75,11 +75,4 @@ public class AuthController(
 
         return Ok("Register succeed.");
     }
-
-    [HttpGet]
-    public async Task<ActionResult> Logout(string logoutId) {
-        await signInManager.SignOutAsync();
-        var logoutRequest = await interactionService.GetLogoutContextAsync(logoutId);
-        return Ok("Logged out.");
-    }
 }
