@@ -65,12 +65,9 @@ public class AccountsController(IMapper mapper, IMediator mediator) : Controller
     [HttpGet("{accountId}/transactions")]
     [Authorize]
     public async Task<ActionResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
-        [FromBody] GetTransactionForAccountDto getTransactionForAccountDto)
+        [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetTransactionsForAccount.Query(GetUserGuid(), 
-            accountId, 
-            getTransactionForAccountDto.FromDate, 
-            getTransactionForAccountDto.ToDate);
+        var query = new GetTransactionsForAccount.Query(GetUserGuid(), accountId, fromDate, toDate);
         var transactionList = await mediator.Send(query);
         return Ok(transactionList);
     }
