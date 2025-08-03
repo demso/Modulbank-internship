@@ -50,7 +50,7 @@ public class AuthController(
     }
 
     /// <summary>
-    /// Logins user. Returns token, use it to authorize account operations.
+    /// Logins user.
     /// </summary>
     /// <remarks>
     /// <code>

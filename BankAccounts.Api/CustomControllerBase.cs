@@ -2,7 +2,7 @@
 using System.Security.Claims;
 
 namespace BankAccounts.Api;
-
+// вспомогательные методы для возврата результатов запросов с использованием  MbResult
 public class CustomControllerBase : ControllerBase
 {
     protected Guid GetUserGuid()
