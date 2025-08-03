@@ -87,39 +87,7 @@ public class AuthController(
             });
 
         return Success(StatusCodes.Status200OK, "Login successful");
-
-        //var result = await signInManager.PasswordSignInAsync(data.Username!,
-        //    data.Password!, false, false);
-        //if (!result.Succeeded)
-        //    return Failure(StatusCodes.Status400BadRequest, "Login failed");
-
-        //var token = GenerateJwtToken(user);
-
-        //return Success(StatusCodes.Status200OK, token);
     }
-
-    //private string GenerateJwtToken(BankUser user)
-    //{
-    //    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
-    //    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-    //    var claims = new[]
-    //    {
-    //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-    //        new Claim(ClaimTypes.Name, user.UserName ?? ""),
-    //        new Claim(ClaimTypes.NameIdentifier, user.Id)
-    //    };
-
-    //    var token = new JwtSecurityToken(
-    //        issuer: configuration["Jwt:Issuer"],
-    //        audience: configuration["Jwt:Audience"],
-    //        claims: claims,
-    //        expires: DateTime.Now.AddMinutes(60),
-    //        signingCredentials: credentials
-    //    );
-
-    //    return new JwtSecurityTokenHandler().WriteToken(token);
-    //}
 
 }
 

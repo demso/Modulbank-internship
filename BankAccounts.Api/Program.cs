@@ -54,8 +54,6 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 
 builder.Services.AddAuthentication(config =>
     {
-        //config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         config.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         config.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         config.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -86,23 +84,7 @@ builder.Services.AddAuthentication(config =>
     {
         options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
         options.SlidingExpiration = false;
-    })
-    ;
-//.AddJwtBearer("Bearer", options =>
-//{
-//    options.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ValidateIssuerSigningKey = true,
-//        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//        ValidAudience = builder.Configuration["Jwt:Audience"],
-//        IssuerSigningKey = new SymmetricSecurityKey(
-//            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-//        )
-//    };
-//});
+    });
 
 builder.Services
     .AddEndpointsApiExplorer()
