@@ -24,9 +24,6 @@ public static class PerformTransaction
         {
             var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
 
-            if (request.Amount <= 0)
-                throw new Exception("Количество переводимых средств должно быть больше нуля.");
-
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (request.TransactionType)
             {
