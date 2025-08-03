@@ -27,5 +27,4 @@
   <ItemGroup>
     <None Include="wwwroot\swagger-ui\custom.css" />
   </ItemGroup>
-
 </Project>
