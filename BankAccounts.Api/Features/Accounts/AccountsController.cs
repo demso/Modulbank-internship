@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
+using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Accounts.Queries;
+using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Features.Transactions.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 // ReSharper disable HeuristicUnreachableCode
 // ReSharper disable GrammarMistakeInComment
 #pragma warning disable CS0162 // Unreachable code detected

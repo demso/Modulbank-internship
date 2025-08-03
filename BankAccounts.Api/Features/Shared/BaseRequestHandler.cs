@@ -3,7 +3,7 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure;
 using MediatR;
 
-namespace BankAccounts.Api.Features;
+namespace BankAccounts.Api.Features.Shared;
 
 public abstract class BaseRequestHandler<TRequest, TResponse>
      : IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
@@ -16,7 +16,7 @@ public abstract class BaseRequestHandler<TRequest, TResponse>
 
         if (account == null || account.OwnerId != ownerId)
             throw new AccountNotFoundException(accountId);
-
+        
         return account;
     }
 }

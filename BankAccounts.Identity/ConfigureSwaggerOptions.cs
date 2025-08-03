@@ -11,28 +11,14 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         options.SwaggerDoc("v1", new OpenApiInfo
         {
-            Title = "My API",
+            Title = "Bank Accounts Authentication Server",
+            Description = "Сервер аутентификации для сервиса банковских счетов.",
             Version = "v1"
         });
 
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         options.IncludeXmlComments(xmlPath);
-        
-        options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Cookies"
-                        }
-                    },
-                    []
-                }
-            });
 
         options.CustomOperationIds(apiDescription =>
             apiDescription.TryGetMethodInfo(out var methodInfo)

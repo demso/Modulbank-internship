@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Features;
+﻿namespace BankAccounts.Api.Features.Shared;
 
 public static class CurrencyService
 {
@@ -18,7 +18,7 @@ public static class CurrencyService
     /// <param name="to"></param>
     /// <returns>decimal</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-   public static decimal Convert(decimal sum, Currencies from, Currencies to)
+    public static decimal Convert(decimal sum, Currencies from, Currencies to)
    {
        if (from.Equals(to))
            return sum;

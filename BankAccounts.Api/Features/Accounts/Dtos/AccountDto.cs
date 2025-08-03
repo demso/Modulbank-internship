@@ -1,4 +1,6 @@
-﻿namespace BankAccounts.Api.Features.Accounts.Dtos;
+﻿using BankAccounts.Api.Features.Shared;
+
+namespace BankAccounts.Api.Features.Accounts.Dtos;
 
 public record AccountDto(
     int AccountId,

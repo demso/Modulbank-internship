@@ -38,6 +38,7 @@ public static class Configuration
                 AllowedGrantTypes = GrantTypes.Code,
                 RequireClientSecret = false,
                 RequirePkce = true,
+                RedirectUris = { "https://localhost:80/index.html" },
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
