@@ -1,12 +1,15 @@
-using BankAccounts.Api;
-using BankAccounts.Api.Features;
+using BankAccounts.Api.Common;
+using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Middleware;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,39 +33,23 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 
 builder.Services.AddAuthentication(config =>
     {
-        config.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        config.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        config.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddOpenIdConnect(options =>
+    .AddJwtBearer("Bearer", options =>
     {
         options.Authority = "https://localhost:7044";
-        options.ClientId = "bank-accounts-web-app";
-        options.ClientSecret = "secret";
-        options.ResponseType = "code";
-        options.ResponseMode = "query";
-
-        options.GetClaimsFromUserInfoEndpoint = true;
-        options.SaveTokens = true;
-        options.MapInboundClaims = false;
-
-        options.Scope.Clear();
-        options.Scope.Add("openid");
-        options.Scope.Add("profile");
-        options.Scope.Add("api");
-        options.Scope.Add("offline_access");
-
-        options.TokenValidationParameters.NameClaimType = "name";
-        options.TokenValidationParameters.RoleClaimType = "role";
-    })
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-    {
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-        options.SlidingExpiration = false;
-        options.Events.OnRedirectToLogin = context =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            context.Response.StatusCode = 401;
-            return Task.CompletedTask;
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+            )
         };
     });
 
@@ -73,21 +60,22 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 app.UseSwagger();
 app.UseSwaggerUI(config =>
 {
+    config.InjectStylesheet("/swagger-ui/custom.css");
     config.RoutePrefix = string.Empty;
     config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts API");
 });
+
 app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 app.UseRouting();
-app.UseHttpsRedirection();
-//app.UseIdentityServer();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseHttpsRedirection();
 app.MapControllers();
-
 app.Run();
 
