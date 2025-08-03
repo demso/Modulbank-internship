@@ -6,12 +6,20 @@
       dockerfile: BankAccounts.Api/Dockerfile
     ports:
       - "80:80"
-  
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:81;https://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
   ticktacktoe.identity:
     image: lithiumkgp/bankaccounts.identity:latest
     build:
       context: .
       dockerfile: BankAccounts.Identity/Dockerfile
-    
     ports:
       - "7044:7044"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:7044
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx

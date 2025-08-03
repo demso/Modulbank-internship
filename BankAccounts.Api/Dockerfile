@@ -4,8 +4,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 80
-EXPOSE 81
 
 
 # Этот этап используется для сборки проекта службы
@@ -28,7 +26,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+COPY /BankAccounts.Api/aspnetapp.pfx /app/aspnetapp.pfx
 COPY /BankAccounts.Api/appsettings.json /app/appsettings.json
-COPY /BankAccounts.Api/appsettings.Development.json /app/appsettings.Development.json
 
 ENTRYPOINT ["dotnet", "BankAccounts.Api.dll"]
