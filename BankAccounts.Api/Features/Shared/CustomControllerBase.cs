@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace BankAccounts.Api.Features.Shared;
-
+// вспомогательные методы для возврата результатов запросов с использованием  MbResult
 public class CustomControllerBase : ControllerBase
 {
     protected Guid GetUserGuid()

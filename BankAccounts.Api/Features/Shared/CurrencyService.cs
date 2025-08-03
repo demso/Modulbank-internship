@@ -11,14 +11,14 @@ public static class CurrencyService
     //1 EUR = 90 RUB
     //1 USD = 80 RUB
     /// <summary>
-    /// 
+    /// Convert currency to another.
     /// </summary>
     /// <param name="sum"></param>
     /// <param name="from"></param>
     /// <param name="to"></param>
-    /// <returns></returns>
+    /// <returns>decimal</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-   public static decimal Convert(decimal sum, Currencies from, Currencies to)
+    public static decimal Convert(decimal sum, Currencies from, Currencies to)
    {
        if (from.Equals(to))
            return sum;
