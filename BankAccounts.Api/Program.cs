@@ -4,15 +4,13 @@ using BankAccounts.Api.Identity;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +43,7 @@ builder.Services.AddIdentityServer()
     .AddInMemoryIdentityResources(Configuration.IdentityResources)
     .AddInMemoryApiScopes(Configuration.ApiScopes)
     .AddInMemoryClients(Configuration.Clients)
-    .AddDeveloperSigningCredential();
+    .AddDeveloperSigningCredential() ;
 
 builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 {
@@ -56,26 +54,58 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 
 builder.Services.AddAuthentication(config =>
     {
-        config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        //config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        //config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        config.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        config.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        config.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer("Bearer", options =>
+    .AddOpenIdConnect(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-            )
-        };
-    });
+        options.Authority = "https://demo.duendesoftware.com";
+        options.ClientId = "interactive.confidential";
+        options.ClientSecret = "secret";
+        options.ResponseType = "code";
+        options.ResponseMode = "query";
+
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.SaveTokens = true;
+        options.MapInboundClaims = false;
+
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("api");
+        options.Scope.Add("offline_access");
+
+        options.TokenValidationParameters.NameClaimType = "name";
+        options.TokenValidationParameters.RoleClaimType = "role";
+    })
+
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.SlidingExpiration = false;
+    })
+    ;
+//.AddJwtBearer("Bearer", options =>
+//{
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+//        ValidAudience = builder.Configuration["Jwt:Audience"],
+//        IssuerSigningKey = new SymmetricSecurityKey(
+//            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+//        )
+//    };
+//});
 
 builder.Services
+    .AddEndpointsApiExplorer()
     .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
     .AddSwaggerGen();
 
