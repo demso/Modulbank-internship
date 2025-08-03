@@ -1,9 +1,10 @@
-﻿using BankAccounts.Api.Exceptions;
+﻿using BankAccounts.Api.Common;
+using BankAccounts.Api.Exceptions;
 using FluentValidation;
 using System.Net;
 using System.Text.Json;
 
-namespace BankAccounts.Api.Features;
+namespace BankAccounts.Api.Middleware;
 
 public class CustomExceptionHandlerMiddleware(RequestDelegate next)
 {

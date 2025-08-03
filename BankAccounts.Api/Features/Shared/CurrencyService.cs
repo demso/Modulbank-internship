@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Features;
+﻿namespace BankAccounts.Api.Features.Shared;
 
 public static class CurrencyService
 {

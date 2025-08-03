@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BankAccounts.Api.Features.Shared;
+using System.ComponentModel.DataAnnotations;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace BankAccounts.Api.Features.Transactions;

@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BankAccounts.Api.Common;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace BankAccounts.Api;
+namespace BankAccounts.Api.Features.Shared;
 
 public class CustomControllerBase : ControllerBase
 {
