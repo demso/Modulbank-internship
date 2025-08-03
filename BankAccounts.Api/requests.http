@@ -3,7 +3,7 @@
 
 ### Create account 1
 POST {{address}}/api/Accounts
-Authorization: Bearer {{token}}
+accept: application/json
 Content-Type: application/json
 
 {
