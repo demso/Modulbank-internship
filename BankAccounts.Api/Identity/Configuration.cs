@@ -1,6 +1,6 @@
-﻿using IdentityModel;
-using IdentityServer4;
-using IdentityServer4.Models;
+﻿using Duende.IdentityModel;
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace BankAccounts.Api.Identity;
 
@@ -38,18 +38,6 @@ public static class Configuration
                 AllowedGrantTypes = GrantTypes.Code,
                 RequireClientSecret = false,
                 RequirePkce = true,
-                RedirectUris =
-                {
-                    "https://localhost:80/signin-oidc"
-                },
-                AllowedCorsOrigins =
-                {
-                    "https://localhost:80"
-                },
-                PostLogoutRedirectUris =
-                {
-                    "https://localhost:80/signout-oidc"
-                },
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
