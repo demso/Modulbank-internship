@@ -6,13 +6,13 @@ using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using Transaction = BankAccounts.Api.Features.Transactions.Transaction;
 
-namespace BankAccounts.Api;
+namespace BankAccounts.Api.Features.Shared;
 
 public class MappingProfile : Profile
 {
     /// <summary>
     /// Инициализирует новый экземпляр <see cref="MappingProfile"/>,
-    /// настраивая правила преобразования между <see cref="AccountCreateDto"/> и <see cref="Account"/>,
+    /// настраивая правила преобразования между <see cref="CreateAccountDto"/> и <see cref="Account"/>,
     /// а также между <see cref="Account"/> и <see cref="AccountDto"/>.
     /// </summary>
     public MappingProfile()

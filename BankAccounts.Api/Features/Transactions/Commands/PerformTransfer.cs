@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Exceptions;
+using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
 
@@ -24,15 +26,12 @@ public static class PerformTransfer
 
             var fromAccount = await GetValidAccount(dbDbContext, request.FromAccountId, request.OwnerId, cancellationToken);
 
-            var toAccount = await dbDbContext.Accounts.FindAsync(request.ToAccountId, cancellationToken);
+            var toAccount = await dbDbContext.Accounts.FindAsync([request.ToAccountId], cancellationToken);
 
             if (toAccount is null)
                 throw new AccountNotFoundException(request.ToAccountId);
-
-            if (request.Amount <= 0)
-                throw new Exception("Количество переводимых средств должно быть больше нуля.");
-
-            var transactionFrom = new Transaction()
+            
+            var transactionFrom = new Transaction
             {
                 AccountId = fromAccount.AccountId,
                 Amount = request.Amount,
@@ -46,7 +45,7 @@ public static class PerformTransfer
 
             var toAccountAmount = CurrencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
 
-            var transactionTo = new Transaction()
+            var transactionTo = new Transaction
             {
                 AccountId = toAccount.AccountId,
                 Amount = toAccountAmount,

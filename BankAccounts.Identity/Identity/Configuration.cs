@@ -1,15 +1,15 @@
-﻿using IdentityModel;
-using IdentityServer4;
-using IdentityServer4.Models;
+﻿using Duende.IdentityModel;
+using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace BankAccounts.Api.Identity;
 
-public class Configuration
+public static class Configuration
 {
     public static IEnumerable<ApiScope> ApiScopes =>
         new List<ApiScope>
         {
-            new ApiScope("BankAccountsWebAPI", "Web API")
+            new("BankAccountsWebAPI", "Web API")
         };
 
     public static IEnumerable<IdentityResource> IdentityResources =>
@@ -22,8 +22,7 @@ public class Configuration
     public static IEnumerable<ApiResource> ApiResources =>
         new List<ApiResource>
         {
-            new ApiResource("BankAccountsWebAPI", "Web API", new []
-                { JwtClaimTypes.Name})
+            new("BankAccountsWebAPI", "Web API", [JwtClaimTypes.Name])
             {
                 Scopes = { "BankAccountsWebAPI" }
             }
@@ -32,25 +31,14 @@ public class Configuration
     public static IEnumerable<Client> Clients =>
         new List<Client>
         {
-            new Client
+            new()
             {
                 ClientId = "bank-accounts-web-app",
                 ClientName = "Bank Accounts Web",
                 AllowedGrantTypes = GrantTypes.Code,
                 RequireClientSecret = false,
                 RequirePkce = true,
-                RedirectUris =
-                {
-                    "https://localhost:80/signin-oidc"
-                },
-                AllowedCorsOrigins =
-                {
-                    "https://localhost:80"
-                },
-                PostLogoutRedirectUris =
-                {
-                    "https://localhost:80/signout-oidc"
-                },
+                RedirectUris = { "https://localhost:80/index.html" },
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,

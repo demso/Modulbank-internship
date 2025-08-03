@@ -1,0 +1,70 @@
+﻿@address = https://localhost:80
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1YTk5NTEzNS0xMWE3LTQxNzMtODllOS1iMzJmNzYwMjBmNzYiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoic3RyaW5nIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiJhYTlhOWZhNS0xM2IxLTQyZDQtYTA4MS1lYzI0MDNjNjgxOWQiLCJleHAiOjE3NTQxNTc3NzAsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjgwIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODAifQ.qU5TaNHNMuGpFDTgIf3AUlDhnKLT_RI92w1qeYVsJKM
+
+### Create account 1
+POST {{address}}/api/Accounts
+accept: application/json
+Content-Type: application/json
+
+{
+    "accountType": "Checking",
+    "currency": "rub",
+    "interestRate": 0.00
+}
+
+### Create account 2
+POST {{address}}/api/Accounts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "accountType": "Deposit",
+    "currency": "eur"
+}
+
+### Get all user accounts
+GET {{address}}/api/accounts/all
+Authorization: Bearer {{token}}
+
+### Get account 1
+GET {{address}}/api/accounts/1
+Authorization: Bearer {{token}}
+
+### Delete account 1
+DELETE {{address}}/api/accounts/1
+Authorization: Bearer {{token}}
+
+### Patch account 1
+PATCH {{address}}/api/accounts/1?interestRate=10.00&close=true
+Authorization: Bearer {{token}}
+
+### Perform transaction +100 rub to account 1
+POST {{address}}/api/accounts/transactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "accountId": 1,
+    "transactionType": "Debit",
+    "amount": 100.00,
+    "description" : "New transaction"
+}
+
+### Get all transaction for account 1
+GET {{address}}/api/accounts/1/transactions?fromDate=2025-07-30&toDate=2025-08-20
+Authorization: Bearer {{token}}
+
+### Get transaction by Guid
+GET {{address}}/api/accounts/transactions/bcfc6245-5c18-473e-a12a-f3d390722790
+Authorization: Bearer {{token}}
+
+### Perform transfer from account 1 to 2 100 rub
+POST {{address}}/api/accounts/transfer
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "fromAccountId": 1,
+    "toAccountId": 2,
+    "amount": 100.00
+}

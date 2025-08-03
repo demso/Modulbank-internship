@@ -1,0 +1,12 @@
+﻿.swagger-ui .info .description p {
+    font-size: 20px !important;
+    line-height: 1.6 !important;
+}
+
+.swagger-ui .info .description a {
+    color: green !important;
+    font-size: 20px !important;
+    line-height: 1.6 !important;
+}
+
+   

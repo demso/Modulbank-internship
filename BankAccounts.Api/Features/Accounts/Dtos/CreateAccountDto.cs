@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BankAccounts.Api.Features.Shared;
+using System.ComponentModel.DataAnnotations;
+// ReSharper disable NotAccessedPositionalProperty.Global
 
 namespace BankAccounts.Api.Features.Accounts.Dtos;
 

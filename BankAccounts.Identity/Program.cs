@@ -1,35 +1,39 @@
-using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure;
-using BankAccounts.Api.Middleware;
-using FluentValidation;
-using MediatR;
+using System.Text;
+using BankAccounts.Api.Features;
+using BankAccounts.Api.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddDbContext<BankAccountsDbContext>()
-    .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
-    .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
-    .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())
-    .AddAutoMapper(options => options.AddProfile(new MappingProfile()))
-    .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
+    .AddDbContext<AuthDbContext>()
+    .AddScoped<IdentityDbContext<BankUser>>(provider => provider.GetRequiredService<AuthDbContext>())
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
+builder.Services.AddIdentity<BankUser, IdentityRole>(config =>
 {
-    policy.AllowAnyHeader();
-    policy.AllowAnyMethod();
-    policy.AllowAnyOrigin();
-}));
+    config.Password.RequiredLength = 4;
+    config.Password.RequireDigit = false;
+    config.Password.RequireNonAlphanumeric = false;
+    config.Password.RequireUppercase = false;
+    config.Password.RequireLowercase = false;
+})
+    .AddEntityFrameworkStores<AuthDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddIdentityServer()
+    .AddAspNetIdentity<BankUser>()
+    .AddInMemoryApiResources(Configuration.ApiResources)
+    .AddInMemoryIdentityResources(Configuration.IdentityResources)
+    .AddInMemoryApiScopes(Configuration.ApiScopes)
+    .AddInMemoryClients(Configuration.Clients);
 
 builder.Services.AddAuthentication(config =>
     {
@@ -38,7 +42,6 @@ builder.Services.AddAuthentication(config =>
     })
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://localhost:7044";
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -60,22 +63,17 @@ builder.Services
 
 var app = builder.Build();
 
-app.UseStaticFiles();
-
 app.UseSwagger();
 app.UseSwaggerUI(config =>
 {
-    config.InjectStylesheet("/swagger-ui/custom.css");
     config.RoutePrefix = string.Empty;
-    config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts API");
+    config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts Authorization");
 });
-
-app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 app.UseRouting();
-app.UseCors("AllowAll");
+app.UseIdentityServer();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapControllers();
+
 app.Run();
 

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Exceptions;
+using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 

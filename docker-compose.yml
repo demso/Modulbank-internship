@@ -1,0 +1,17 @@
+﻿services:
+  ticktacktoe.api:
+    image: lithiumkgp/bankaccounts.api:latest
+    build:
+      context: .
+      dockerfile: BankAccounts.Api/Dockerfile
+    ports:
+      - "80:80"
+  
+  ticktacktoe.identity:
+    image: lithiumkgp/bankaccounts.identity:latest
+    build:
+      context: .
+      dockerfile: BankAccounts.Identity/Dockerfile
+    
+    ports:
+      - "7044:7044"

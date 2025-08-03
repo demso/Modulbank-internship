@@ -1,6 +1,8 @@
-﻿using BankAccounts.Api.Infrastructure;
+﻿using BankAccounts.Api.Features.Shared;
+using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
+// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 

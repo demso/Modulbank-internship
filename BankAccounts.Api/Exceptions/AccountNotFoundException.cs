@@ -3,4 +3,4 @@
 namespace BankAccounts.Api.Exceptions;
 
 public class AccountNotFoundException(int accountId) 
-    : NotFoundException(nameof(Account), accountId, "У вас нет такого счета.") { }
+    : NotFoundException(nameof(Account), accountId, "У вас нет такого счета.");

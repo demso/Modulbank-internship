@@ -1,4 +1,6 @@
-﻿namespace BankAccounts.Api.Features.Accounts;
+﻿using BankAccounts.Api.Features.Shared;
+
+namespace BankAccounts.Api.Features.Accounts;
 
 public class Account
 {

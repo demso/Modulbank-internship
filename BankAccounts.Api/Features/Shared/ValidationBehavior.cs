@@ -2,7 +2,7 @@
 using FluentValidation.Results;
 using MediatR;
 
-namespace BankAccounts.Api.Features;
+namespace BankAccounts.Api.Features.Shared;
 
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse> where TRequest :IRequest<TResponse>

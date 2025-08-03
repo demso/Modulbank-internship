@@ -1,9 +1,10 @@
-﻿namespace BankAccounts.Api.Features.Transactions.Dtos;
+﻿using BankAccounts.Api.Features.Shared;
+
+namespace BankAccounts.Api.Features.Transactions.Dtos;
 
 public record TransactionDto(
     Guid TransactionId,
     int AccountId,
-    Guid? CounterpartyAccountId,
     decimal Amount,
     CurrencyService.Currencies Currency,
     TransactionType? TransactionType,
