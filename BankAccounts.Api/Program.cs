@@ -65,7 +65,7 @@ app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI(config =>
 {
-    config.InjectStylesheet("/swagger-ui/custom.css");
+    config.InjectStylesheet("swagger-ui/custom.css");
     config.RoutePrefix = string.Empty;
     config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts API");
 });
