@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 // ReSharper disable GrammarMistakeInComment
@@ -15,10 +17,10 @@ public class AuthController(
     SignInManager<BankUser> signInManager,
     UserManager<BankUser> userManager,
     IConfiguration configuration)
-    : CustomControllerBase
+    : ControllerBase
 {
     /// <summary>
-    /// Registers user. You need to login to be able to operate accounts.
+    /// Registers user.
     /// </summary>
     /// <remarks>
     /// <code>
@@ -28,9 +30,9 @@ public class AuthController(
     /// <response code="200">Success</response>
     /// <response code="400">Registration error</response>
     [HttpPost]
-    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
-    public async Task<MbResult<string>> Register(RegisterData data)
+    [ProducesResponseType(typeof(ActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> Register(RegisterData data)
     {
         var user = new BankUser
         {
@@ -41,12 +43,12 @@ public class AuthController(
         if (!result.Succeeded)
         {
             var errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
-            return Failure(StatusCodes.Status400BadRequest, errorMessage);
+            return BadRequest(errorMessage);
         }
 
         await signInManager.SignInAsync(user, false);
 
-        return Success(StatusCodes.Status200OK, "Register succeed.");
+        return Ok("Register succeed.");
     }
 
     /// <summary>
@@ -61,60 +63,44 @@ public class AuthController(
     /// <response code="400">Login error</response>
     ///  <response code="404">User is not registered</response>
     [HttpPost]
-    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MbResult<string>), StatusCodes.Status404NotFound)]
-    public async Task<MbResult<string>> Login(LoginData data) {
+    [ProducesResponseType(typeof(ActionResult), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> Login(LoginData data) {
         var user = await userManager.FindByNameAsync(data.Username!);
         if (user == null)
-            return Failure(StatusCodes.Status404NotFound, "User is not registered");
+            return NotFound("User is not registered");
 
-        var claims = new List<Claim>
-        {
-            new Claim("sub", Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
-        };
+        var result = await signInManager.PasswordSignInAsync(data.Username!,
+            data.Password!, false, false);
+        if (!result.Succeeded)
+            return BadRequest("Login failed");
 
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var token = GenerateJwtToken(user);
 
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            claimsPrincipal,
-            new AuthenticationProperties
-            {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10) 
-            });
-
-        return Success(StatusCodes.Status200OK, "Login successful");
+        return Ok(token);
     }
 
-}
-
-public class SubjectClaimsTransformation : IClaimsTransformation
-{
-    public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
+    private string GenerateJwtToken(BankUser user)
     {
-        if (principal.Identity.IsAuthenticated)
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
         {
-            var identity = (ClaimsIdentity)principal.Identity;
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, user.UserName ?? ""),
+            new Claim(ClaimTypes.NameIdentifier, user.Id)
+        };
 
-            // Если нет sub claim - добавляем
-            if (!principal.HasClaim(c => c.Type == "sub"))
-            {
-                var nameId = principal.FindFirst(ClaimTypes.NameIdentifier);
-                if (nameId != null)
-                {
-                    identity.AddClaim(new Claim("sub", nameId.Value));
-                }
-                else
-                {
-                    // Добавляем фиктивный sub
-                    identity.AddClaim(new Claim("sub", Guid.NewGuid().ToString()));
-                }
-            }
-        }
+        var token = new JwtSecurityToken(
+            issuer: configuration["Jwt:Issuer"],
+            audience: configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(60),
+            signingCredentials: credentials
+        );
 
-        return Task.FromResult(principal);
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

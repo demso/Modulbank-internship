@@ -27,4 +27,8 @@ RUN dotnet publish "./BankAccounts.Identity.csproj" -c $BUILD_CONFIGURATION -o /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+COPY /BankAccounts.Api/appsettings.json /app/appsettings.json
+COPY /BankAccounts.Api/appsettings.Development.json /app/appsettings.Development.json
+
 ENTRYPOINT ["dotnet", "BankAccounts.Identity.dll"]
