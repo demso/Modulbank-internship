@@ -17,10 +17,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.7" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\BankAccounts.Api\BankAccounts.Api.csproj" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.3" />
 	</ItemGroup>
 
 </Project>

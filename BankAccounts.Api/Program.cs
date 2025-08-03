@@ -1,19 +1,23 @@
 using BankAccounts.Api;
 using BankAccounts.Api.Features;
 using BankAccounts.Api.Infrastructure;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddDbContext<BankAccountsDbContext>()
+    .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
     .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
     .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())
     .AddAutoMapper(options => options.AddProfile(new MappingProfile()))
+    .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -32,8 +36,8 @@ builder.Services.AddAuthentication(config =>
     })
     .AddOpenIdConnect(options =>
     {
-        options.Authority = "";
-        options.ClientId = "interactive.confidential";
+        options.Authority = "https://localhost:7044";
+        options.ClientId = "bank-accounts-web-app";
         options.ClientSecret = "secret";
         options.ResponseType = "code";
         options.ResponseMode = "query";
