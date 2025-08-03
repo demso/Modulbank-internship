@@ -16,7 +16,7 @@ public abstract class BaseRequestHandler<TRequest, TResponse>
 
         if (account == null || account.OwnerId != ownerId)
             throw new AccountNotFoundException(accountId);
-
+        
         return account;
     }
 }
