@@ -4,6 +4,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
+EXPOSE 7044
 
 
 # Этот этап используется для сборки проекта службы
