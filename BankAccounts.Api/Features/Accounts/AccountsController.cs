@@ -136,7 +136,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpPatch("{accountId:int}")]
     [Authorize]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
