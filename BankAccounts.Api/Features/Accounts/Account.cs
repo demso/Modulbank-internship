@@ -1,4 +1,4 @@
-﻿using BankAccounts.Api.Features.CurrencyService;
+﻿using BankAccounts.Api.Infrastructure.CurrencyService;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 

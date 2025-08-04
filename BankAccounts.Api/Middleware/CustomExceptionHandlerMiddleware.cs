@@ -1,5 +1,5 @@
 ﻿using BankAccounts.Api.Common;
-using BankAccounts.Api.Exceptions;
+using BankAccounts.Api.Common.Exceptions;
 using FluentValidation;
 using System.Net;
 using System.Text.Json;

@@ -4,12 +4,12 @@
     "Projects": [
       {
         "Path": "BankAccounts.Api\\BankAccounts.Api.csproj",
-        "Action": "StartWithoutDebugging",
+        "Action": "Start",
         "DebugTarget": "https"
       },
       {
         "Path": "BankAccounts.Identity\\BankAccounts.Identity.csproj",
-        "Action": "StartWithoutDebugging",
+        "Action": "Start",
         "DebugTarget": "https"
       }
     ]

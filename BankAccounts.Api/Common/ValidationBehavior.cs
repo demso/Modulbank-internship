@@ -3,7 +3,7 @@ using FluentValidation.Results;
 using MediatR;
 
 
-namespace BankAccounts.Api.Features.Shared;
+namespace BankAccounts.Api.Common;
 /// <summary>
 /// Класс для настройки поведения валидаторов
 /// </summary>

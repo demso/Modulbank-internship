@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Features.CurrencyService;
+﻿namespace BankAccounts.Api.Infrastructure.CurrencyService;
 /// <summary>
 /// Сервис конвертации валют.
 /// </summary>

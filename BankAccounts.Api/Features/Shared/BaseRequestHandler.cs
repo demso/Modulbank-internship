@@ -1,6 +1,6 @@
-﻿using BankAccounts.Api.Exceptions;
+﻿using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Infrastructure.Database;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Shared;

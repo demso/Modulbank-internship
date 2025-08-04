@@ -3,7 +3,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
-namespace BankAccounts.Api.Common;
+namespace BankAccounts.Api.Infrastructure;
 
 /// <summary>
 /// Класс для конфигурации Swagger

@@ -2,7 +2,7 @@
 using BankAccounts.Api.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankAccounts.Api.Infrastructure;
+namespace BankAccounts.Api.Infrastructure.Database;
 
 /// <summary>
 /// Интерфейс для бд банковских счетов

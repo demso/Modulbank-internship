@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Features.CurrencyService;
+﻿namespace BankAccounts.Api.Infrastructure.CurrencyService;
 
 /// <summary>
 /// Валюты, доступные в банковском сервисе

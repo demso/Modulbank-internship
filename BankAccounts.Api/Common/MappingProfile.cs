@@ -6,7 +6,7 @@ using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
 
-namespace BankAccounts.Api.Features.Shared;
+namespace BankAccounts.Api.Common;
 
 /// <summary>
 /// Профиль для сопоставления типов

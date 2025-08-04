@@ -1,6 +1,3 @@
-using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Middleware;
 using FluentValidation;
 using MediatR;
@@ -11,7 +8,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using BankAccounts.Api.Features.CurrencyService;
+using BankAccounts.Api.Infrastructure.CurrencyService;
+using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 

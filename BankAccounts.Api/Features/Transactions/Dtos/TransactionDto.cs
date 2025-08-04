@@ -1,4 +1,4 @@
-﻿using BankAccounts.Api.Features.CurrencyService;
+﻿using BankAccounts.Api.Infrastructure.CurrencyService;
 
 namespace BankAccounts.Api.Features.Transactions.Dtos;
 

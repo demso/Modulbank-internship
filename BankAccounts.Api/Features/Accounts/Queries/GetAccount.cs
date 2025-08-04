@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Infrastructure.Database;
 using FluentValidation;
 using MediatR;
 

@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Infrastructure.CurrencyService;
+using BankAccounts.Api.Infrastructure.Database;
 using FluentValidation;
 using MediatR;
 
@@ -28,7 +29,7 @@ public static class CreateAccount
         /// <summary>
         /// Валюта
         /// </summary>
-        public CurrencyService.Currencies Currency { get; init; }
+        public Currencies Currency { get; init; }
         /// <summary>
         /// Процентная ставка
         /// </summary>

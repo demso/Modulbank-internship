@@ -1,7 +1,6 @@
 ﻿using BankAccounts.Api.Common;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace BankAccounts.Api.Features.Shared;
 /// <summary>
@@ -9,17 +8,31 @@ namespace BankAccounts.Api.Features.Shared;
 /// </summary>
 public class CustomControllerBase : ControllerBase
 {
+    /// <summary>
+    /// Возвращает Guid пользователя
+    /// </summary>
+    /// <returns></returns>
     protected Guid GetUserGuid()
     {
         return Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
     }
 
+    /// <summary>
+    /// Возвращает MbResult с IsSuccess = true и заданный кодом
+    /// </summary>
+    /// <param name="statusCode">Http статус код</param>
+    /// <returns>MbResult</returns>
     protected MbResult Success(int statusCode)
     {
         HttpContext.Response.StatusCode = statusCode;
         return MbResult.Success(statusCode);
     }
 
+    /// <summary>
+    /// Возвращает MbResult с IsSuccess = true, заданный кодом и значением
+    /// </summary>
+    /// <param name="statusCode">Http статус код</param>
+    /// <returns>MbResult</returns>
     protected MbResult<T> Success<T>(int statusCode, T value)
     {
         HttpContext.Response.StatusCode = statusCode;
