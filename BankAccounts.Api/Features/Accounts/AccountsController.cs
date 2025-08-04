@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Features.Accounts.Dtos;
@@ -226,6 +227,27 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
         var query = new GetTransactionsForAccount.Query(GetUserGuid(), accountId, fromDate, toDate);
         var transactionList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, transactionList);
+    }
+
+    /// <summary>
+    /// Возвращает банковскую выписку об операциях по счету
+    /// </summary>
+    /// <param name="accountId">Id аккаунта</param>
+    /// <param name="fromDate">Начало периода</param>
+    /// <param name="toDate">Конец периода</param>
+    /// <returns>MbResult&lt;BankStatement&gt;</returns>
+    [HttpGet("{accountId:int}/statement")]
+    [Authorize]
+    [ProducesResponseType(typeof(MbResult<BankStatement>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
+    public async Task<MbResult<BankStatement>> GetStatementForAccount(int accountId,
+        [FromQuery] DateOnly? fromDate, DateOnly? toDate)
+    {
+        var query = new GetBankStatement.Query(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!, accountId, fromDate, toDate);
+        var bankStatement = await mediator.Send(query);
+        return Success(StatusCodes.Status200OK, bankStatement);
     }
 
     /// <summary>

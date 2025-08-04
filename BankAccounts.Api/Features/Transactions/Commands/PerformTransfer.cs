@@ -6,6 +6,7 @@ using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database;
 using FluentValidation;
 using MediatR;
+// ReSharper disable once UnusedType.Global Класс используется посредником
 
 namespace BankAccounts.Api.Features.Transactions.Commands;
 
@@ -95,7 +96,6 @@ public static class PerformTransfer
     /// <summary>
     /// Валидатор команды
     /// </summary>
-    // ReSharper disable once UnusedType.Global Класс используется посредником
     public class CommandValidator : AbstractValidator<Command>
     {
         

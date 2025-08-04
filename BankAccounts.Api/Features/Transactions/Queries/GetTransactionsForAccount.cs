@@ -6,6 +6,7 @@ using BankAccounts.Api.Infrastructure.Database;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable once UnusedType.Global Класс используется посредником
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
@@ -52,7 +53,6 @@ public static class GetTransactionsForAccount
     /// <summary>
     /// Валидатор команды
     /// </summary>
-    // ReSharper disable once UnusedType.Global Класс используется посредником
     public class QueryValidator : AbstractValidator<Query>
     {
         /// <summary>
