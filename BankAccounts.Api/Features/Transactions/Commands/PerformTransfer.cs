@@ -62,7 +62,7 @@ public static class PerformTransfer
                 Currency = fromAccount.Currency,
                 TransactionType = TransactionType.Credit,
                 DateTime = DateTime.Now,
-                Description = $"Transaction from {fromAccount.AccountId} account."
+                Description = $"Transaction from {fromAccount.AccountId} account to {toAccount.AccountId}."
             };
 
             fromAccount.Balance -= request.Amount;
@@ -77,7 +77,7 @@ public static class PerformTransfer
                 Currency = toAccount.Currency,
                 TransactionType = TransactionType.Debit,
                 DateTime = DateTime.Now,
-                Description = $"Transaction to {toAccount.AccountId} account."
+                Description = $"Transaction to {toAccount.AccountId} account from {fromAccount.AccountId}."
             };
 
             toAccount.Balance += toAccountAmount;
