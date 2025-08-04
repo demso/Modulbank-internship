@@ -1,5 +1,6 @@
-﻿using BankAccounts.Api.Features.Shared;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using BankAccounts.Api.Features.CurrencyService;
+
 // ReSharper disable NotAccessedPositionalProperty.Global Параметры используются
 
 namespace BankAccounts.Api.Features.Accounts.Dtos;
@@ -12,6 +13,6 @@ namespace BankAccounts.Api.Features.Accounts.Dtos;
 /// <param name="InterestRate">Прочентная ставка</param>
 public record CreateAccountDto(
     [Required] AccountType? AccountType,
-    [Required] CurrencyService.Currencies? Currency,
+    [Required] Currencies? Currency,
      decimal? InterestRate
 );

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Exceptions;
+using BankAccounts.Api.Features.CurrencyService;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure;
@@ -40,10 +41,10 @@ public static class PerformTransfer
     /// Обработчик команды. Трансфер происходит с использованием двух транзакций, одна снимает средства с исходного счета
     /// и одна зачисляет на конченый счет.
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
+    public class Handler(IBankAccountsDbContext dbDbContext, ICurrencyService currencyService, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
     {
         /// <inheritdoc />
-        public override async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
+        public override async Task<TransactionDto> Handle(Command request,  CancellationToken cancellationToken)
         {
 
             var fromAccount = await GetValidAccount(dbDbContext, request.FromAccountId, request.OwnerId, cancellationToken);
@@ -65,7 +66,7 @@ public static class PerformTransfer
 
             fromAccount.Balance -= request.Amount;
             // Если необходимо, конвертируем валюту в валюту конечного счета
-            var toAccountAmount = CurrencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
+            var toAccountAmount = currencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
 
             var transactionTo = new Transaction
             {

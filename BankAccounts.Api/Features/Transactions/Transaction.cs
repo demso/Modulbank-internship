@@ -1,5 +1,6 @@
-﻿using BankAccounts.Api.Features.Shared;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using BankAccounts.Api.Features.CurrencyService;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global Свойства используются
 
 namespace BankAccounts.Api.Features.Transactions;
@@ -24,7 +25,7 @@ public class Transaction
     /// <summary>
     /// Валюта
     /// </summary>
-    public CurrencyService.Currencies Currency { get; init; }
+    public Currencies Currency { get; init; }
     /// <summary>
     /// Тип транзакции
     /// </summary>

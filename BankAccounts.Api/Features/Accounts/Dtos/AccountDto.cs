@@ -1,4 +1,4 @@
-﻿using BankAccounts.Api.Features.Shared;
+﻿using BankAccounts.Api.Features.CurrencyService;
 
 namespace BankAccounts.Api.Features.Accounts.Dtos;
 
@@ -15,7 +15,7 @@ namespace BankAccounts.Api.Features.Accounts.Dtos;
 public record AccountDto(
     int AccountId,
     AccountType AccountType,
-    CurrencyService.Currencies Currency,
+    Currencies Currency,
     decimal Balance,
     decimal? InterestRate,
     DateTime OpenDate,

@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using BankAccounts.Api.Features.CurrencyService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services
     .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
     .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
     .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())
+    .AddTransient<ICurrencyService, CurrencyService>()
     .AddAutoMapper(options => options.AddProfile(new MappingProfile()))
     .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
     .AddControllers()
