@@ -94,7 +94,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Удалаяет аккаунт (not supported)
+    /// Удалаяет счет (not supported)
     /// </summary>
     /// <remarks>
     /// <code>
@@ -174,7 +174,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Производит трансфер денешных средств с одного счета на другой
+    /// Производит трансфер денежных средств с одного счета на другой
     /// </summary>
     /// <remarks>
     /// <code>
@@ -200,7 +200,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Возвращвет все транзакции по счету или только за определенный период
+    /// Возвращает все транзакции по счету или только за определенный период
     /// </summary>
     /// <remarks>
     /// <code>
