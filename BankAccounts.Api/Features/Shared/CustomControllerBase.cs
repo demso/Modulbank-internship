@@ -1,9 +1,12 @@
 ﻿using BankAccounts.Api.Common;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace BankAccounts.Api.Features.Shared;
-// вспомогательные методы для возврата результатов запросов с использованием  MbResult
+/// <summary>
+/// Вспомогательные методы для возврата результатов запросов с использованием  MbResult
+/// </summary>
 public class CustomControllerBase : ControllerBase
 {
     protected Guid GetUserGuid()
@@ -21,11 +24,5 @@ public class CustomControllerBase : ControllerBase
     {
         HttpContext.Response.StatusCode = statusCode;
         return MbResult<T>.Success(statusCode, value);
-    }
-
-    protected MbResult<T> Failure<T>(int statusCode, T message)
-    {
-        HttpContext.Response.StatusCode = statusCode;
-        return MbResult<T>.Failure(statusCode, message?.ToString());
     }
 }

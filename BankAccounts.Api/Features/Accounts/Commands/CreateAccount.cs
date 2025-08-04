@@ -4,22 +4,43 @@ using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
-// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
+/// <summary>
+/// Создание счета
+/// </summary>
 public static class CreateAccount
 {
+    /// <summary>
+    /// Команда для создания счета
+    /// </summary>
     public record Command : IRequest<AccountDto>
     {
+        /// <summary>
+        /// Id пользователя
+        /// </summary>
         public Guid OwnerId { get; set; }
+        /// <summary>
+        /// Тип счета
+        /// </summary>
         public AccountType AccountType { get; init; }
+        /// <summary>
+        /// Валюта
+        /// </summary>
         public CurrencyService.Currencies Currency { get; init; }
+        /// <summary>
+        /// Процентная ставка
+        /// </summary>
         public decimal InterestRate { get; init; }
     }
 
+    /// <summary>
+    /// Обработчик команды
+    /// </summary>
     public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, AccountDto>
     {
+        /// <inheritdoc />
         public override async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
         {
             var account = new Account
@@ -37,9 +58,15 @@ public static class CreateAccount
             return mapper.Map<AccountDto>(account);
         }
     }
-
+    /// <summary>
+    /// Валидатор команды
+    /// </summary>
+    // ReSharper disable once UnusedType.Global Класс используется посредником
     public class CommandValidator : AbstractValidator<Command>
     {
+        /// <summary>
+        /// Создание валидатора и настройка правил
+        /// </summary>
         public CommandValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);

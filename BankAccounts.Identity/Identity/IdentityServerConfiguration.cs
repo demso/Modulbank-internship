@@ -2,16 +2,25 @@
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 
-namespace BankAccounts.Api.Identity;
+namespace BankAccounts.Identity.Identity;
 
-public static class Configuration
+/// <summary>
+/// Настройка сервера идентификации
+/// </summary>
+public static class IdentityServerConfiguration
 {
+    /// <summary>
+    /// Области видимости
+    /// </summary>
     public static IEnumerable<ApiScope> ApiScopes =>
         new List<ApiScope>
         {
             new("BankAccountsWebAPI", "Web API")
         };
 
+    /// <summary>
+    /// Идентификационные ресурсы
+    /// </summary>
     public static IEnumerable<IdentityResource> IdentityResources =>
         new List<IdentityResource>
         {
@@ -19,6 +28,9 @@ public static class Configuration
             new IdentityResources.Profile()
         };
 
+    /// <summary>
+    /// Ресурсы API
+    /// </summary>
     public static IEnumerable<ApiResource> ApiResources =>
         new List<ApiResource>
         {
@@ -28,6 +40,9 @@ public static class Configuration
             }
         };
 
+    /// <summary>
+    /// Список клиентов
+    /// </summary>
     public static IEnumerable<Client> Clients =>
         new List<Client>
         {

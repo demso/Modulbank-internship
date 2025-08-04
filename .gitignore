@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /.idea/.idea.BankAccounts/.idea
 *.jwk
 /.idea/.idea.BankAccounts/Docker
+/BankAccounts.Identity/keys

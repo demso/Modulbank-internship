@@ -1,9 +1,9 @@
 using System.Text;
-using BankAccounts.Api.Features;
-using BankAccounts.Api.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using BankAccounts.Identity;
+using BankAccounts.Identity.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -30,10 +30,10 @@ builder.Services.AddIdentity<BankUser, IdentityRole>(config =>
 
 builder.Services.AddIdentityServer()
     .AddAspNetIdentity<BankUser>()
-    .AddInMemoryApiResources(Configuration.ApiResources)
-    .AddInMemoryIdentityResources(Configuration.IdentityResources)
-    .AddInMemoryApiScopes(Configuration.ApiScopes)
-    .AddInMemoryClients(Configuration.Clients);
+    .AddInMemoryApiResources(IdentityServerConfiguration.ApiResources)
+    .AddInMemoryIdentityResources(IdentityServerConfiguration.IdentityResources)
+    .AddInMemoryApiScopes(IdentityServerConfiguration.ApiScopes)
+    .AddInMemoryClients(IdentityServerConfiguration.Clients);
 
 builder.Services.AddAuthentication(config =>
     {

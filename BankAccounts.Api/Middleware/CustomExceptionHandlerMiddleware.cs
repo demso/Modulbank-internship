@@ -6,8 +6,14 @@ using System.Text.Json;
 
 namespace BankAccounts.Api.Middleware;
 
+/// <summary>
+/// Middleware для перехвата исключений
+/// </summary>
 public class CustomExceptionHandlerMiddleware(RequestDelegate next)
 {
+    /// <summary>
+    /// Встраивание в pipeline
+    /// </summary>
     public async Task Invoke(HttpContext context)
     {
         try
@@ -20,6 +26,9 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
         }
     }
 
+    /// <summary>
+    /// Обработка исключений. Возваращает данные об ошибке с помощью MbResult (записывает ошибку в поле MbError).
+    /// </summary>
     // ReSharper disable once MemberCanBeMadeStatic.Local
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
@@ -42,7 +51,7 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
         Console.WriteLine(exception.StackTrace);
 
         if (result == string.Empty)
-            result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception?.GetType().Name}] {exception?.Message}"));
+            result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
 
         return context.Response.WriteAsync(result);
     }

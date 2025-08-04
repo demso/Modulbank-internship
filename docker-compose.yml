@@ -1,5 +1,5 @@
 ﻿services:
-  ticktacktoe.api:
+  bankaccounts.api:
     image: lithiumkgp/bankaccounts.api:latest
     build:
       context: .
@@ -11,7 +11,7 @@
       - ASPNETCORE_URLS=http://+:81;https://+:80
       - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
-  ticktacktoe.identity:
+  bankaccounts.identity:
     image: lithiumkgp/bankaccounts.identity:latest
     build:
       context: .

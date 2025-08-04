@@ -4,9 +4,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Infrastructure;
 
+/// <summary>
+/// Интерфейс для бд банковских счетов
+/// </summary>
 public interface IBankAccountsDbContext
 {
+    /// <summary>
+    /// Банковские счета пользователей
+    /// </summary>
     DbSet<Account> Accounts { get; }
+    /// <summary>
+    /// Транзакции
+    /// </summary>
     DbSet<Transaction> Transactions { get; }
+    /// <summary>
+    /// Сохранение изменений
+    /// </summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

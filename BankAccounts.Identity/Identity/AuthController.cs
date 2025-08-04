@@ -1,16 +1,15 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+namespace BankAccounts.Identity.Identity;
 
-// ReSharper disable GrammarMistakeInComment
-
-namespace BankAccounts.Api.Identity;
-
+/// <summary>
+/// Контроллер аутентификации
+/// </summary>
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class AuthController(
@@ -20,18 +19,18 @@ public class AuthController(
     : ControllerBase
 {
     /// <summary>
-    /// Registers user.
+    /// Регистрирует пользователя
     /// </summary>
     /// <remarks>
     /// <code>
     /// POST {{address}}/api/auth/register </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;string&gt;</returns>
-    /// <response code="200">Success</response>
-    /// <response code="400">Registration error</response>
+    /// <returns>string message</returns>
+    /// <response code="200">Успешно</response>
+    /// <response code="500">Ошибка при регистрации</response>
     [HttpPost]
     [ProducesResponseType(typeof(ActionResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Register(RegisterData data)
     {
         var user = new BankUser
@@ -43,7 +42,7 @@ public class AuthController(
         if (!result.Succeeded)
         {
             var errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
-            return BadRequest(errorMessage);
+            return StatusCode(500, errorMessage);
         }
 
         await signInManager.SignInAsync(user, false);
@@ -52,20 +51,20 @@ public class AuthController(
     }
 
     /// <summary>
-    /// Logins user. Returns token, use it to authorize account operations.
+    /// Аутентифицирует пользователя. Возвращает токен, используйте его для доступа к операциям сервиса BankAccountsAPI.
     /// </summary>
     /// <remarks>
     /// <code>
     /// POST {{address}}/api/auth/login </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;string&gt; with token</returns>
-    /// <response code="200">Success</response>
-    /// <response code="400">Login error</response>
-    ///  <response code="404">User is not registered</response>
+    /// <returns>Токен</returns>
+    /// <response code="200">Успешно</response>
+    ///  <response code="404">Пользователь не зарегистрирован</response>
+    /// <response code="500">Ошибка входа</response>
     [HttpPost]
     [ProducesResponseType(typeof(ActionResult), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Login(LoginData data) {
         var user = await userManager.FindByNameAsync(data.Username!);
         if (user == null)
@@ -74,7 +73,7 @@ public class AuthController(
         var result = await signInManager.PasswordSignInAsync(data.Username!,
             data.Password!, false, false);
         if (!result.Succeeded)
-            return BadRequest("Login failed");
+            return StatusCode(500, "Login failed");
 
         var token = GenerateJwtToken(user);
 

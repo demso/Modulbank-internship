@@ -6,21 +6,33 @@ using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
+/// <summary>
+///Получить все операции со счетом (выписка) 
+/// </summary>
 public static class GetTransactionsForAccount
 {
+    /// <summary>
+    /// Запрос выписки
+    /// </summary>
+    /// <param name="OwnerId">Id владельца</param>
+    /// <param name="AccountId">Id счета</param>
+    /// <param name="FromDate">Начало периода (может быть null)</param>
+    /// <param name="ToDate">Конец периода (может быть null)</param>
     public record Query(
         Guid OwnerId,
         int AccountId,
         DateOnly? FromDate,
         DateOnly? ToDate
     ) : IRequest<List<TransactionDto>>;
-
+    /// <summary>
+    /// Обработчик команды
+    /// </summary>>
     public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, List<TransactionDto>>
     {
+        /// <inheritdoc />
         public override async Task<List<TransactionDto>> Handle(Query request, CancellationToken cancellationToken)
         {
            await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
@@ -37,8 +49,15 @@ public static class GetTransactionsForAccount
         }
     }
 
+    /// <summary>
+    /// Валидатор команды
+    /// </summary>
+    // ReSharper disable once UnusedType.Global Класс используется посредником
     public class QueryValidator : AbstractValidator<Query>
     {
+        /// <summary>
+        /// Создание валидатора и настройка правил
+        /// </summary>
         public QueryValidator()
         {
             RuleFor(query => query.AccountId).GreaterThan(0);

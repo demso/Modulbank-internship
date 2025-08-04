@@ -11,30 +11,27 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-// ReSharper disable HeuristicUnreachableCode
-// ReSharper disable GrammarMistakeInComment
-#pragma warning disable CS0162 // Unreachable code detected
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1573 // Parameters not in comment
-
 namespace BankAccounts.Api.Features.Accounts;
 
+/// <summary>
+/// Контроллер операций со счетами и транзакциями
+/// </summary>
 [ApiController]
 [Produces("application/json")]
 [Route("api/[controller]")]
 public class AccountsController(IMapper mapper, IMediator mediator) : CustomControllerBase
 {
     /// <summary>
-    /// Creates account for current user.
+    /// Открывает счет для пользователя
     /// </summary>
     /// <remarks>
     /// <code>
     /// POST {{address}}/api/accounts </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;AccountDto&gt;</returns>
-    /// <response code="201">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
+    /// <returns>MbResult&lt;AccountDto&gt;</returns>
+    /// <response code="201">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status201Created)]
@@ -49,16 +46,16 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Gets all accounts for current user.
+    /// Возвращает информацию обо всех счетах пользователя
     /// </summary>
     /// <remarks>
     /// <code>
     /// GET {{address}}/api/accounts </code>
     /// </remarks>
     /// <returns>Returns MbResult&lt;List&lt;AccountDto&gt;&gt;</returns>
-    /// <response code="200">Success</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">Account do not exist or belongs to another user</response>
+    /// <response code="200">Успешно</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpGet("all")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<List<AccountDto>>), StatusCodes.Status200OK)]
@@ -72,17 +69,17 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Gets account of current user with id.
+    /// Возвращает информацию об определенном счете
     /// </summary>
     /// <remarks>
     /// <code>
     /// GET {{address}}/api/accounts/{id:int} </code>
     /// </remarks>
     /// <returns>Returns MbResult&lt;AccountDto&gt;</returns>
-    /// <response code="200">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">Account do not exist or belongs to another user</response>
+    /// <response code="200">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpGet("{accountId:int}")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<AccountDto>), StatusCodes.Status200OK)]
@@ -97,15 +94,16 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Deletes account (not supported).
+    /// Удалаяет аккаунт (not supported)
     /// </summary>
     /// <remarks>
     /// <code>
     /// DELETE {{address}}/api/accounts/{accountId:int} </code>
     /// </remarks>
-    /// <returns>Returns MbResult</returns>
-    /// <response code="400">Not supported</response>
-    /// <response code="401">User is unauthorized</response>
+    /// <returns>MbResult</returns>
+    /// <response code="400">Не поддерживается</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    
     [HttpDelete("{accountId:int}")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
@@ -113,25 +111,29 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     public async Task<MbResult> DeleteAccount(int accountId)
     {
         throw new NotSupportedException("Не стоить удалять счет, лучше его закрыть. Используйте PATCH https://.../?close=true.");
+        // ReSharper disable once HeuristicUnreachableCode Код оставлен для примера реализации операции удаления
+        #pragma warning disable CS0162 // Unreachable code detected
         var command = new DeleteAccount.Command(GetUserGuid(), accountId);
         await mediator.Send(command);
         return Success(StatusCodes.Status204NoContent);
+        #pragma warning restore CS0162 // Unreachable code detected
     }
 
     /// <summary>
-    /// Updates user account information. Is used to close account or change interest rate.
+    /// Обновляет информацию о счете пользователя. Используется чтобы закрыть счет или поменять процентную ставку на счету.
     /// </summary>
     /// <remarks>
     /// <code>
     /// PATCH {{address}}/api/accounts/{accountId:int} </code>
     /// </remarks>
-    /// <param name="interestRate">Interest rate (>= 0)</param>
-    /// <param name="close">True to close account</param>
-    /// <returns>Returns MbResult</returns>
-    /// <response code="204">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">Account do not exist or belongs to another user</response>
+    /// <param name="interestRate">Процентная ставка (>= 0)</param>
+    /// <param name="close">True закрывает аккаунт</param>
+    /// /// <param name="accountId">Id счета</param>
+    /// <returns>MbResult</returns>
+    /// <response code="204">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpPatch("{accountId:int}")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status204NoContent)]
@@ -146,17 +148,17 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Performs transaction.
+    /// Производит транзакцию
     /// </summary>
     /// <remarks>
     /// <code>
     /// POST {{address}}/api/accounts/transactions </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;TransactionDto&gt;</returns>
-    /// <response code="201">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">Account do not exist or belongs to another user</response>
+    /// <returns>MbResult&lt;TransactionDto&gt;</returns>
+    /// <response code="201">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpPost("transactions")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]
@@ -172,17 +174,17 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Performs money transfer from one account to another.
+    /// Производит трансфер денешных средств с одного счета на другой
     /// </summary>
     /// <remarks>
     /// <code>
     /// POST {{address}}/api/accounts/transfer </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;TransactionDto&gt;</returns>
-    /// <response code="201">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">From account owner do not exist or belongs to another user</response>
+    /// <returns>MbResult&lt;TransactionDto&gt;</returns>
+    /// <response code="201">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Исходный счет не существует или не принадлежит текущему пользователю</response>
     [HttpPost("transfer")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]
@@ -198,19 +200,20 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Performs money transfer from one account to another.
+    /// Возвращвет все транзакции по счету или только за определенный период
     /// </summary>
     /// <remarks>
     /// <code>
     /// GET {{address}}/api/accounts/{accountId:int}/transactions </code>
     /// </remarks>
-    /// <param name="fromDate">Begin of date period (DateOnly YYYY-mm-dd)</param>
-    /// <param name="toDate">End of date period (DateOnly YYYY-mm-dd)</param>
-    /// <returns>Returns MbResult&lt;List&lt;TransactionDto&gt;&gt;</returns>
-    /// <response code="200">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">From account owner do not exist or belongs to another user</response>
+    /// <param name="accountId">Id счета</param>
+    /// <param name="fromDate">Начало периода (DateOnly YYYY-mm-dd nullable)</param>
+    /// <param name="toDate">Конец периода (DateOnly YYYY-mm-dd nullable)</param>
+    /// <returns>MbResult&lt;List&lt;TransactionDto&gt;&gt;</returns>
+    /// <response code="200">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит текущему пользователю</response>
     [HttpGet("{accountId:int}/transactions")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<List<TransactionDto>>), StatusCodes.Status200OK)]
@@ -226,17 +229,17 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Gets transaction info by guid.
+    /// Возвращает информацию о транзакции
     /// </summary>
     /// <remarks>
     /// <code>
     /// GET {{address}}/api/accounts/transactions/{transactionId:guid} </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;TransactionDto&gt;</returns>
-    /// <response code="200">Success</response>
-    /// <response code="400">Validation error</response>
-    /// <response code="401">User is unauthorized</response>
-    /// <response code="404">Account do not exist or belongs to another user</response>
+    /// <returns> MbResult&lt;TransactionDto&gt;</returns>
+    /// <response code="200">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит текущему пользователю</response>
     [HttpGet("transactions/{transactionId:guid}")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]

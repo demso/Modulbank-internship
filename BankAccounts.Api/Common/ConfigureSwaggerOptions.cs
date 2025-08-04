@@ -5,8 +5,15 @@ using System.Reflection;
 
 namespace BankAccounts.Api.Common;
 
+/// <summary>
+/// Класс для конфигурации Swagger
+/// </summary>
 public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 {
+    /// <summary>
+    /// Метод конфигурации
+    /// </summary>
+    /// <param name="options"></param>
     public void Configure(SwaggerGenOptions options)
     {
         options.SwaggerDoc("v1", new OpenApiInfo
@@ -26,7 +33,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         options.IncludeXmlComments(xmlPath);
 
-        options.AddSecurityDefinition($"AuthToken",
+        options.AddSecurityDefinition("AuthToken",
             new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
@@ -45,7 +52,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                     Reference = new OpenApiReference
                     {
                         Type = ReferenceType.SecurityScheme,
-                        Id = $"AuthToken"
+                        Id = "AuthToken"
                     }
                 },
                 []

@@ -2,12 +2,21 @@
 using BankAccounts.Api.Infrastructure;
 using FluentValidation;
 using MediatR;
-// ReSharper disable UnusedType.Global
 
 namespace BankAccounts.Api.Features.Accounts.Commands;
 
+/// <summary>
+/// Изменение свойств счета
+/// </summary>
 public static class UpdateAccount
 {
+    /// <summary>
+    /// Команда для закрытия счета
+    /// </summary>
+    /// <param name="OwnerId">Id владельца</param>
+    /// <param name="AccountId">Id счета</param>
+    /// <param name="InterestRate">Процентная ставка</param>
+    /// <param name="Close">Нужно ли закрыть счет</param>
     public record Command(
         Guid OwnerId,
         int AccountId,
@@ -15,8 +24,16 @@ public static class UpdateAccount
         bool? Close
     ) : IRequest<Unit>;
 
+    /// <summary>
+    /// Обработчик команды
+    /// </summary>
     public class Handler(IBankAccountsDbContext dbDbContext) : BaseRequestHandler<Command, Unit>
     {
+        /// <summary>
+        /// Обрабатывает команду.
+        /// Выбрасывает исключение в случае, если на счету еще есть деньги.
+        /// </summary>>
+        /// <exception cref="Exception"></exception>>
         public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
@@ -37,8 +54,15 @@ public static class UpdateAccount
         }
     }
 
+    /// <summary>
+    /// Валидатор команды
+    /// </summary>
+    // ReSharper disable once UnusedType.Global Класс используется посредником
     public class CommandValidator : AbstractValidator<Command>
     {
+        /// <summary>
+        /// Создание валидатора и настройка правил
+        /// </summary>
         public CommandValidator()
         {
             RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);

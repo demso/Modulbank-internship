@@ -2,12 +2,15 @@
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Accounts.Commands;
 using BankAccounts.Api.Features.Accounts.Dtos;
+using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Commands;
 using BankAccounts.Api.Features.Transactions.Dtos;
-using Transaction = BankAccounts.Api.Features.Transactions.Transaction;
 
 namespace BankAccounts.Api.Features.Shared;
 
+/// <summary>
+/// Профиль для сопоставления типов
+/// </summary>
 public class MappingProfile : Profile
 {
     /// <summary>

@@ -2,11 +2,15 @@
 using FluentValidation.Results;
 using MediatR;
 
-namespace BankAccounts.Api.Features.Shared;
 
+namespace BankAccounts.Api.Features.Shared;
+/// <summary>
+/// Класс для настройки поведения валидаторов
+/// </summary>
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse> where TRequest :IRequest<TResponse>
 {
+    /// <inheritdoc />
     public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var context = new ValidationContext<TRequest>(request);

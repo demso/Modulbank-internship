@@ -1,4 +1,5 @@
 ﻿using BankAccounts.Api.Features.Shared;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace BankAccounts.Api.Features.Accounts;
 
