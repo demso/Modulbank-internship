@@ -57,6 +57,7 @@ public static class PerformTransfer
             var transactionFrom = new Transaction
             {
                 AccountId = fromAccount.AccountId,
+                CounterpartyAccountId = toAccount.AccountId,
                 Amount = request.Amount,
                 Currency = fromAccount.Currency,
                 TransactionType = TransactionType.Credit,
@@ -71,6 +72,7 @@ public static class PerformTransfer
             var transactionTo = new Transaction
             {
                 AccountId = toAccount.AccountId,
+                CounterpartyAccountId = fromAccount.AccountId,
                 Amount = toAccountAmount,
                 Currency = toAccount.Currency,
                 TransactionType = TransactionType.Debit,

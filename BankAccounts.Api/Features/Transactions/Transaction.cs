@@ -19,6 +19,10 @@ public class Transaction
     /// </summary>
     public int AccountId { get; init; }
     /// <summary>
+    /// Id счета куда переводятся средства
+    /// </summary>
+    public int CounterpartyAccountId { get; init; }
+    /// <summary>
     /// Сумма денежных средств
     /// </summary>
     public decimal Amount { get; init; }

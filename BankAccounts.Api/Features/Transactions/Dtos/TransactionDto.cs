@@ -15,6 +15,7 @@ namespace BankAccounts.Api.Features.Transactions.Dtos;
 public record TransactionDto(
     Guid TransactionId,
     int AccountId,
+    int CounterpartyAccountId,
     decimal Amount,
     Currencies Currency,
     TransactionType? TransactionType,
