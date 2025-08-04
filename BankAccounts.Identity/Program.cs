@@ -42,6 +42,7 @@ builder.Services.AddAuthentication(config =>
     })
     .AddJwtBearer("Bearer", options =>
     {
+        options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -61,6 +62,13 @@ builder.Services
     .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
     .AddSwaggerGen();
 
+builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
+{
+    policy.AllowAnyHeader();
+    policy.AllowAnyMethod();
+    policy.AllowAnyOrigin();
+}));
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -70,10 +78,10 @@ app.UseSwaggerUI(config =>
     config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts Authorization");
 });
 app.UseRouting();
+app.UseCors("AllowAll");
 app.UseIdentityServer();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();

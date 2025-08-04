@@ -22,8 +22,11 @@
       "commandName": "Docker",
       "launchBrowser": false,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "sslPort": 7044,
+      "httpPort": 7045,
       "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "7044"
+        "ASPNETCORE_HTTPS_PORTS": "7044",
+        "ASPNETCORE_HTTP_PORTS": "7045"
       },
       "publishAllPorts": true,
       "useSSL": true

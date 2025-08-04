@@ -5,10 +5,11 @@ services:
       context: .
       dockerfile: BankAccounts.Api/Dockerfile
     ports:
-      - "80:80"
+      - "80:80" 
+      - "81:81" 
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:81;https://+:80
+      - ASPNETCORE_URLS=http://+:80;https://+:81
       - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
   bankaccounts.identity:
@@ -18,6 +19,7 @@ services:
       dockerfile: BankAccounts.Identity/Dockerfile
     ports:
       - "7044:7044"
+      - "7045:7045"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:7044

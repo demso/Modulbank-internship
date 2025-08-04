@@ -40,7 +40,8 @@ builder.Services.AddAuthentication(config =>
     })
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://localhost:7044";
+        options.RequireHttpsMetadata = false;
+        options.Authority = "http://localhost:7045";
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -77,7 +78,6 @@ app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
 

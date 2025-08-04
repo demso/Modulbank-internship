@@ -19,7 +19,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
         options.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "Bank Accounts API",
-            Description = "Для авторизации воспользуйтесь [https://localhost:7044](https://localhost:7044). \n" +
+            Description = "Для авторизации воспользуйтесь [http://localhost:7045](http://localhost:7045). \n" +
                           "1. Зарегистрируйтесь с указанием логина и пароля (Register).\n" +
                           "2. Войдите, также указав логин и пароль (Login).\n" +
                           "3. Скопируйте полученный токен.\n" +
