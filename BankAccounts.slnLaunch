@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "Run API and Identity",
+    "Projects": [
+      {
+        "Path": "BankAccounts.Api\\BankAccounts.Api.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "BankAccounts.Identity\\BankAccounts.Identity.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      }
+    ]
+  }
+]
