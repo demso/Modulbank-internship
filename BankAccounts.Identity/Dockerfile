@@ -4,7 +4,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 7044
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
 
 
 # Этот этап используется для сборки проекта службы
