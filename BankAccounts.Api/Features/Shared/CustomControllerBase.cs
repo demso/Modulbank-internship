@@ -32,6 +32,7 @@ public class CustomControllerBase : ControllerBase
     /// Возвращает MbResult с IsSuccess = true, заданный кодом и значением
     /// </summary>
     /// <param name="statusCode">Http статус код</param>
+    /// <param name="value">Результат выполнения операции</param>
     /// <returns>MbResult</returns>
     protected MbResult<T> Success<T>(int statusCode, T value)
     {
