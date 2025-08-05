@@ -32,7 +32,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns>MbResult&lt;AccountDto&gt;</returns>
     /// <response code="201">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status201Created)]
@@ -55,7 +55,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// </remarks>
     /// <returns>Returns MbResult&lt;List&lt;AccountDto&gt;&gt;</returns>
     /// <response code="200">Успешно</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpGet("all")]
     [Authorize]
@@ -79,7 +79,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns>Returns MbResult&lt;AccountDto&gt;</returns>
     /// <response code="200">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpGet("{accountId:int}")]
     [Authorize]
@@ -103,7 +103,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// </remarks>
     /// <returns>MbResult</returns>
     /// <response code="400">Не поддерживается</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     
     [HttpDelete("{accountId:int}")]
     [Authorize]
@@ -133,7 +133,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns>MbResult</returns>
     /// <response code="204">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpPatch("{accountId:int}")]
     [Authorize]
@@ -158,7 +158,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns>MbResult&lt;TransactionDto&gt;</returns>
     /// <response code="201">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpPost("transactions")]
     [Authorize]
@@ -184,7 +184,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns>MbResult&lt;TransactionDto&gt;</returns>
     /// <response code="201">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Исходный счет не существует или не принадлежит текущему пользователю</response>
     [HttpPost("transfer")]
     [Authorize]
@@ -213,7 +213,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns>MbResult&lt;List&lt;TransactionDto&gt;&gt;</returns>
     /// <response code="200">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит текущему пользователю</response>
     [HttpGet("{accountId:int}/transactions")]
     [Authorize]
@@ -260,7 +260,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <returns> MbResult&lt;TransactionDto&gt;</returns>
     /// <response code="200">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь неавторизован</response>
+    /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит текущему пользователю</response>
     [HttpGet("transactions/{transactionId:guid}")]
     [Authorize]
