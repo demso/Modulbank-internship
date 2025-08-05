@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BankAccounts.Api.Common.Exceptions;
+using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.Database;
@@ -56,6 +58,9 @@ public static class PerformTransaction
                     account.Balance += request.Amount;
                     break;
                 case TransactionType.Credit:
+                    if (account.AccountType is AccountType.Checking or AccountType.Deposit &&
+                        account.Balance - request.Amount < 0)
+                        throw new BadRequestException("Баланс после транзакции не может быть < 0, т.к. счет не является кредитным.");
                     account.Balance -= request.Amount;
                     break;
             }
