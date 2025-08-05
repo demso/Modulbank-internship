@@ -160,16 +160,18 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <response code="400">Ошибка валидации</response>
     /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
-    [HttpPost("transactions")]
+    [HttpPost("{accountId:int}/transactions")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
-    public async Task<MbResult<TransactionDto>> PerformTransaction([FromBody] PerformTransactionDto performTransactionDto)
+    public async Task<MbResult<TransactionDto>> PerformTransaction(int accountId, 
+        [FromBody] PerformTransactionDto performTransactionDto)
     {
         var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
         command.OwnerId = GetUserGuid();
+        command.AccountId = accountId;
         var result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
     }

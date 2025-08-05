@@ -24,7 +24,7 @@ public static class PerformTransaction
         /// <summary>
         /// Id счета
         /// </summary>
-        public int AccountId { get; init; }
+        public int AccountId { get; set; }
         /// <summary>
         /// Тип транзакции
         /// </summary>
@@ -90,7 +90,7 @@ public static class PerformTransaction
             RuleFor(command => command.OwnerId).NotEmpty();
             RuleFor(command => command.AccountId).GreaterThan(0);
             RuleFor(command => command.Description).MaximumLength(255);
-            RuleFor(command => command.Amount).NotEqual(0);
+            RuleFor(command => command.Amount).GreaterThan(0);
         }
     }
 }
