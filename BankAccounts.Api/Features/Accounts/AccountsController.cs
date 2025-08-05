@@ -232,6 +232,10 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <summary>
     /// Возвращает банковскую выписку об операциях по счету
     /// </summary>
+    /// <remarks>
+    /// <code>
+    /// GET {{address}}/api/accounts/{accountId:int}/statement </code>
+    /// </remarks>
     /// <param name="accountId">Id аккаунта</param>
     /// <param name="fromDate">Начало периода</param>
     /// <param name="toDate">Конец периода</param>
