@@ -9,7 +9,7 @@ services:
       - "81:81" 
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:81;https://+:80
+      - ASPNETCORE_URLS=http://+:80;https://+:81
       - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
   bankaccounts.identity:
