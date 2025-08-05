@@ -107,6 +107,8 @@ public static class GetBankStatement
         {
             RuleFor(query => query.AccountId).GreaterThan(0);
             RuleFor(query => query.FromDate)
+                .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Now))
+                .When(query => query.FromDate is not null)
                 .GreaterThan(new DateOnly(1900, 1, 1))
                 .When(query => query.FromDate is not null)
                 .DependentRules(() =>
