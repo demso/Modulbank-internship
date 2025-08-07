@@ -1,4 +1,22 @@
 services:
+  bankaccounts.db:
+    image: postgres
+    container_name: bankaccounts_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bank-accounts-db
+    volumes:
+      - bankaccounts_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   bankaccounts.api:
     image: lithiumkgp/bankaccounts.api:latest
     build:
@@ -6,10 +24,14 @@ services:
       dockerfile: BankAccounts.Api/Dockerfile
     ports:
       - "80:80" 
+    depends_on:
+      bankaccounts.db:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=80
       - ASPNETCORE_URLS=http://+:80
+
   bankaccounts.identity:
     image: lithiumkgp/bankaccounts.identity:latest
     build:
@@ -21,3 +43,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=7045
       - ASPNETCORE_URLS=http://+:7045
+
+volumes:
+  bankaccounts_db_data:
