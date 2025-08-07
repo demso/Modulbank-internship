@@ -1,16 +1,16 @@
 ﻿using BankAccounts.Api.Common;
 using BankAccounts.Api.Common.Exceptions;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Middleware;
 
 /// <summary>
 /// Middleware для перехвата исключений
 /// </summary>
-public class CustomExceptionHandlerMiddleware(RequestDelegate next)
+public class CustomExceptionHandlerMiddleware(ILogger logger, RequestDelegate next)
 {
     /// <summary>
     /// Встраивание в pipeline
@@ -48,17 +48,15 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
 
             case DbUpdateException:
                 result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message} \n {exception?.InnerException?.Message} \n {exception?.InnerException?.StackTrace}"));
-                Console.WriteLine(exception.InnerException.Message);
-                Console.WriteLine(exception.InnerException.StackTrace);
                 break;
         }
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
 
-        Console.WriteLine($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception.GetType().Name}: {exception.Message}\n\n\n");
-        Console.WriteLine(exception.StackTrace);
-        Console.WriteLine($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception?.InnerException?.GetType().Name}: {exception?.InnerException?.Message}\n\n\n");
-        Console.WriteLine(exception?.InnerException?.StackTrace);
+        logger.LogCritical($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception.GetType().Name}: {exception.Message}\n\n\n");
+        logger.LogCritical(exception.StackTrace);
+        logger.LogCritical($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception?.InnerException?.GetType().Name}: {exception?.InnerException?.Message}\n\n\n");
+        logger.LogCritical(exception?.InnerException?.StackTrace);
 
         if (result == string.Empty)
             result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
