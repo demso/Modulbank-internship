@@ -3,7 +3,8 @@ using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
 using MediatR;
 // ReSharper disable once UnusedType.Global Класс используется посредником
@@ -42,53 +43,43 @@ public static class PerformTransfer
     /// Обработчик команды. Трансфер происходит с использованием двух транзакций, одна снимает средства с исходного счета
     /// и одна зачисляет на конченый счет.
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext, ICurrencyService currencyService, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, ICurrencyService currencyService, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
     {
         /// <inheritdoc />
         public override async Task<TransactionDto> Handle(Command request,  CancellationToken cancellationToken)
         {
 
-            var fromAccount = await GetValidAccount(dbDbContext, request.FromAccountId, request.OwnerId, cancellationToken);
+            var fromAccount = await GetValidAccount(accountsRepository, request.FromAccountId, request.OwnerId, cancellationToken);
 
-            var toAccount = await dbDbContext.Accounts.FindAsync([request.ToAccountId], cancellationToken);
+            var toAccount = await accountsRepository.GetByIdAsync(request.ToAccountId, cancellationToken);
 
             if (toAccount is null)
                 throw new AccountNotFoundException(request.ToAccountId);
-            
-            var transactionFrom = new Transaction
-            {
-                AccountId = fromAccount.AccountId,
-                CounterpartyAccountId = toAccount.AccountId,
-                Amount = request.Amount,
-                Currency = fromAccount.Currency,
-                TransactionType = TransactionType.Credit,
-                DateTime = DateTime.Now,
-                Description = $"Transaction from {fromAccount.AccountId} account to {toAccount.AccountId}."
-            };
+
+            var transactionFrom = await transactionsRepository.AddAsync(
+                fromAccount.AccountId,
+                toAccount.AccountId,
+                request.Amount,
+                fromAccount.Currency,
+                TransactionType.Credit,
+               $"Transaction from {fromAccount.AccountId} account to {toAccount.AccountId}.", cancellationToken);
 
             fromAccount.Balance -= request.Amount;
             // Если необходимо, конвертируем валюту в валюту конечного счета
             var toAccountAmount = currencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
 
-            var transactionTo = new Transaction
-            {
-                AccountId = toAccount.AccountId,
-                CounterpartyAccountId = fromAccount.AccountId,
-                Amount = toAccountAmount,
-                Currency = toAccount.Currency,
-                TransactionType = TransactionType.Debit,
-                DateTime = DateTime.Now,
-                Description = $"Transaction to {toAccount.AccountId} account from {fromAccount.AccountId}."
-            };
+            await transactionsRepository.AddAsync(
+                toAccount.AccountId,
+                fromAccount.AccountId,
+                toAccountAmount,
+                 toAccount.Currency,
+                TransactionType.Debit,
+                $"Transaction to {toAccount.AccountId} account from {fromAccount.AccountId}.", cancellationToken);
 
             toAccount.Balance += toAccountAmount;
 
-            dbDbContext.Accounts.Update(fromAccount);
-            dbDbContext.Accounts.Update(toAccount);
-            
-            await dbDbContext.Transactions.AddAsync(transactionFrom, cancellationToken);
-            await dbDbContext.Transactions.AddAsync(transactionTo, cancellationToken);
-            await dbDbContext.SaveChangesAsync(cancellationToken);
+            await transactionsRepository.SaveChangesAsync(cancellationToken);
+            await accountsRepository.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<TransactionDto>(transactionFrom);
         }

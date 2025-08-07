@@ -1,3 +1,7 @@
+using BankAccounts.Api.Common;
+using BankAccounts.Api.Infrastructure;
+using BankAccounts.Api.Infrastructure.CurrencyService;
+using BankAccounts.Api.Infrastructure.Database;
 using BankAccounts.Api.Middleware;
 using FluentValidation;
 using MediatR;
@@ -8,10 +12,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure;
-using BankAccounts.Api.Infrastructure.Database;
-using BankAccounts.Api.Common;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,8 @@ builder.Services
     .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
     .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
     .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())
+    .AddScoped<IAccountsRepositoryAsync, AccountsRepositoryAsync>()
+    .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
     .AddTransient<ICurrencyService, CurrencyService>()
     .AddAutoMapper(options => options.AddProfile(new MappingProfile()))
     .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))

@@ -3,6 +3,7 @@ using BankAccounts.Api.Common.Exceptions;
 using FluentValidation;
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Middleware;
 
@@ -44,11 +45,20 @@ public class CustomExceptionHandlerMiddleware(RequestDelegate next)
             case NotFoundException:
                 code = HttpStatusCode.NotFound;
                 break;
+
+            case DbUpdateException:
+                result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message} \n {exception?.InnerException?.Message} \n {exception?.InnerException?.StackTrace}"));
+                Console.WriteLine(exception.InnerException.Message);
+                Console.WriteLine(exception.InnerException.StackTrace);
+                break;
         }
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
 
+        Console.WriteLine($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception.GetType().Name}: {exception.Message}\n\n\n");
         Console.WriteLine(exception.StackTrace);
+        Console.WriteLine($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception?.InnerException?.GetType().Name}: {exception?.InnerException?.Message}\n\n\n");
+        Console.WriteLine(exception?.InnerException?.StackTrace);
 
         if (result == string.Empty)
             result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));

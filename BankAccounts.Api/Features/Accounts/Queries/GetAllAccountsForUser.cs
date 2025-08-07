@@ -2,7 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -23,18 +23,16 @@ public static class GetAllAccountsForUser
     /// <summary>
     /// Обработчик запроса
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, List<AccountDto>>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<Query, List<AccountDto>>
     {
         /// <inheritdoc />
         public override async Task<List<AccountDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var entities = await dbDbContext.Accounts
-                .Where(account => account.OwnerId == request.OwnerId)
-                .ProjectTo<AccountDto>(mapper.ConfigurationProvider)
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            var entities = await accountsRepository.GetByFilterAsync(request.OwnerId, cancellationToken);
+            
+            var entitiesDto = mapper.Map<List<AccountDto>>(entities);
 
-            return entities;
+            return entitiesDto;
         }
     }
     /// <summary>

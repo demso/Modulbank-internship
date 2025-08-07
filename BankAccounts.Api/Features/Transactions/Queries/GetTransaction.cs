@@ -2,10 +2,10 @@
 using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Features.Transactions.Queries;
 
@@ -27,7 +27,7 @@ public static class GetTransaction
     /// <summary>
     /// Обработчик команды.
     /// </summary>>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, TransactionDto>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, IMapper mapper) : BaseRequestHandler<Query, TransactionDto>
     {
         /// <summary>
         /// Обрабатывает команду.
@@ -36,13 +36,12 @@ public static class GetTransaction
         /// <exception cref="NotFoundException"></exception>
         public override async Task<TransactionDto> Handle(Query request, CancellationToken cancellationToken)
         {
-            var transaction = await dbDbContext.Transactions.FirstOrDefaultAsync(transaction =>
-                transaction.TransactionId == request.TransactionId, cancellationToken);
+            var transaction = await transactionsRepository.GetByIdAsync(request.TransactionId, cancellationToken);
 
             if (transaction == null)
                 throw new NotFoundException(nameof(Transaction), request.TransactionId);
 
-            await GetValidAccount(dbDbContext, transaction.AccountId, request.OwnerId, cancellationToken);
+            await GetValidAccount(accountsRepository, transaction.AccountId, request.OwnerId, cancellationToken);
 
             return mapper.Map<TransactionDto>(transaction);
         }

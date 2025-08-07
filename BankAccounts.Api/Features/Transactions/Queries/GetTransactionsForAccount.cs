@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -31,22 +31,19 @@ public static class GetTransactionsForAccount
     /// <summary>
     /// Обработчик команды
     /// </summary>>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, List<TransactionDto>>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, IMapper mapper) : BaseRequestHandler<Query, List<TransactionDto>>
     {
         /// <inheritdoc />
         public override async Task<List<TransactionDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-           await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+           await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
+            //var accountDtos = _mapper.Map<List<AccountDto>>(accounts);
+            var entities = await transactionsRepository.GetByFilterAsync(request.AccountId, request.FromDate,
+                request.ToDate, cancellationToken);
 
-            var entities = await dbDbContext.Transactions
-                .Where(transaction => transaction.AccountId == request.AccountId
-                    && (request.FromDate == null || DateOnly.FromDateTime(transaction.DateTime) >= request.FromDate.Value) 
-                    && (request.ToDate == null || DateOnly.FromDateTime(transaction.DateTime) < request.ToDate.Value))
-                .ProjectTo<TransactionDto>(mapper.ConfigurationProvider)
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            var entitiesDto = mapper.Map<List<TransactionDto>>(entities);
 
-            return entities;
+            return entitiesDto;
         }
     }
 

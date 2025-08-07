@@ -3,7 +3,8 @@ using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
 using MediatR;
 
@@ -44,12 +45,13 @@ public static class PerformTransaction
     /// <summary>
     /// Обработчик команды
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, TransactionDto>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository , IMapper mapper) 
+        : BaseRequestHandler<Command, TransactionDto>
     {
         /// <inheritdoc />
         public override async Task<TransactionDto> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+            var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault Решарпер предлагает непонятный код
             switch (request.TransactionType)
@@ -65,18 +67,16 @@ public static class PerformTransaction
                     break;
             }
 
-            var transaction = new Transaction
-            {
-                AccountId = account.AccountId,
-                Amount = request.Amount,
-                Currency = account.Currency,
-                TransactionType = request.TransactionType,
-                DateTime = DateTime.Now,
-                Description = request.Description
-            };
+            var transaction = await transactionsRepository.AddAsync(
+                account.AccountId, 
+                0, 
+                request.Amount, 
+                account.Currency, 
+                request.TransactionType, 
+                request.Description, 
+                cancellationToken);
 
-            await dbDbContext.Transactions.AddAsync(transaction, cancellationToken);
-            await dbDbContext.SaveChangesAsync(cancellationToken);
+            await transactionsRepository.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<TransactionDto>(transaction);
         }

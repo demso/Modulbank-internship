@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 namespace BankAccounts.Api.Infrastructure.Database;
 
 /// <summary>
-/// База данных для банковских счетов и транзакций
+/// Контекст для базы данных банковских счетов и транзакций
 /// </summary>
-public class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext> options) : DbContext(options), IBankAccountsDbContext
+public sealed class BankAccountsDbContext : DbContext, IBankAccountsDbContext
 {
     /// <summary>
     /// Банковские счета пользователей
@@ -17,11 +17,19 @@ public class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext> optio
     /// Транзакции
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
+
+    private IConfiguration configuration;
+
+    public BankAccountsDbContext(IConfiguration con)
+    {
+        configuration = con;
+    }
     /// <summary>
-    /// Конфигурация
+    /// Конфигурация БД
     /// </summary>
+    /// <param name="optionsBuilder">Параметры БД</param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseInMemoryDatabase("BankAccountDatabase");
+        optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)));
     }
 }

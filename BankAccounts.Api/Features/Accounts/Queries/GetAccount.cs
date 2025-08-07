@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentValidation;
 using MediatR;
 
@@ -25,12 +25,12 @@ public static class GetAccount
     /// <summary>
     /// Обработчик запроса
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Query, AccountDto>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<Query, AccountDto>
     {
         /// <inheritdoc />
         public override async Task<AccountDto> Handle(Query request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+            var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
             return mapper.Map<AccountDto>(account);
         }

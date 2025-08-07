@@ -2,7 +2,7 @@
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentValidation;
 using MediatR;
 
@@ -39,22 +39,15 @@ public static class CreateAccount
     /// <summary>
     /// Обработчик команды
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMapper mapper) : BaseRequestHandler<Command, AccountDto>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<Command, AccountDto>
     {
         /// <inheritdoc />
         public override async Task<AccountDto> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = new Account
-            {
-                OwnerId = request.OwnerId,
-                AccountType = request.AccountType,
-                Currency = request.Currency,
-                InterestRate = request.InterestRate,
-                OpenDate = DateTime.Now
-            };
+            var account = await accountsRepository.AddAsync(request.OwnerId, request.AccountType, request.Currency, 
+                    request.InterestRate, cancellationToken);
 
-            await dbDbContext.Accounts.AddAsync(account, cancellationToken);
-            await dbDbContext.SaveChangesAsync(cancellationToken);
+            await accountsRepository.SaveChangesAsync(cancellationToken);
 
             return mapper.Map<AccountDto>(account);
         }

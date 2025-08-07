@@ -1,6 +1,7 @@
 ﻿using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentValidation;
 using MediatR;
 
@@ -28,7 +29,7 @@ public static class UpdateAccount
     /// <summary>
     /// Обработчик команды
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext) : BaseRequestHandler<Command, Unit>
+    public class Handler(IAccountsRepositoryAsync accountsRepository) : BaseRequestHandler<Command, Unit>
     {
         /// <summary>
         /// Обрабатывает команду.
@@ -37,7 +38,7 @@ public static class UpdateAccount
         /// <exception cref="Exception"></exception>>
         public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+            var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
             if (account.CloseDate == null && request.InterestRate.HasValue)
                 account.InterestRate = request.InterestRate.Value;
@@ -46,11 +47,10 @@ public static class UpdateAccount
             {
                 if (account.Balance != 0)
                     throw new BadRequestException("Невозможно закрыть счет на котором есть деньги.");
-                account.CloseDate = DateTime.Now;
+                account.CloseDate = DateTime.UtcNow;
             }
 
-            dbDbContext.Accounts.Update(account);
-            await dbDbContext.SaveChangesAsync(cancellationToken);
+            await accountsRepository.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
     }

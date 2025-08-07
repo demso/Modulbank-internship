@@ -1,6 +1,5 @@
-﻿using BankAccounts.Api.Common.Exceptions;
-using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure.Database;
+﻿using BankAccounts.Api.Features.Shared;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentValidation;
 using MediatR;
 
@@ -23,7 +22,7 @@ public static class DeleteAccount
     /// <summary>
     /// Обработчик команды
     /// </summary>
-    public class Handler(IBankAccountsDbContext dbDbContext) : BaseRequestHandler<Command, Unit>
+    public class Handler(IAccountsRepositoryAsync accountsRepository) : BaseRequestHandler<Command, Unit>
     {
         /// <summary>
         /// Обрабатывает команду.
@@ -32,15 +31,7 @@ public static class DeleteAccount
         /// <exception cref="Exception">В случае, если на счету еще есть деньги</exception>>
         public override async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
-
-            if (account.Balance > 0)
-                throw new BadRequestException("Невозможно удалить счет пока баланс больше 0.");
-
-            dbDbContext.Accounts.Remove(account);
-            await dbDbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
+            throw new NotSupportedException("Не поддерживается, используйте Update");
         }
     }
 

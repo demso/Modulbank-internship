@@ -1,6 +1,7 @@
 ﻿using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
 using MediatR;
 
@@ -27,14 +28,14 @@ public static class GetBankStatement
     /// <summary>
     /// Обработчик команды
     /// </summary>>
-    public class Handler(IBankAccountsDbContext dbDbContext, IMediator mediator) : BaseRequestHandler<Query, BankStatement>
+    public class Handler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, IMediator mediator) : BaseRequestHandler<Query, BankStatement>
     {
         /// <inheritdoc />
         public override async Task<BankStatement> Handle(Query request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(dbDbContext, request.AccountId, request.OwnerId, cancellationToken);
+            var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
-            var toDate = request.ToDate ?? DateOnly.FromDateTime(DateTime.Now);
+            var toDate = request.ToDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
             //получаем все транзакции с даты request.FromDate
             var entities = await mediator.Send(new GetTransactionsForAccount.Query(request.OwnerId, request.AccountId, request.FromDate, null), cancellationToken);
             //сортируем транзакции, чтобы в начале были последние
@@ -82,7 +83,7 @@ public static class GetBankStatement
                 account.AccountId, 
                 request.Username, 
                 account.Currency, 
-                DateTime.Now,
+                DateTime.UtcNow,
                 operations, 
                 startBalance,
                 endBalance,
