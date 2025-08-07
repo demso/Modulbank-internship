@@ -4,8 +4,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
 
 
 # Этот этап используется для сборки проекта службы
@@ -28,7 +26,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-COPY /BankAccounts.Api/aspnetapp.pfx /app/aspnetapp.pfx
 COPY /BankAccounts.Api/appsettings.json /app/appsettings.json
 
 ENTRYPOINT ["dotnet", "BankAccounts.Api.dll"]

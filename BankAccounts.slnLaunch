@@ -5,12 +5,12 @@
       {
         "Path": "BankAccounts.Api\\BankAccounts.Api.csproj",
         "Action": "Start",
-        "DebugTarget": "https"
+        "DebugTarget": "http"
       },
       {
         "Path": "BankAccounts.Identity\\BankAccounts.Identity.csproj",
         "Action": "Start",
-        "DebugTarget": "https"
+        "DebugTarget": "http"
       }
     ]
   }
