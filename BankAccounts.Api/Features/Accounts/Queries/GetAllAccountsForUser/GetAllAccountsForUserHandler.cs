@@ -1,0 +1,22 @@
+﻿using AutoMapper;
+using BankAccounts.Api.Features.Accounts.Dtos;
+using BankAccounts.Api.Features.Shared;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+
+namespace BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
+
+/// <summary>
+/// Обработчик запроса
+/// </summary>
+public class GetAllAccountsForUserHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<GetAllCountsForUserQuery, List<AccountDto>>
+{
+    /// <inheritdoc />
+    public override async Task<List<AccountDto>> Handle(GetAllCountsForUserQuery request, CancellationToken cancellationToken)
+    {
+        var entities = await accountsRepository.GetByFilterAsync(request.OwnerId, cancellationToken);
+        
+        var entitiesDto = mapper.Map<List<AccountDto>>(entities);
+
+        return entitiesDto;
+    }
+}

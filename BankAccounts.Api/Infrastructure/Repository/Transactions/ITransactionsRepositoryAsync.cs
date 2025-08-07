@@ -1,7 +1,5 @@
-﻿using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Features.Transactions;
+﻿using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BankAccounts.Api.Infrastructure.Repository.Transactions;
 

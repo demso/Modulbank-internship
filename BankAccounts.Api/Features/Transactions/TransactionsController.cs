@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Features.Transactions.Commands;
+using BankAccounts.Api.Features.Transactions.Commands.PerformTransaction;
+using BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 using BankAccounts.Api.Features.Transactions.Dtos;
-using BankAccounts.Api.Features.Transactions.Queries;
+using BankAccounts.Api.Features.Transactions.Queries.GetTransaction;
+using BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace BankAccounts.Api.Features.Transactions;
 
@@ -37,7 +38,7 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     public async Task<MbResult<TransactionDto>> PerformTransaction(int accountId,
         [FromBody] PerformTransactionDto performTransactionDto)
     {
-        var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
+        var command = mapper.Map<PerformTransactionCommand>(performTransactionDto);
         command.OwnerId = GetUserGuid();
         command.AccountId = accountId;
         var result = await mediator.Send(command);
@@ -64,7 +65,7 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
-        var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
+        var command = mapper.Map<PerformTransferCommand>(performTransferDto);
         command.OwnerId = GetUserGuid();
         var result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
@@ -94,7 +95,7 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     public async Task<MbResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetTransactionsForAccount.Query(GetUserGuid(), accountId, fromDate, toDate);
+        var query = new GetTransactionsForAccountQuery(GetUserGuid(), accountId, fromDate, toDate);
         var transactionList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, transactionList);
     }
@@ -119,7 +120,7 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
-        var query = new GetTransaction.Query(GetUserGuid(), transactionId);
+        var query = new GetTransactionQuery(GetUserGuid(), transactionId);
         var transaction = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, transaction);
     }

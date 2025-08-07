@@ -2,10 +2,13 @@
 using AutoMapper;
 using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts.Commands;
+using BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
-using BankAccounts.Api.Features.Accounts.Queries;
+using BankAccounts.Api.Features.Accounts.Queries.GetAccount;
+using BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Features.Transactions.Queries;
+using BankAccounts.Api.Features.Transactions.Queries.GetBankStatement;
+using BankAccounts.Api.Features.Transactions.Queries.GetBankStatement.GetBankStatement;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +41,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     public async Task<MbResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
-        var command = mapper.Map<CreateAccount.Command>(createAccountDto);
+        var command = mapper.Map<CreateAccountCommand>(createAccountDto);
         command.OwnerId = GetUserGuid();
         var result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
@@ -62,7 +65,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<List<AccountDto>>> GetAllAccounts()
     {
-        var query = new GetAllAccountsForUser.Query(GetUserGuid());
+        var query = new GetAllCountsForUserQuery(GetUserGuid());
         var accountList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, accountList);
     }
@@ -87,35 +90,9 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<AccountDto>> GetAccount(int accountId)
     {
-        var query = new GetAccount.Query(GetUserGuid(), accountId);
+        var query = new GetAccountQuery(GetUserGuid(), accountId);
         var account = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, account);
-    }
-
-    /// <summary>
-    /// Удалаяет счет (not supported)
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// DELETE {{address}}/api/accounts/{accountId:int} </code>
-    /// </remarks>
-    /// <returns>MbResult</returns>
-    /// <response code="400">Не поддерживается</response>
-    /// <response code="401">Пользователь не авторизован</response>
-    
-    [HttpDelete("{accountId:int}")]
-    [Authorize]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    public async Task<MbResult> DeleteAccount(int accountId)
-    {
-        throw new NotSupportedException("Не стоить удалять счет, лучше его закрыть. Используйте PATCH https://.../?close=true.");
-        // ReSharper disable once HeuristicUnreachableCode Код оставлен для примера реализации операции удаления
-        #pragma warning disable CS0162 // Unreachable code detected
-        var command = new DeleteAccount.Command(GetUserGuid(), accountId);
-        await mediator.Send(command);
-        return Success(StatusCodes.Status204NoContent);
-        #pragma warning restore CS0162 // Unreachable code detected
     }
 
     /// <summary>
@@ -141,7 +118,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
     {
-        var command = new UpdateAccount.Command(GetUserGuid(), accountId, interestRate, close);
+        var command = new UpdateAccountCommand(GetUserGuid(), accountId, interestRate, close);
         await mediator.Send(command);
         return Success(StatusCodes.Status204NoContent);
     }
@@ -166,7 +143,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     public async Task<MbResult<BankStatement>> GetStatementForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetBankStatement.Query(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!, accountId, fromDate, toDate);
+        var query = new GetBankStatementQuery(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!, accountId, fromDate, toDate);
         var bankStatement = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, bankStatement);
     }
