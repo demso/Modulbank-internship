@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace BankAccounts.Identity.Identity;
 public class AuthController(
     SignInManager<BankUser> signInManager,
     UserManager<BankUser> userManager,
+    AuthDbContext dbContext,
     IConfiguration configuration)
     : ControllerBase
 {
@@ -46,6 +48,8 @@ public class AuthController(
         }
 
         await signInManager.SignInAsync(user, false);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok("Register succeed.");
     }
@@ -88,8 +92,8 @@ public class AuthController(
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, user.UserName ?? ""),
-            new Claim(ClaimTypes.NameIdentifier, user.Id)
+            new Claim(ClaimTypes.Name, user.UserName!),
+            new Claim(ClaimTypes.NameIdentifier, CreateGuidFromString(user.UserName!).ToString())
         };
 
         var token = new JwtSecurityToken(
@@ -101,5 +105,21 @@ public class AuthController(
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private Guid CreateGuidFromString(string input)
+    {
+        using var sha1 = SHA1.Create();
+        var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+        // Берём первые 16 байт для GUID
+        var guidBytes = new byte[16];
+        Array.Copy(hash, guidBytes, 16);
+
+        // Устанавливаем версию GUID (RFC 4122)
+        guidBytes[6] = (byte)((guidBytes[6] & 0x0F) | 0x50);
+        guidBytes[8] = (byte)((guidBytes[8] & 0x3F) | 0x80);
+
+        return new Guid(guidBytes);
     }
 }
