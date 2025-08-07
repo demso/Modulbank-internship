@@ -10,7 +10,7 @@ namespace BankAccounts.Api.Middleware;
 /// <summary>
 /// Middleware для перехвата исключений
 /// </summary>
-public class CustomExceptionHandlerMiddleware(ILogger logger, RequestDelegate next)
+public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMiddleware> logger, RequestDelegate next)
 {
     /// <summary>
     /// Встраивание в pipeline
