@@ -1,4 +1,5 @@
-﻿using BankAccounts.Api.Features.Shared;
+﻿using BankAccounts.Api.Common.Exceptions;
+using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.Database;
 using FluentValidation;
 using MediatR;
@@ -44,7 +45,7 @@ public static class UpdateAccount
             if (account.CloseDate == null && request.Close.HasValue && request.Close.Value)
             {
                 if (account.Balance != 0)
-                    throw new Exception("Невозможно закрыть счет на котором есть деньги.");
+                    throw new BadRequestException("Невозможно закрыть счет на котором есть деньги.");
                 account.CloseDate = DateTime.Now;
             }
 
