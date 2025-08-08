@@ -53,10 +53,15 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
 
-        logger.LogCritical($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception.GetType().Name}: {exception.Message}\n\n\n");
-        logger.LogCritical(exception.StackTrace);
-        logger.LogCritical($"\n\n\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exception?.InnerException?.GetType().Name}: {exception?.InnerException?.Message}\n\n\n");
-        logger.LogCritical(exception?.InnerException?.StackTrace);
+        var exceptionDiver = exception;
+
+        while (exceptionDiver != null)
+        {
+            logger.LogError($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exceptionDiver.GetType().Name}: {exceptionDiver.Message}\n");
+            logger.LogError(exceptionDiver.StackTrace);
+
+            exceptionDiver = exceptionDiver.InnerException;
+        }
 
         if (result == string.Empty)
             result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
