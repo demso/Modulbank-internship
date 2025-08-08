@@ -45,7 +45,10 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
             case NotFoundException:
                 code = HttpStatusCode.NotFound;
                 break;
-
+            case ConcurrencyException:
+                code = HttpStatusCode.Conflict;
+                result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
+                break;
             case DbUpdateException:
                 result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message} \n {exception?.InnerException?.Message} \n {exception?.InnerException?.StackTrace}"));
                 break;
