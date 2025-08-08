@@ -32,4 +32,17 @@ public sealed class BankAccountsDbContext : DbContext, IBankAccountsDbContext
     {
         optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)));
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+
+        // Конфигурация полей для оптимистичной блокировки.
+        modelBuilder.Entity<Account>()
+            .Property(b => b.Version)
+            .IsRowVersion();
+
+        modelBuilder.Entity<Transaction>()
+            .Property(b => b.Version)
+            .IsRowVersion();
+    }
 }

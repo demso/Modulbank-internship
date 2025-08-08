@@ -44,4 +44,6 @@ public class Account
     /// Список транзакций по счету
     /// </summary>
     public List<Transaction> Transactions { get; init; } = [];
+
+    public uint Version { get; set; }
 }

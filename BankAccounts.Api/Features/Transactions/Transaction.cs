@@ -47,4 +47,6 @@ public class Transaction
     /// Дата и время проведения транзакции
     /// </summary>
     public DateTime DateTime { get; init; }
+
+    public uint Version { get; init; }
 }
