@@ -15,11 +15,15 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
 
         builder.HasKey(a => a.AccountId);
 
-        builder.HasIndex(a => a.OwnerId);
+        builder.HasIndex(a => a.OwnerId)
+            .HasMethod("hash");
         builder.Property(a => a.OpenDate).IsRequired();
-        
+
         builder.HasMany(a => a.Transactions)
             .WithOne(t => t.Account)
             .HasForeignKey(t => t.AccountId);
+        // поле для оптимистичной блокировки
+        builder.Property(a => a.Version)
+            .IsRowVersion();
     }
 }
