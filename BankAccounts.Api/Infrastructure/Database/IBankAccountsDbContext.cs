@@ -1,6 +1,7 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace BankAccounts.Api.Infrastructure.Database;
 
@@ -21,4 +22,5 @@ public interface IBankAccountsDbContext
     /// Сохранение изменений
     /// </summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    DatabaseFacade Database { get; }
 }
