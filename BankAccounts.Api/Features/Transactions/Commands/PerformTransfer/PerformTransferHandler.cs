@@ -4,7 +4,7 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using Microsoft.EntityFrameworkCore;

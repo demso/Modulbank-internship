@@ -1,8 +1,9 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
+using BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankAccounts.Api.Infrastructure.Database;
+namespace BankAccounts.Api.Infrastructure.Database.Context;
 
 /// <summary>
 /// Контекст для базы данных банковских счетов и транзакций
@@ -36,13 +37,7 @@ public sealed class BankAccountsDbContext : DbContext, IBankAccountsDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
-        // Конфигурация полей для оптимистичной блокировки.
-        modelBuilder.Entity<Account>()
-            .Property(b => b.Version)
-            .IsRowVersion();
-
-        modelBuilder.Entity<Transaction>()
-            .Property(b => b.Version)
-            .IsRowVersion();
+        modelBuilder.ApplyConfiguration(new AccountConfiguration());
+        modelBuilder.ApplyConfiguration(new TransactionConfiguration());
     }
 }

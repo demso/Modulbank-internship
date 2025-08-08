@@ -1,6 +1,6 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Infrastructure.Repository.Accounts;
@@ -57,22 +57,3 @@ public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext) : IAccoun
             .Entity;
     }
 }
-
-
-
-//public async Task<List<Account>> Get()
-//{
-//    return await dbContext.Accounts
-//        .OrderBy(a => a.AccountId)
-//        .AsNoTracking()
-//        .ToListAsync();
-//}
-
-//public async Task<List<Account>> GetWithTransactions()
-//{
-//    return await dbContext.Accounts
-//        .AsNoTracking()
-//        .OrderBy(a => a.AccountId)
-//        .Include(a => a.Transactions)
-//        .ToListAsync();
-//}
