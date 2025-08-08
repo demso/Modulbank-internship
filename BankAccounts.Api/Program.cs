@@ -1,44 +1,47 @@
 using BankAccounts.Api.Common;
 using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Database.Context;
+using BankAccounts.Api.Infrastructure.Database.Migrator;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
+using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using BankAccounts.Api.Middleware;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using BankAccounts.Api.Infrastructure.Repository.Accounts;
-using BankAccounts.Api.Infrastructure.Repository.Transactions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
+var services = builder.Services;
+// Services
+services
     .AddDbContext<BankAccountsDbContext>()
     .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
     .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
     .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())
     .AddScoped<IAccountsRepositoryAsync, AccountsRepositoryAsync>()
     .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
-    .AddTransient<ICurrencyService, CurrencyService>()
+    .AddSingleton<ICurrencyService, CurrencyService>()
     .AddAutoMapper(options => options.AddProfile(new MappingProfile()))
     .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
+// Cors
+services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 {
     policy.AllowAnyHeader();
     policy.AllowAnyMethod();
     policy.AllowAnyOrigin();
 }));
-
-builder.Services.AddAuthentication(config =>
+// Authentication
+services.AddAuthentication(config =>
     {
         config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -60,19 +63,19 @@ builder.Services.AddAuthentication(config =>
             )
         };
     });
-
-builder.Services
+// Handfire
+services.AddHangfire(config => config.UseInMemoryStorage())
+    .AddHangfireServer();
+// Swagger
+services
     .AddEndpointsApiExplorer()
     .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
     .AddSwaggerGen();
 
+
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<BankAccountsDbContext>();
-    context.Database.Migrate();
-}
+await app.MigrateDatabase();
 
 app.UseStaticFiles();
 
@@ -90,5 +93,6 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
 

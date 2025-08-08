@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BankAccounts.Api.Features.Accounts;
+using BankAccounts.Api.Features.Transactions;
+using BankAccounts.Api.Infrastructure.CurrencyService;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,6 +14,11 @@ namespace BankAccounts.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:account_type", "checking,credit,deposit")
+                .Annotation("Npgsql:Enum:currencies", "eur,rub,usd")
+                .Annotation("Npgsql:Enum:transaction_type", "credit,debit");
+
             migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new
@@ -19,8 +26,8 @@ namespace BankAccounts.Api.Migrations
                     AccountId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AccountType = table.Column<int>(type: "integer", nullable: false),
-                    Currency = table.Column<int>(type: "integer", nullable: false),
+                    AccountType = table.Column<AccountType>(type: "account_type", nullable: false),
+                    Currency = table.Column<Currencies>(type: "currencies", nullable: false),
                     Balance = table.Column<decimal>(type: "numeric", nullable: false),
                     InterestRate = table.Column<decimal>(type: "numeric", nullable: false),
                     OpenDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -40,9 +47,9 @@ namespace BankAccounts.Api.Migrations
                     AccountId = table.Column<int>(type: "integer", nullable: false),
                     CounterpartyAccountId = table.Column<int>(type: "integer", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    Currency = table.Column<int>(type: "integer", nullable: false),
-                    TransactionType = table.Column<int>(type: "integer", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
+                    Currency = table.Column<Currencies>(type: "currencies", nullable: false),
+                    TransactionType = table.Column<TransactionType>(type: "transaction_type", nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },
@@ -58,9 +65,21 @@ namespace BankAccounts.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_AccountId",
+                name: "IX_Accounts_OwnerId",
+                table: "Accounts",
+                column: "OwnerId")
+                .Annotation("Npgsql:IndexMethod", "hash");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_transactions_account_id_date",
                 table: "Transactions",
-                column: "AccountId");
+                columns: new[] { "AccountId", "DateTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_transactions_date_gist",
+                table: "Transactions",
+                column: "DateTime")
+                .Annotation("Npgsql:IndexMethod", "gist");
         }
 
         /// <inheritdoc />

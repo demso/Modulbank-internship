@@ -1,5 +1,6 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
+using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +32,12 @@ public sealed class BankAccountsDbContext : DbContext, IBankAccountsDbContext
     /// <param name="optionsBuilder">Параметры БД</param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)));
+        optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)), options =>
+        {
+            options.MapEnum<Currencies>();
+            options.MapEnum<TransactionType>();
+            options.MapEnum<AccountType>();
+        });
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
