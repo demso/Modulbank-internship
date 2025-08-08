@@ -50,6 +50,7 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
                 result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
                 break;
             case DbUpdateException:
+                code = HttpStatusCode.BadRequest;
                 result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message} \n {exception?.InnerException?.Message} \n {exception?.InnerException?.StackTrace}"));
                 break;
         }
