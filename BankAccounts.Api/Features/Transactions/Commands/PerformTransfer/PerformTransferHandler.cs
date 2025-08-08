@@ -65,7 +65,7 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
                     request.Amount,
                     fromAccount.Currency,
                     TransactionType.Credit,
-                    $"Транзакция со счета {fromAccount.AccountId} на счет {toAccount.AccountId}.", cancellationToken);
+                    $"Перевод со счета {fromAccount.AccountId} на счет {toAccount.AccountId}.", cancellationToken);
                 // Транзакция на второй счет
                 await transactionsRepository.AddAsync(
                     toAccount.AccountId,
@@ -73,7 +73,7 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
                     toAccountAmount,
                     toAccount.Currency,
                     TransactionType.Debit,
-                    $"Транзакция на счет {toAccount.AccountId} со счета {fromAccount.AccountId}.", cancellationToken);
+                    $"Перевод на счет {toAccount.AccountId} со счета {fromAccount.AccountId}.", cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
 
