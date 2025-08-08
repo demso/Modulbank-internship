@@ -21,7 +21,7 @@ public class GetBankStatementValidator : AbstractValidator<GetBankStatementQuery
             .When(query => query.FromDate is not null)
             .DependentRules(() =>
                 RuleFor(query => query.ToDate)
-                    .GreaterThan(query => query.FromDate)
+                    .GreaterThanOrEqualTo(query => query.FromDate)
                     .When(query => query.ToDate is not null)
                     .WithMessage("Конец периода должен быть позже начала периода."))
             .When(query => query.FromDate is not null);
