@@ -17,7 +17,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using BankAccounts.Api.Infrastructure.Hangfire;
-using BankAccounts.Api.Infrastructure.Hangfire.Registerer;
+using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 
 var builder = WebApplication.CreateBuilder(args);
 

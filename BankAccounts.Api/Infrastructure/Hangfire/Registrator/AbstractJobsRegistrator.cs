@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Infrastructure.Hangfire.Registerer;
+﻿namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 
 /// <summary>
 /// Абстрактный класс для классов регистрации фоновых заданий Hangfire.

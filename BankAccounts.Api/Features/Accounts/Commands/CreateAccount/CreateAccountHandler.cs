@@ -3,7 +3,7 @@ using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 
-namespace BankAccounts.Api.Features.Accounts.Commands;
+namespace BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 
 
 /// <summary>

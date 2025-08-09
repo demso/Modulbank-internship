@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Features.Accounts.Commands;
+using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Commands.PerformTransaction;

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace BankAccounts.Api.Features.Accounts.Commands;
+namespace BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 
 
 /// <summary>

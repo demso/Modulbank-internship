@@ -1,7 +1,7 @@
 ﻿using BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 using Hangfire;
 
-namespace BankAccounts.Api.Infrastructure.Hangfire.Registerer;
+namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 
 /// <summary>
 /// Конкретный класс для регистрации ежедневного начисления процентов.

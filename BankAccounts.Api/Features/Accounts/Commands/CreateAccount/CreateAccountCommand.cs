@@ -2,7 +2,7 @@
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using MediatR;
 
-namespace BankAccounts.Api.Features.Accounts.Commands;
+namespace BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 
 /// <summary>
 /// Команда для создания счета

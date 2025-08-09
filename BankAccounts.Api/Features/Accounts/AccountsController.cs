@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
 using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Accounts.Commands;
+using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Accounts.Queries.GetAccount;
