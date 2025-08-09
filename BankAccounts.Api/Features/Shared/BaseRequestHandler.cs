@@ -17,7 +17,7 @@ public abstract class BaseRequestHandler<TRequest, TResponse>
     /// <summary>
     /// Проверяет существует ли счет с определенным id и принадлежит ли он пользователю
     /// </summary>
-    /// <param name="dbContext">База данных</param>
+    /// <param name="accountsRepository">Репозиторий банковских счетов</param>
     /// <param name="accountId">Id счета</param>
     /// <param name="ownerId">Id владельца</param>
     /// <param name="cancellationToken">Токен отмены</param>

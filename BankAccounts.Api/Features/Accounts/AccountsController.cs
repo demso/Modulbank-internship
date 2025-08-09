@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BankAccounts.Api.Features.Accounts;
 
 /// <summary>
-/// Контроллер операций со счетами и транзакциями
+/// Контроллер операций со счетами 
 /// </summary>
 [ApiController]
 [Produces("application/json")]

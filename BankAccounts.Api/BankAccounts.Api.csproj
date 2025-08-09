@@ -16,6 +16,7 @@
     <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.2.4" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+    <!-- ReSharper disable once VulnerablePackage Библиотека необходима -->
     <PackageReference Include="Hangfire" Version="1.8.20" />
     <PackageReference Include="Hangfire.InMemory" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="13.0.0" />

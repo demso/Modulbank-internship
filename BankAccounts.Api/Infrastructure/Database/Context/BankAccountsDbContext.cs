@@ -21,16 +21,7 @@ public sealed class BankAccountsDbContext(IConfiguration configuration) : DbCont
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
-    private IConfiguration configuration;
-
-    public BankAccountsDbContext(IConfiguration con)
-    {
-        configuration = con;
-    }
-    /// <summary>
-    /// Конфигурация БД
-    /// </summary>
-    /// <param name="optionsBuilder">Параметры БД</param>
+    /// <inheritdoc />
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)), options =>
@@ -41,9 +32,9 @@ public sealed class BankAccountsDbContext(IConfiguration configuration) : DbCont
         });
     }
 
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.ApplyConfiguration(new AccountConfiguration());
         modelBuilder.ApplyConfiguration(new TransactionConfiguration());
     }

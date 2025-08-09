@@ -44,6 +44,9 @@ public class Account
     /// Список транзакций по счету
     /// </summary>
     public List<Transaction> Transactions { get; init; } = [];
-
-    public uint Version { get; set; }
+    // ReSharper disable once CommentTypo Наименование верно
+    /// <summary>
+    /// Concurrency‑token (xmin) для оптимистичной блокировки
+    /// </summary>
+    public uint Version { get; init; }
 }

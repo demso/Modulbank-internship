@@ -3,8 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 
-public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, CancellationToken cancellationToken = default) : IJob
+/// <summary>
+/// Фоновое задание Hangfire для начисления процентов по счетам.
+/// </summary>
+/// <param name="context"></param>
+/// <param name="logger"></param>
+/// <param name="cancellationToken"></param>
+// ReSharper disable once ClassNeverInstantiated.Global Класс используется Hangfire.
+public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, CancellationToken cancellationToken = default) 
+    : IJob
 {
+
+    /// <inheritdoc />
     public async Task Job()
     {
         var accountIds = await context.Accounts.Where(a =>

@@ -3,9 +3,13 @@ using Hangfire;
 
 namespace BankAccounts.Api.Infrastructure.Hangfire.Registerer;
 
+/// <summary>
+/// Конкретный класс для регистрации ежедневного начисления процентов.
+/// </summary>
 public class JobsRegistrator
     : AbstractJobsRegistrator
 {
+    /// <inheritdoc />
     protected override void AddJobs()
     {
         RecurringJob.AddOrUpdate<AccrueInterestJob>("accrueInterest", obj =>

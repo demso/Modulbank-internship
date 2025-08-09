@@ -22,5 +22,8 @@ public interface IBankAccountsDbContext
     /// Сохранение изменений
     /// </summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    /// <summary>
+    /// База данных
+    /// </summary>
     DatabaseFacade Database { get; }
 }

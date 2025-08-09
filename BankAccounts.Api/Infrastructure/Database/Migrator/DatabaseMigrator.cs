@@ -3,8 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Infrastructure.Database.Migrator;
 
+/// <summary>
+/// DatabaseMigrator - класс, позволяющий поддерживать актуальность БД и обеспечивать порядок и выполнение задач в БД при запуске банковского сервиса.
+/// </summary>
 public static class DatabaseMigrator
 {
+    /// <summary>
+    /// Запуск миграции базы данных и сопутствующих задач.
+    /// </summary>
     public static async Task MigrateDatabase(this IApplicationBuilder app)
     {
         var context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<IBankAccountsDbContext>();
@@ -15,6 +21,7 @@ public static class DatabaseMigrator
 
         await context.Database.MigrateAsync();
 
+        // Создание процедуры для начисления процентов по вкладам
         // ReSharper disable once StringLiteralTypo Наименование верно
         sql =
             """

@@ -12,6 +12,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccounts.Api.Features.Transactions;
 
+/// <summary>
+/// Контроллер операций с транзакциями по счетам
+/// </summary>
+/// <param name="mapper">Mapper</param>
+/// <param name="mediator">Mediator</param>
 [ApiController]
 [Produces("application/json")]
 [Route("api/accounts")]

@@ -47,6 +47,9 @@ public class Transaction
     /// Дата и время проведения транзакции
     /// </summary>
     public DateTime DateTime { get; init; }
-
+    // ReSharper disable once CommentTypo Наименование верно
+    /// <summary>
+    /// Concurrency‑token (xmin) для оптимистичной блокировки
+    /// </summary>
     public uint Version { get; init; }
 }

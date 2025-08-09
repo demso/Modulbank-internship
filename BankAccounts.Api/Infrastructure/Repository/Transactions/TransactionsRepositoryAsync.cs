@@ -5,19 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Api.Infrastructure.Repository.Transactions;
 
+/// <summary>
+/// Конкретный класс репозитория для работы с транзакциями.
+/// </summary>
 public class TransactionsRepositoryAsync(IBankAccountsDbContext dbContext) : ITransactionsRepositoryAsync
 {
+    /// <inheritdoc />
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         return await dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<Transaction?> GetByIdAsync(Guid transactionId, CancellationToken cancellationToken)
     {
         return await dbContext.Transactions
             .FirstOrDefaultAsync(t => t.TransactionId == transactionId, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<List<Transaction>> GetByFilterAsync(int accountId, DateOnly? from, DateOnly? to, CancellationToken cancellationToken)
     {
         return await dbContext.Transactions
@@ -28,6 +34,7 @@ public class TransactionsRepositoryAsync(IBankAccountsDbContext dbContext) : ITr
             .ToListAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<List<Transaction>> GetByAccountByPageAsync(int accountId, DateOnly? from, DateOnly? to, int page, int pageSize, 
         CancellationToken cancellationToken)
     {
@@ -41,6 +48,7 @@ public class TransactionsRepositoryAsync(IBankAccountsDbContext dbContext) : ITr
             .ToListAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<Transaction> AddAsync(int accountId, int counterPartyId, decimal amount, Currencies currency, TransactionType transactionType,
         string? description, CancellationToken cancellationToken)
     {
