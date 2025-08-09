@@ -6,7 +6,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Registerer;
 public class JobsRegistrator
     : AbstractJobsRegistrator
 {
-    public override void AddJobs()
+    protected override void AddJobs()
     {
         RecurringJob.AddOrUpdate<AccrueInterestJob>("accrueInterest", obj =>
                 obj.Job()

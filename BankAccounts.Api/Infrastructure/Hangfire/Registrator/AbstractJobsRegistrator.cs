@@ -2,7 +2,7 @@
 
 public abstract class AbstractJobsRegistrator : IHostedService
 {
-    public abstract void AddJobs();
+    protected abstract void AddJobs();
 
     public Task StartAsync(CancellationToken cancellationToken)
     {

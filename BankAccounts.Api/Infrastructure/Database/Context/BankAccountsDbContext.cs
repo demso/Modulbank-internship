@@ -9,12 +9,13 @@ namespace BankAccounts.Api.Infrastructure.Database.Context;
 /// <summary>
 /// Контекст для базы данных банковских счетов и транзакций
 /// </summary>
-public sealed class BankAccountsDbContext : DbContext, IBankAccountsDbContext
+public sealed class BankAccountsDbContext(IConfiguration configuration) : DbContext, IBankAccountsDbContext
 {
     /// <summary>
     /// Банковские счета пользователей
     /// </summary>
     public DbSet<Account> Accounts => Set<Account>();
+
     /// <summary>
     /// Транзакции
     /// </summary>
