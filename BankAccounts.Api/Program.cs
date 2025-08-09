@@ -7,6 +7,7 @@ using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using BankAccounts.Api.Middleware;
 using FluentValidation;
+using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -15,12 +16,14 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using Hangfire;
+using BankAccounts.Api.Infrastructure.Hangfire;
+using BankAccounts.Api.Infrastructure.Hangfire.Registerer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
-// Services
+
+// Common services
 services
     .AddDbContext<BankAccountsDbContext>()
     .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
@@ -33,6 +36,7 @@ services
     .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 // Cors
 services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 {
@@ -40,6 +44,7 @@ services.AddCors(options => options.AddPolicy("AllowAll", policy =>
     policy.AllowAnyMethod();
     policy.AllowAnyOrigin();
 }));
+
 // Authentication
 services.AddAuthentication(config =>
     {
@@ -63,15 +68,17 @@ services.AddAuthentication(config =>
             )
         };
     });
-// Handfire
+
+// Hangfire
 services.AddHangfire(config => config.UseInMemoryStorage())
-    .AddHangfireServer();
+    .AddHangfireServer()
+    .AddHostedService<JobsRegistrator>();
+
 // Swagger
 services
     .AddEndpointsApiExplorer()
     .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
     .AddSwaggerGen();
-
 
 var app = builder.Build();
 
@@ -93,6 +100,11 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireAuthorizationFilter()]
+});
 
 app.Run();
 

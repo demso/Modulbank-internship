@@ -1,0 +1,37 @@
+﻿using BankAccounts.Api.Infrastructure.Database.Context;
+using Microsoft.EntityFrameworkCore;
+
+namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
+
+public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, CancellationToken cancellationToken = default) : IJob
+{
+    public async Task Job()
+    {
+        var accountIds = await context.Accounts.Where(a =>
+                a.Balance != 0
+                && a.CloseDate == null
+                && a.InterestRate != 0)
+            .AsNoTracking()
+            .Select(a => a.AccountId)
+            .ToListAsync();
+
+
+        await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+
+        try
+        {
+            foreach (var accountId in accountIds) 
+                await context.Database.ExecuteSqlRawAsync("CALL public.accrue_interest({0})", accountId);
+
+            await transaction.CommitAsync();
+
+            logger.LogInformation("Начисление процентов по счетам успешно. Количество измененных счетов: " + accountIds.Count);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            logger.LogError(ex, "Ошибка при начислении процентов, отмена операции ");
+            throw; 
+        }
+    }
+}
