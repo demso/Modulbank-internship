@@ -1,4 +1,6 @@
 using BankAccounts.Api.Common;
+using BankAccounts.Api.Features.Accounts;
+using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
@@ -18,6 +20,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using BankAccounts.Api.Infrastructure.Hangfire;
 using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +28,14 @@ var services = builder.Services;
 
 // Common services
 services
-    .AddDbContext<BankAccountsDbContext>()
+    .AddDbContext<BankAccountsDbContext>(optionsBuilder => 
+        optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString(nameof(BankAccountsDbContext)), options =>
+        {
+            options.MapEnum<Currencies>();
+            options.MapEnum<TransactionType>();
+            options.MapEnum<AccountType>();
+        })
+    )
     .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
     .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
     .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())

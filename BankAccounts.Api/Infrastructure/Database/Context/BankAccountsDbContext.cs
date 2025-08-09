@@ -9,7 +9,7 @@ namespace BankAccounts.Api.Infrastructure.Database.Context;
 /// <summary>
 /// Контекст для базы данных банковских счетов и транзакций
 /// </summary>
-public sealed class BankAccountsDbContext(IConfiguration configuration) : DbContext, IBankAccountsDbContext
+public sealed class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext> options) : DbContext(options), IBankAccountsDbContext
 {
     /// <summary>
     /// Банковские счета пользователей
@@ -20,17 +20,6 @@ public sealed class BankAccountsDbContext(IConfiguration configuration) : DbCont
     /// Транзакции
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
-
-    /// <inheritdoc />
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)), options =>
-        {
-            options.MapEnum<Currencies>();
-            options.MapEnum<TransactionType>();
-            options.MapEnum<AccountType>();
-        });
-    }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
