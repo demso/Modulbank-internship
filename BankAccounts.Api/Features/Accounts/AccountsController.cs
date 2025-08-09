@@ -142,7 +142,8 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     public async Task<MbResult<BankStatement>> GetStatementForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetBankStatementQuery(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!, accountId, fromDate, toDate);
+        var query = new GetBankStatementQuery(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!,
+            accountId, fromDate, toDate);
         var bankStatement = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, bankStatement);
     }
