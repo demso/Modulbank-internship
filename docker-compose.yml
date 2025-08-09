@@ -4,10 +4,10 @@ services:
     container_name: bankaccounts_db
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bank-accounts-db
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=password
+#      - POSTGRES_DB=bank-accounts-db
     command:
       - "postgres"
       - "-c"
@@ -35,10 +35,10 @@ services:
     depends_on:
       bankaccounts.db:
         condition: service_healthy
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=80
-      - ASPNETCORE_URLS=http://+:80
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Development
+#      - ASPNETCORE_HTTP_PORTS=80
+#      - ASPNETCORE_URLS=http://+:80
 
   bankaccounts.identity:
     image: lithiumkgp/bankaccounts.identity:latest
