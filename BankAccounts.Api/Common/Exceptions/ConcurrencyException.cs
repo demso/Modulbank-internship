@@ -6,5 +6,4 @@
 /// <param name="message">Сообщение</param>
 /// <param name="innerException">Внутреннее исключение</param>
 public class ConcurrencyException(string message, Exception innerException) 
-    : InvalidOperationException(message, innerException)
-{ }
+    : InvalidOperationException(message, innerException);

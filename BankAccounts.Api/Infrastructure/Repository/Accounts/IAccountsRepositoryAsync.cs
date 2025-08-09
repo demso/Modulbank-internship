@@ -23,6 +23,7 @@ public interface IAccountsRepositoryAsync : IBankAccountsServiceRepositoryAsync
     /// <summary>
     /// Метод возвращает список счетов владельца с пагинацией.
     /// </summary>
+    // ReSharper disable once UnusedMember.Global Используется как пример метода с пагинацией.
     Task<List<Account>> GetByOwnerByPageAsync(Guid ownerId, int size, int pageSize, CancellationToken cancellationToken);
     /// <summary>
     /// Добавить новый счет.

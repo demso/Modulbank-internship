@@ -2,7 +2,6 @@
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
-using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
@@ -10,7 +9,7 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 /// <summary>
     /// Обработчик команды
     /// </summary>>
-    public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, IMediator mediator) : BaseRequestHandler<GetBankStatementQuery, BankStatement>
+    public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository, IMediator mediator) : BaseRequestHandler<GetBankStatementQuery, BankStatement>
     {
         /// <inheritdoc />
         public override async Task<BankStatement> Handle(GetBankStatementQuery request, CancellationToken cancellationToken)

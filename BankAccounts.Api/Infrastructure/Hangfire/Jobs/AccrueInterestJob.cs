@@ -23,7 +23,7 @@ public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInt
                 && a.InterestRate != 0)
             .AsNoTracking()
             .Select(a => a.AccountId)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
 
         await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
