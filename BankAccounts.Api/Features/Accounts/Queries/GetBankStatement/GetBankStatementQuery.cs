@@ -1,7 +1,6 @@
-﻿using BankAccounts.Api.Features.Transactions.Queries.GetBankStatement.GetBankStatement;
-using MediatR;
+﻿using MediatR;
 
-namespace BankAccounts.Api.Features.Transactions.Queries.GetBankStatement;
+namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 
 /// <summary>
 /// Запрос выписки

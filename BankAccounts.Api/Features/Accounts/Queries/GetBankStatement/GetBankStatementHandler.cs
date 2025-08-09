@@ -1,11 +1,11 @@
 ﻿using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Features.Transactions.Queries.GetBankStatement.GetBankStatement;
+using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using MediatR;
 
-namespace BankAccounts.Api.Features.Transactions.Queries.GetBankStatement;
+namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 
 /// <summary>
     /// Обработчик команды

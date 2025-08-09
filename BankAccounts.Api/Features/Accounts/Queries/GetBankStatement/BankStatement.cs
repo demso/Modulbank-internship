@@ -1,6 +1,6 @@
 ﻿using BankAccounts.Api.Infrastructure.CurrencyService;
 
-namespace BankAccounts.Api.Features.Transactions.Queries.GetBankStatement.GetBankStatement;
+namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 
 /// <summary>
 /// ВЫписка о банковских операция по счету

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace BankAccounts.Api.Features.Transactions.Queries.GetBankStatement;
+namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 
 /// <summary>
 /// Валидатор команды
