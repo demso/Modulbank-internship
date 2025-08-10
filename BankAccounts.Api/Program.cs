@@ -5,6 +5,8 @@ using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Database.Migrator;
+using BankAccounts.Api.Infrastructure.Hangfire;
+using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using BankAccounts.Api.Middleware;
@@ -12,15 +14,13 @@ using FluentValidation;
 using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using BankAccounts.Api.Infrastructure.Hangfire;
-using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

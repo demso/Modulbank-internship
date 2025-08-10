@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
@@ -11,6 +10,7 @@ using BankAccounts.Api.Features.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BankAccounts.Api.Features.Accounts;
 
@@ -64,7 +64,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<List<AccountDto>>> GetAllAccounts()
     {
-        var query = new GetAllCountsForUserQuery(GetUserGuid());
+        var query = new GetAllAccountsForUserQuery(GetUserGuid());
         var accountList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, accountList);
     }

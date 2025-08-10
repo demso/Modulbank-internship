@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BankAccounts.Api.Infrastructure.CurrencyService;
+﻿using BankAccounts.Api.Infrastructure.CurrencyService;
+using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable NotAccessedPositionalProperty.Global Параметры используются
 
