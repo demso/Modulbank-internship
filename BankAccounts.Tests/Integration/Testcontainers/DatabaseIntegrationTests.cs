@@ -6,7 +6,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers;
 public class DatabaseIntegrationTests : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres")
+        .WithImage("lithiumkgp/postgres:latest")
         .WithDatabase("testdb")
         .WithUsername("user")
         .WithPassword("password")

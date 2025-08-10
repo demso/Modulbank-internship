@@ -48,7 +48,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithUsername("postgres")
             .WithPassword("password")
             .WithPortBinding(5432, true)
-            .WithImage("postgres")
+            .WithImage("lithiumkgp/postgres:latest")
             .Build();
         await _bankAccountsDbContainer.StartAsync();
         

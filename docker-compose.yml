@@ -1,6 +1,6 @@
 services:
   bankaccounts.db:
-    image: postgres
+    image: lithiumkgp/postgres:latest
     container_name: bankaccounts_db
     ports:
       - "5432:5432"

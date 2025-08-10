@@ -12,7 +12,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers;
 public class EfRepositoryTests : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres")
+        .WithImage("lithiumkgp/postgres:latest")
         .Build();
     private BankAccountsDbContext _context = null!;
 
