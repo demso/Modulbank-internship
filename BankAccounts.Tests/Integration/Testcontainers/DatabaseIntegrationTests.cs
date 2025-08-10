@@ -1,22 +1,17 @@
 ﻿using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace BankAccounts.Tests.Testcontainers;
+namespace BankAccounts.Tests.Integration.Testcontainers;
 
 public class DatabaseIntegrationTests : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container;
-    private string _connectionString;
-
-    public DatabaseIntegrationTests()
-    {
-        _container = new PostgreSqlBuilder()
-            .WithImage("postgres")
-            .WithDatabase("testdb")
-            .WithUsername("user")
-            .WithPassword("password")
-            .Build();
-    }
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
+        .WithImage("postgres")
+        .WithDatabase("testdb")
+        .WithUsername("user")
+        .WithPassword("password")
+        .Build();
+    private string _connectionString = null!;
 
     public async Task InitializeAsync()
     {
@@ -33,9 +28,9 @@ public class DatabaseIntegrationTests : IAsyncLifetime
     public async Task Can_Connect_To_Database()
     {
         // Arrange
-        using var connection = new NpgsqlConnection(_connectionString);
+        await using  var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
-        using var cmd = new NpgsqlCommand("SELECT 1", connection);
+        await using var cmd = new NpgsqlCommand("SELECT 1", connection);
         
         // Act
         var result = await cmd.ExecuteScalarAsync();

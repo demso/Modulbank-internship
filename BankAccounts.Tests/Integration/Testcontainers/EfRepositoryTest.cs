@@ -4,7 +4,7 @@ using BankAccounts.Api.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-namespace BankAccounts.Tests.Testcontainers;
+namespace BankAccounts.Tests.Integration.Testcontainers;
 
 /// <summary>
 /// Тест работы Entity Framework с контекстом BankAccountsDbContext и базой данных Postgres
@@ -25,7 +25,12 @@ public class EfRepositoryTests : IAsyncLifetime
             .Options;
 
         _context = new BankAccountsDbContext(options);
-        await _context.Database.MigrateAsync(); 
+        
+        // Необходимо для создания индекса
+        var sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
+        await _context.Database.ExecuteSqlRawAsync(sql);
+        
+        await _context.Database.EnsureCreatedAsync(); 
     }
         
     public async Task DisposeAsync()

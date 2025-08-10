@@ -15,14 +15,14 @@ using Testcontainers.PostgreSql;
 using Xunit.Abstractions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace BankAccounts.Tests.Testcontainers;
+namespace BankAccounts.Tests.Integration.Testcontainers;
 /// <summary>
 /// Набор интеграционных тестов. Необходимо собрать образы сервисов BankAccounts.Api и BankAccounts.Identity
 /// перед выполнением тестов. Чтобы это сделать, запустите конфигурацию docker-compose или выполните команду
 /// "docker-compose build" в корневой папке решения.
 /// </summary>
-/// <param name="_output">Вспомогательный объект для вывода логов теста</param>
-public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLifetime
+/// <param name="output">Вспомогательный объект для вывода логов теста</param>
+public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLifetime
 {
     private INetwork _network = null!; // Общая сеть
     private PostgreSqlContainer _bankAccountsDbContainer = null!;
@@ -168,7 +168,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
         transferClient.BaseAddress = _apiHttpClient.BaseAddress;
 
         // Запуск параллельных переводов
-        _output.WriteLine($"Запуск {numberOfTransfers} параллельных переводов по {transferAmount} RUB...");
+        output.WriteLine($"Запуск {numberOfTransfers} параллельных переводов по {transferAmount} RUB...");
         var startTime = DateTime.UtcNow;
 
         for (int i = 0; i < numberOfTransfers; i++)
@@ -186,7 +186,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
                 }
                 catch (Exception ex)
                 {
-                    _output?.WriteLine($"Ошибка в задаче перевода: {ex}");
+                    output?.WriteLine($"Ошибка в задаче перевода: {ex}");
                     return null; 
                 }
             });
@@ -196,7 +196,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
         // Ожидание завершения всех переводов
         var responses = await Task.WhenAll(tasks);
         var endTime = DateTime.UtcNow;
-        _output?.WriteLine($"Все переводы завершены за {endTime - startTime}");
+        output?.WriteLine($"Все переводы завершены за {endTime - startTime}");
 
         // Анализ результатов
         var successfulTransfers = 0;
@@ -208,7 +208,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
             if (response == null)
             {
                 failedTransfers++;
-                _output?.WriteLine("Задача перевода завершилась с исключением.");
+                output?.WriteLine("Задача перевода завершилась с исключением.");
                 continue;
             }
 
@@ -220,7 +220,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
             {
                 failedTransfers++;
                 var content = await response.Content.ReadAsStringAsync();
-                _output?.WriteLine($"Неуспешный перевод. Статус: {response.StatusCode}, Content: {content}");
+                output?.WriteLine($"Неуспешный перевод. Статус: {response.StatusCode}, Content: {content}");
 
                 // Проверим, была ли ошибка связана с оптимистичной блокировкой
                 if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
@@ -230,8 +230,8 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
             }
         }
 
-        _output?.WriteLine($"Успешных переводов: {successfulTransfers}");
-        _output?.WriteLine($"Неуспешных переводов: {failedTransfers} (из них конфликтов: {concurrencyConflicts})");
+        output?.WriteLine($"Успешных переводов: {successfulTransfers}");
+        output?.WriteLine($"Неуспешных переводов: {failedTransfers} (из них конфликтов: {concurrencyConflicts})");
 
         // Проверка суммарного баланса
         var finalBalanceUser1 = await clientHelper.GetBalance(apiClientUser1, account1Id);
@@ -239,10 +239,10 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
 
         var totalFinalBalance = finalBalanceUser1 + finalBalanceUser2;
 
-        _output?.WriteLine($"Начальный суммарный баланс: {totalInitialBalance} RUB");
-        _output?.WriteLine($"Финальный суммарный баланс: {totalFinalBalance} RUB");
-        _output?.WriteLine($"Баланс счета 1: {finalBalanceUser1} RUB");
-        _output?.WriteLine($"Баланс счета 2: {finalBalanceUser2} RUB");
+        output?.WriteLine($"Начальный суммарный баланс: {totalInitialBalance} RUB");
+        output?.WriteLine($"Финальный суммарный баланс: {totalFinalBalance} RUB");
+        output?.WriteLine($"Баланс счета 1: {finalBalanceUser1} RUB");
+        output?.WriteLine($"Баланс счета 2: {finalBalanceUser2} RUB");
 
         // Assert: Проверяем, что суммарный баланс сохранился
         Assert.Equal(totalInitialBalance, totalFinalBalance);
@@ -319,15 +319,17 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
         options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         return options;
     }
-    
-    
 
     public async Task DisposeAsync()
     {
         _apiHttpClient?.Dispose();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_bankAccountsApiContainer != null) await _bankAccountsApiContainer.DisposeAsync();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_identityServiceContainer != null) await _identityServiceContainer.DisposeAsync();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_bankAccountsDbContainer != null) await _bankAccountsDbContainer.DisposeAsync();
-        if (_network != null) await _network.DeleteAsync(); // Удаление сети
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
+        if (_network != null) await _network.DeleteAsync();
     }
 }
