@@ -1,5 +1,8 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
 // Назначение методов понятно из названия
+
+using System.Text.Json.Serialization;
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 namespace BankAccounts.Api.Common;
 
@@ -27,6 +30,19 @@ public record MbResult<T>
         MbError = mbError;
         StatusCode = statusCode;
     }
+    /// <summary>
+    /// Конструктор для тестов
+    /// </summary>
+    [JsonConstructor]
+    private protected MbResult(bool isSuccess, T value,  int statusCode, string? mbError)
+    {
+        IsSuccess = isSuccess;
+        MbError = mbError;
+        StatusCode = statusCode;
+        Value = value;
+    }
+    
+    private MbResult() { }
 
     public static MbResult<T> Success(int code, T value) => new(code, value);
 
@@ -42,4 +58,12 @@ public record MbResult : MbResult<object?>
     private MbResult(int statusCode, object? value) : base(statusCode, value) { }
 
     public static MbResult Success(int code) => new(code, null);
+
+    /// <summary>
+    /// Конструктор для тестов
+    /// </summary>
+    [JsonConstructor]
+    private MbResult(bool isSuccess, object? value, int statusCode, string? mbError)
+        : base(isSuccess, value, statusCode, mbError)
+    { }
 }
