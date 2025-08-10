@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
 
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Docker
 ENV ASPNETCORE_HTTP_PORTS=80
 ENV ASPNETCORE_URLS=http://+:80
 
@@ -30,5 +30,6 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 COPY /BankAccounts.Api/appsettings.json /app/appsettings.json
+COPY /BankAccounts.Api/appsettings.Docker.json /app/appsettings.Docker.json
 
 ENTRYPOINT ["dotnet", "BankAccounts.Api.dll"]

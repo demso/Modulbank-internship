@@ -1,16 +1,21 @@
 [
   {
-    "Name": "Run API and Identity",
+    "Name": "Run API, Identity and Postgres",
     "Projects": [
       {
         "Path": "BankAccounts.Api\\BankAccounts.Api.csproj",
         "Action": "Start",
-        "DebugTarget": "http"
-      },
+        "DebugTarget": "ApiIdentityPostgres"
+      }
+    ]
+  },
+  {
+    "Name": "Run all projects in Docker",
+    "Projects": [
       {
-        "Path": "BankAccounts.Identity\\BankAccounts.Identity.csproj",
+        "Path": "BankAccounts.Api\\BankAccounts.Api.csproj",
         "Action": "Start",
-        "DebugTarget": "http"
+        "DebugTarget": "CustomDockerCompose"
       }
     ]
   }
