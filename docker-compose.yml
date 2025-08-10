@@ -8,6 +8,14 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=bank-accounts-db
+    command:
+      - "postgres"
+      - "-c"
+      - "log_min_messages=notice"
+      - "-c"
+      - "client_min_messages=notice"
+      - "-c"
+      - "log_statement=all"
     volumes:
       - bankaccounts_db_data:/var/lib/postgresql/data
     restart: unless-stopped
