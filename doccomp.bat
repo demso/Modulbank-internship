@@ -1,5 +1,5 @@
-docker-compose up -d --force-recreate
+docker-compose up -d --build --force-recreate
 
-timeout /t 1 /nobreak >nul
+timeout /t 3 /nobreak >nul
 
 start http://localhost:80
