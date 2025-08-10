@@ -121,8 +121,7 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex,
-                    "Ошибка при переводе средств со счёта {FromAccountId} на счёт {ToAccountId}. Транзакция отменена.",
+                logger.LogError("Ошибка при переводе средств со счёта {FromAccountId} на счёт {ToAccountId}. Транзакция отменена.",
                     request.FromAccountId, request.ToAccountId);
 
                 // Откатываем транзакцию
