@@ -19,14 +19,12 @@ public interface IAccountsRepositoryAsync : IBankAccountsServiceRepositoryAsync
     /// <summary>
     /// Польучить счет по идентификатору с транзакциями.
     /// </summary>
+    // ReSharper disable once UnusedMember.Global Используется как пример метода получения
+    // значения со списком дополнительных свойств
     Task<Account?> GetByIdWithTransactions(int accountId, CancellationToken cancellationToken);
-    /// <summary>
-    /// Метод возвращает список счетов владельца с пагинацией.
-    /// </summary>
-    // ReSharper disable once UnusedMember.Global Используется как пример метода с пагинацией.
-    Task<List<Account>> GetByOwnerByPageAsync(Guid ownerId, int size, int pageSize, CancellationToken cancellationToken);
     /// <summary>
     /// Добавить новый счет.
     /// </summary>
-    Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate, CancellationToken cancellationToken);
+    Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate, 
+        CancellationToken cancellationToken);
 }

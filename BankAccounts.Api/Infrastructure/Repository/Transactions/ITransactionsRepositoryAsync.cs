@@ -17,11 +17,6 @@ public interface ITransactionsRepositoryAsync : IBankAccountsServiceRepositoryAs
     /// </summary>
     Task<List<Transaction>> GetByFilterAsync(int accountId, DateOnly? from, DateOnly? to, CancellationToken cancellationToken);
     /// <summary>
-    /// Получить транзакции по фильтру для конкретного счета с пагинацией.
-    /// </summary>
-    // ReSharper disable once UnusedMember.Global Используется как пример метода с пагинацией.
-    Task<List<Transaction>> GetByAccountByPageAsync(int accountId, DateOnly? from, DateOnly? to, int page, int pageSize, CancellationToken cancellationToken);
-    /// <summary>
     /// Добавить новую транзакцию в счет асинхронно.
     /// </summary>
     Task<Transaction> AddAsync(int accountId, int counterPartyId, decimal amount, Currencies currency, 

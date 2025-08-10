@@ -35,20 +35,6 @@ public class TransactionsRepositoryAsync(IBankAccountsDbContext dbContext) : ITr
     }
 
     /// <inheritdoc />
-    public async Task<List<Transaction>> GetByAccountByPageAsync(int accountId, DateOnly? from, DateOnly? to, int page, int pageSize, 
-        CancellationToken cancellationToken)
-    {
-        return await dbContext.Transactions
-            .Where(t => t.AccountId == accountId &&
-                        (!from.HasValue || DateOnly.FromDateTime(t.DateTime.ToUniversalTime()) >= from.Value) 
-                        && (!to.HasValue || DateOnly.FromDateTime(t.DateTime.ToUniversalTime()) <= to.Value))
-            .OrderByDescending(t => t.DateTime)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
-    }
-
-    /// <inheritdoc />
     public async Task<Transaction> AddAsync(int accountId, int counterPartyId, decimal amount, Currencies currency, TransactionType transactionType,
         string? description, CancellationToken cancellationToken)
     {

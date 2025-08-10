@@ -42,18 +42,6 @@ public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext) : IAccoun
     }
 
     /// <inheritdoc />
-    public async Task<List<Account>> GetByOwnerByPageAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken)
-    {
-        return await dbContext.Accounts
-            .AsNoTracking()
-            .Where(a => a.OwnerId == ownerId)
-            .OrderBy(a => a.AccountId)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
-    }
-
-    /// <inheritdoc />
     public async Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate, CancellationToken cancellationToken)
     {
         return (await dbContext.Accounts.AddAsync(new Account
