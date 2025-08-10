@@ -186,7 +186,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
                 }
                 catch (Exception ex)
                 {
-                    output?.WriteLine($"Ошибка в задаче перевода: {ex}");
+                    output.WriteLine($"Ошибка в задаче перевода: {ex}");
                     return null; 
                 }
             });
@@ -196,7 +196,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         // Ожидание завершения всех переводов
         var responses = await Task.WhenAll(tasks);
         var endTime = DateTime.UtcNow;
-        output?.WriteLine($"Все переводы завершены за {endTime - startTime}");
+        output.WriteLine($"Все переводы завершены за {endTime - startTime}");
 
         // Анализ результатов
         var successfulTransfers = 0;
@@ -322,6 +322,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
 
     public async Task DisposeAsync()
     {
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract Возможен null в исключительном случае
         _apiHttpClient?.Dispose();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_bankAccountsApiContainer != null) await _bankAccountsApiContainer.DisposeAsync();

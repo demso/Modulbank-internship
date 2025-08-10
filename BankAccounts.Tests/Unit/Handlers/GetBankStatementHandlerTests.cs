@@ -8,7 +8,7 @@ using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using MediatR;
 using Moq;
 
-namespace BankAccounts.Tests.Handlers;
+namespace BankAccounts.Tests.Unit.Handlers;
 /// <summary>
 /// Данный тест проверит функционал обработчика команды на получение банковской выписки
 /// </summary>

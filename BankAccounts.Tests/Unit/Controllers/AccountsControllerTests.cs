@@ -12,7 +12,7 @@ using Moq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace BankAccounts.Tests.Controllers;
+namespace BankAccounts.Tests.Unit.Controllers;
 
 /// <summary>
 /// Тесты контроллера счетов

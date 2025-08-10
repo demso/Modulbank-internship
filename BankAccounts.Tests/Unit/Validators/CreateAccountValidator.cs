@@ -3,7 +3,7 @@ using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using FluentValidation.TestHelper;
 
-namespace BankAccounts.Tests.Validators;
+namespace BankAccounts.Tests.Unit.Validators;
 
 /// <summary>
 ///Тесты валидатора команды создания счета

@@ -6,7 +6,7 @@ using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using Moq;
 
-namespace BankAccounts.Tests.Handlers;
+namespace BankAccounts.Tests.Unit.Handlers;
 
 /// <summary>
 /// Проверяет, создает ли обработчик команды на создание счета правильный счет

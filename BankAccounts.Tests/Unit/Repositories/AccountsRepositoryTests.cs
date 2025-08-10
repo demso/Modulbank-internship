@@ -5,7 +5,7 @@ using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankAccounts.Tests.Repositories;
+namespace BankAccounts.Tests.Unit.Repositories;
 
 /// <summary>
 /// Проверяет работу репозитория
@@ -111,6 +111,7 @@ public class AccountsRepositoryTests : IDisposable
 
     public void Dispose()
     {
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract В исключительных случаях null
         _context?.Database.EnsureDeleted();
         _context?.Dispose();
     }
