@@ -8,10 +8,10 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
 /// <summary>
 /// Обработчик запроса
 /// </summary>
-public class GetAllAccountsForUserHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<GetAllCountsForUserQuery, List<AccountDto>>
+public class GetAllAccountsForUserHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<GetAllAccountsForUserQuery, List<AccountDto>>
 {
     /// <inheritdoc />
-    public override async Task<List<AccountDto>> Handle(GetAllCountsForUserQuery request, CancellationToken cancellationToken)
+    public override async Task<List<AccountDto>> Handle(GetAllAccountsForUserQuery request, CancellationToken cancellationToken)
     {
         var entities = await accountsRepository.GetByFilterAsync(request.OwnerId, cancellationToken);
         // сортируем счета для удобного отображения

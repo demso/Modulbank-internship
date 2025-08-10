@@ -9,7 +9,7 @@ namespace BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 /// <summary>
 /// Обработчик команды
 /// </summary>
-public class Handler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<CreateAccountCommand, AccountDto>
+public class CreateAccountHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<CreateAccountCommand, AccountDto>
 {
     /// <inheritdoc />
     public override async Task<AccountDto> Handle(CreateAccountCommand request, CancellationToken cancellationToken)

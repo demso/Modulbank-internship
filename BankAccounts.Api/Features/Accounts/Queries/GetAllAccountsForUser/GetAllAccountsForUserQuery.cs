@@ -7,4 +7,4 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
 /// Запрос всех счетов пользователя
 /// </summary>
 /// <param name="OwnerId">Id владельца счетов</param>
-public record GetAllCountsForUserQuery(Guid OwnerId) : IRequest<List<AccountDto>>;
+public record GetAllAccountsForUserQuery(Guid OwnerId) : IRequest<List<AccountDto>>;
