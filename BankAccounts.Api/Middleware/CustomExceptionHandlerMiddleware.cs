@@ -39,7 +39,7 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
         {
             case ValidationException validationException:
                 code = HttpStatusCode.BadRequest;
-                result = JsonSerializer.Serialize(MbResult.Failure((int)code, validationException.Errors.First().ToString()));
+                result = validationException.Errors.First().ToString();
                 break;
             case AccountNotFoundException:
             case NotFoundException:
@@ -47,31 +47,41 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
                 break;
             case ConcurrencyException:
                 code = HttpStatusCode.Conflict;
-                result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
+                result = $"[{exception.GetType().Name}] {exception.Message}";
                 break;
             case DbUpdateException:
                 code = HttpStatusCode.BadRequest;
-                result = JsonSerializer.Serialize(MbResult.Failure((int)code, @$"[{exception.GetType().Name}] {exception.Message} \n 
-                    {exception.InnerException?.Message} \n {exception.InnerException?.StackTrace}"));
+                result = $"[{exception.GetType().Name}] {exception.Message} \n " +
+                         $"{exception.InnerException?.Message} \n {exception.InnerException?.StackTrace}";
                 break;
         }
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)code;
 
         var exceptionDiver = exception;
+        var count = 0;
 
         while (exceptionDiver != null)
         {
-            logger.LogError($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {exceptionDiver.GetType().Name}: {exceptionDiver.Message}\n");
-            logger.LogError(exceptionDiver.StackTrace);
+            logger.LogError($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ({count}) {exceptionDiver.GetType().Name}: {exceptionDiver.Message} " +
+                            $"\n" + exceptionDiver.StackTrace + "\n");
 
+            if (exceptionDiver.Message.Contains("could not serialize"))
+            {
+                result = $"[{exceptionDiver.GetType().Name}] {exceptionDiver.Message}";
+                code = HttpStatusCode.Conflict;
+            }
+
+            count++;
+            
             exceptionDiver = exceptionDiver.InnerException;
         }
 
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)code;
+        
         if (result == string.Empty)
-            result = JsonSerializer.Serialize(MbResult.Failure((int)code, $"[{exception.GetType().Name}] {exception.Message}"));
+            result = $"[{exception.GetType().Name}] {exception.Message}";
 
-        return context.Response.WriteAsync(result);
+        return context.Response.WriteAsync(JsonSerializer.Serialize(MbResult.Failure((int)code, result)));
     }
 }
 
