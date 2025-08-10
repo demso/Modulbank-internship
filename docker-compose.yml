@@ -4,18 +4,10 @@ services:
     container_name: bankaccounts_db
     ports:
       - "5432:5432"
-#    environment:
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_PASSWORD=password
-#      - POSTGRES_DB=bank-accounts-db
-    command:
-      - "postgres"
-      - "-c"
-      - "log_min_messages=notice"
-      - "-c"
-      - "client_min_messages=notice"
-      - "-c"
-      - "log_statement=none"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bank-accounts-db
     volumes:
       - bankaccounts_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -47,10 +39,10 @@ services:
       dockerfile: BankAccounts.Identity/Dockerfile
     ports:
       - "7045:7045"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=7045
-      - ASPNETCORE_URLS=http://+:7045
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Development
+#      - ASPNETCORE_HTTP_PORTS=7045
+#      - ASPNETCORE_URLS=http://+:7045
 
 volumes:
   bankaccounts_db_data:
