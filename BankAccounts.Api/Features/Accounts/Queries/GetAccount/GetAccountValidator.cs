@@ -6,6 +6,7 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetAccount;
 /// Валидатор команды
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
+// ReSharper disable once UnusedMember.Global
 public class GetAccountValidator : AbstractValidator<GetAccountQuery>
 {
     /// <summary>

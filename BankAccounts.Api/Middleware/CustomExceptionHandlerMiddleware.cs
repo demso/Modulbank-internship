@@ -15,6 +15,7 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
     /// <summary>
     /// Встраивание в pipeline
     /// </summary>
+    // ReSharper disable once UnusedMember.Global Метод используется
     public async Task Invoke(HttpContext context)
     {
         try

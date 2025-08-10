@@ -119,7 +119,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
                 "Запись была изменена другим пользователем. Пожалуйста, повторите операцию.",
                 ex);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             logger.LogError("Ошибка при переводе средств со счёта {FromAccountId} на счёт {ToAccountId}. Транзакция отменена.",
                 request.FromAccountId, request.ToAccountId);

@@ -6,6 +6,7 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 /// Валидатор команды
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
+// ReSharper disable once UnusedMember.Global
 public class PerformTransferCommandValidator : AbstractValidator<PerformTransferCommand>
 {
         

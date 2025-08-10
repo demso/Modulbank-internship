@@ -13,11 +13,11 @@ public class LoginData
     /// Логин
     /// </summary>
     [Required]
-    public string? Username { get; set; }
+    public string? Username { get; init; }
     /// <summary>
     /// Пароль
     /// </summary>
     [Required]
     [DataType(DataType.Password)]
-    public string? Password { get; set; }
+    public string? Password { get; init; }
 }
