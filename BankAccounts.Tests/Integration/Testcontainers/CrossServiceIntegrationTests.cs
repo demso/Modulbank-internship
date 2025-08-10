@@ -122,9 +122,9 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
     [Fact]
     public async Task ParallelTransferTests_50ParallelTransfers_SumBalanceConserved()
     {
-        // Регистрация пользователей и создание счетов
         using var clientHelper = new ApiClientHelper(_identityHttpClient, _apiHttpClient);
 
+        // Регистрация пользователей
         // Пользователь 1
         using var apiClientUser1 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
 
@@ -136,8 +136,8 @@ public class CrossServiceIntegrationTests(ITestOutputHelper _output) : IAsyncLif
         var account2Id = await clientHelper.CreateAccount(apiClientUser2); 
         
         // Пополнение счетов начальными средствами
-        var initialBalanceUser1 = 10000m; // Начальный баланс первого счета
-        var initialBalanceUser2 = 5000m;  // Начальный баланс второго счета
+        var initialBalanceUser1 = 10000m; 
+        var initialBalanceUser2 = 5000m; 
         var totalInitialBalance = initialBalanceUser1 + initialBalanceUser2;
 
         // Пополнение счета 1
