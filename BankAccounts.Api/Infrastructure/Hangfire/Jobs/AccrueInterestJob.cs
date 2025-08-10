@@ -10,11 +10,13 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 /// <param name="logger"></param>
 /// <param name="cancellationToken"></param>
 // ReSharper disable once ClassNeverInstantiated.Global Класс используется Hangfire.
-public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, CancellationToken cancellationToken = default) 
-    : IJob
+public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, 
+    CancellationToken cancellationToken = default) 
 {
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Фоновая задача
+    /// </summary>
     public async Task Job()
     {
         var accountIds = await context.Accounts.Where(a =>
