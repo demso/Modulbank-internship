@@ -19,13 +19,13 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
         options.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "Bank Accounts API",
-            Description = "Для авторизации воспользуйтесь [http://localhost:7045](http://localhost:7045). \n" +
+            Description = "Для авторизации воспользуйтесь [http://localhost:7045](http://localhost:7045)\n" +
                           "1. Зарегистрируйтесь с указанием логина и пароля (Register).\n" +
                           "2. Войдите, также указав логин и пароль (Login).\n" +
                           "3. Скопируйте полученный токен.\n" +
                           "4. Вставьте в поле окна \"Authorize\"\n" +
-                          "5. Можно пользоваться сервисом.",
-
+                          "5. Можно пользоваться сервисом.\n\n\n" +
+                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)",
             Version = "v1"
         });
 

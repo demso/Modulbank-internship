@@ -1,4 +1,30 @@
 services:
+  bankaccounts.db:
+    image: lithiumkgp/postgres:latest
+    container_name: bankaccounts_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bank-accounts-db
+    command:
+      - "postgres"
+      - "-c"
+      - "log_min_messages=notice"
+      - "-c"
+      - "client_min_messages=notice"
+      - "-c"
+      - "log_statement=all"
+    volumes:
+      - bankaccounts_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   bankaccounts.api:
     image: lithiumkgp/bankaccounts.api:latest
     build:
@@ -6,22 +32,25 @@ services:
       dockerfile: BankAccounts.Api/Dockerfile
     ports:
       - "80:80" 
-      - "81:81" 
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80;https://+:81
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
+    depends_on:
+      bankaccounts.db:
+        condition: service_healthy
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Development
+#      - ASPNETCORE_HTTP_PORTS=80
+#      - ASPNETCORE_URLS=http://+:80
+
   bankaccounts.identity:
     image: lithiumkgp/bankaccounts.identity:latest
     build:
       context: .
       dockerfile: BankAccounts.Identity/Dockerfile
     ports:
-      - "7044:7044"
       - "7045:7045"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:7044
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Development
+#      - ASPNETCORE_HTTP_PORTS=7045
+#      - ASPNETCORE_URLS=http://+:7045
+
+volumes:
+  bankaccounts_db_data:

@@ -1,21 +1,21 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Accounts.Commands;
+using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
+using BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
-using BankAccounts.Api.Features.Accounts.Queries;
+using BankAccounts.Api.Features.Accounts.Queries.GetAccount;
+using BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
+using BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Features.Transactions.Commands;
-using BankAccounts.Api.Features.Transactions.Dtos;
-using BankAccounts.Api.Features.Transactions.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BankAccounts.Api.Features.Accounts;
 
 /// <summary>
-/// Контроллер операций со счетами и транзакциями
+/// Контроллер операций со счетами 
 /// </summary>
 [ApiController]
 [Produces("application/json")]
@@ -40,7 +40,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     public async Task<MbResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
-        var command = mapper.Map<CreateAccount.Command>(createAccountDto);
+        var command = mapper.Map<CreateAccountCommand>(createAccountDto);
         command.OwnerId = GetUserGuid();
         var result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
@@ -64,7 +64,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<List<AccountDto>>> GetAllAccounts()
     {
-        var query = new GetAllAccountsForUser.Query(GetUserGuid());
+        var query = new GetAllAccountsForUserQuery(GetUserGuid());
         var accountList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, accountList);
     }
@@ -89,35 +89,9 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<AccountDto>> GetAccount(int accountId)
     {
-        var query = new GetAccount.Query(GetUserGuid(), accountId);
+        var query = new GetAccountQuery(GetUserGuid(), accountId);
         var account = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, account);
-    }
-
-    /// <summary>
-    /// Удалаяет счет (not supported)
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// DELETE {{address}}/api/accounts/{accountId:int} </code>
-    /// </remarks>
-    /// <returns>MbResult</returns>
-    /// <response code="400">Не поддерживается</response>
-    /// <response code="401">Пользователь не авторизован</response>
-    
-    [HttpDelete("{accountId:int}")]
-    [Authorize]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    public async Task<MbResult> DeleteAccount(int accountId)
-    {
-        throw new NotSupportedException("Не стоить удалять счет, лучше его закрыть. Используйте PATCH https://.../?close=true.");
-        // ReSharper disable once HeuristicUnreachableCode Код оставлен для примера реализации операции удаления
-        #pragma warning disable CS0162 // Unreachable code detected
-        var command = new DeleteAccount.Command(GetUserGuid(), accountId);
-        await mediator.Send(command);
-        return Success(StatusCodes.Status204NoContent);
-        #pragma warning restore CS0162 // Unreachable code detected
     }
 
     /// <summary>
@@ -143,92 +117,9 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
     {
-        var command = new UpdateAccount.Command(GetUserGuid(), accountId, interestRate, close);
+        var command = new UpdateAccountCommand(GetUserGuid(), accountId, interestRate, close);
         await mediator.Send(command);
         return Success(StatusCodes.Status204NoContent);
-    }
-
-    /// <summary>
-    /// Производит транзакцию
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// POST {{address}}/api/accounts/transactions </code>
-    /// </remarks>
-    /// <returns>MbResult&lt;TransactionDto&gt;</returns>
-    /// <response code="201">Успешно</response>
-    /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь не авторизован</response>
-    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
-    [HttpPost("{accountId:int}/transactions")]
-    [Authorize]
-    [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
-    public async Task<MbResult<TransactionDto>> PerformTransaction(int accountId, 
-        [FromBody] PerformTransactionDto performTransactionDto)
-    {
-        var command = mapper.Map<PerformTransaction.Command>(performTransactionDto);
-        command.OwnerId = GetUserGuid();
-        command.AccountId = accountId;
-        var result = await mediator.Send(command);
-        return Success(StatusCodes.Status201Created, result);
-    }
-
-    /// <summary>
-    /// Производит трансфер денежных средств с одного счета на другой
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// POST {{address}}/api/accounts/transfer </code>
-    /// </remarks>
-    /// <returns>MbResult&lt;TransactionDto&gt;</returns>
-    /// <response code="201">Успешно</response>
-    /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь не авторизован</response>
-    /// <response code="404">Исходный счет не существует или не принадлежит текущему пользователю</response>
-    [HttpPost("transfer")]
-    [Authorize]
-    [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
-    public async Task<MbResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
-    {
-        var command = mapper.Map<PerformTransfer.Command>(performTransferDto);
-        command.OwnerId = GetUserGuid();
-        var result = await mediator.Send(command);
-        return Success(StatusCodes.Status201Created, result);
-    }
-
-    /// <summary>
-    /// Возвращает все транзакции по счету или только за определенный период
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// GET {{address}}/api/accounts/{accountId:int}/transactions </code>
-    /// </remarks>
-    /// <param name="accountId">Id счета</param>
-    /// <param name="fromDate">Начало периода (DateOnly YYYY-mm-dd nullable)</param>
-    /// <param name="toDate">Конец периода (DateOnly YYYY-mm-dd nullable)</param>
-    /// <returns>MbResult&lt;List&lt;TransactionDto&gt;&gt;</returns>
-    /// <response code="200">Успешно</response>
-    /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь не авторизован</response>
-    /// <response code="404">Счет не существует или не принадлежит текущему пользователю</response>
-    [HttpGet("{accountId:int}/transactions")]
-    [Authorize]
-    [ProducesResponseType(typeof(MbResult<List<TransactionDto>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
-    public async Task<MbResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
-        [FromQuery] DateOnly? fromDate, DateOnly? toDate)
-    {
-        var query = new GetTransactionsForAccount.Query(GetUserGuid(), accountId, fromDate, toDate);
-        var transactionList = await mediator.Send(query);
-        return Success(StatusCodes.Status200OK, transactionList);
     }
 
     /// <summary>
@@ -239,9 +130,13 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// GET {{address}}/api/accounts/{accountId:int}/statement </code>
     /// </remarks>
     /// <param name="accountId">Id аккаунта</param>
-    /// <param name="fromDate">Начало периода</param>
-    /// <param name="toDate">Конец периода</param>
+    /// <param name="fromDate">Начало периода (DateOnly? YYYY-mm-dd)</param>
+    /// <param name="toDate">Конец периода (DateOnly? YYYY-mm-dd)</param>
     /// <returns>MbResult&lt;BankStatement&gt;</returns>
+    /// <response code="200">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь не авторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpGet("{accountId:int}/statement")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<BankStatement>), StatusCodes.Status200OK)]
@@ -251,34 +146,10 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     public async Task<MbResult<BankStatement>> GetStatementForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetBankStatement.Query(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!, accountId, fromDate, toDate);
+        var query = new GetBankStatementQuery(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!,
+            accountId, fromDate, toDate);
         var bankStatement = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, bankStatement);
-    }
-
-    /// <summary>
-    /// Возвращает информацию о транзакции
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// GET {{address}}/api/accounts/transactions/{transactionId:guid} </code>
-    /// </remarks>
-    /// <returns> MbResult&lt;TransactionDto&gt;</returns>
-    /// <response code="200">Успешно</response>
-    /// <response code="400">Ошибка валидации</response>
-    /// <response code="401">Пользователь не авторизован</response>
-    /// <response code="404">Счет не существует или не принадлежит текущему пользователю</response>
-    [HttpGet("transactions/{transactionId:guid}")]
-    [Authorize]
-    [ProducesResponseType(typeof(MbResult<TransactionDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
-    public async Task<MbResult<TransactionDto>> GetTransaction(Guid transactionId)
-    {
-        var query = new GetTransaction.Query(GetUserGuid(), transactionId);
-        var transaction = await mediator.Send(query);
-        return Success(StatusCodes.Status200OK, transaction);
     }
 }
 

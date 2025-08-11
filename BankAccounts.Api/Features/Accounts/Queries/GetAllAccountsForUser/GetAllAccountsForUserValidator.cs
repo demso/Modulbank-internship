@@ -1,0 +1,19 @@
+﻿using FluentValidation;
+
+namespace BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
+
+/// <summary>
+/// Валидатор команды
+/// </summary>
+// ReSharper disable once UnusedType.Global Класс используется посредником
+// ReSharper disable once UnusedMember.Global
+public class GetAllAccountsForUserValidator : AbstractValidator<GetAllAccountsForUserQuery>
+{
+    /// <summary>
+    /// Создание валидатора и настройка правил
+    /// </summary>
+    public GetAllAccountsForUserValidator()
+    {
+        RuleFor(command => command.OwnerId).NotEqual(Guid.Empty);
+    }
+}

@@ -1,13 +1,13 @@
-using System.Text;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using BankAccounts.Identity;
 using BankAccounts.Identity.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +68,7 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
     policy.AllowAnyMethod();
     policy.AllowAnyOrigin();
 }));
+
 
 var app = builder.Build();
 

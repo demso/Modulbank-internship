@@ -4,9 +4,10 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=dev-password
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=./aspnetapp.pfx
 
+ENV ASPNETCORE_ENVIRONMENT=Docker
+ENV ASPNETCORE_HTTP_PORTS=80
+ENV ASPNETCORE_URLS=http://+:80
 
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
@@ -28,7 +29,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-COPY /BankAccounts.Api/aspnetapp.pfx /app/aspnetapp.pfx
 COPY /BankAccounts.Api/appsettings.json /app/appsettings.json
+COPY /BankAccounts.Api/appsettings.Docker.json /app/appsettings.Docker.json
 
 ENTRYPOINT ["dotnet", "BankAccounts.Api.dll"]

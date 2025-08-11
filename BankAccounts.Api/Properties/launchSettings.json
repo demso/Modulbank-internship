@@ -1,39 +1,39 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
-  "profiles": {
-    "http": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "http://localhost:80",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:80"
-    },
-    "https": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "http://localhost:80",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HTTP_PORTS": "80"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:80;https://localhost:81"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker",
-      "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "useSSL": true,
-      "httpPort": 80,
-      "sslPort": 81,
-      "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "81",
-        "ASPNETCORE_HTTP_PORTS": "80"
-      },
-      "publishAllPorts": true
-    }
-  }  
+    "profiles": {
+        "http": {
+            "commandName": "Project",
+            "launchBrowser": true,
+            "launchUrl": "http://localhost:80",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "dotnetRunMessages": true,
+            "applicationUrl": "http://localhost:80"
+        },
+        "Container (Dockerfile)": {
+            "commandName": "Docker",
+            "launchBrowser": true,
+            "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+            "publishAllPorts": true
+        },
+        "ApiIdentityPostgres": {
+            "commandName": "Executable",
+            "executablePath": "powershell.exe",
+            "commandLineArgs": "./BankaccountsApi_and_Posgres.bat",
+            "workingDirectory": "$(SolutionDir)",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        "CustomDockerCompose": {
+            "commandName": "Executable",
+            "executablePath": "powershell.exe",
+            "commandLineArgs": "./doccomp.bat",
+            "workingDirectory": "$(SolutionDir)",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }  
 }

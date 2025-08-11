@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global Свойства используются
@@ -19,6 +19,10 @@ public class Transaction
     /// </summary>
     public int AccountId { get; init; }
     /// <summary>
+    /// Ссылка на счет
+    /// </summary>
+    public Account? Account { get; init; }
+    /// <summary>
     /// Id счета куда переводятся средства
     /// </summary>
     public int CounterpartyAccountId { get; init; }
@@ -37,10 +41,15 @@ public class Transaction
     /// <summary>
     /// Описание транзакции
     /// </summary>
-    [MaxLength(255)]
+    // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength Ограничения на параметр заданы через конфигурацию сущности Transaction
     public string? Description { get; init; }
     /// <summary>
     /// Дата и время проведения транзакции
     /// </summary>
     public DateTime DateTime { get; init; }
+    // ReSharper disable once CommentTypo Наименование верно
+    /// <summary>
+    /// Concurrency‑token (xmin) для оптимистичной блокировки
+    /// </summary>
+    public uint Version { get; init; }
 }

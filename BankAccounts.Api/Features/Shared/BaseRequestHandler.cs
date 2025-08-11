@@ -1,6 +1,6 @@
 ﻿using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Infrastructure.Database;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using MediatR;
 
 namespace BankAccounts.Api.Features.Shared;
@@ -17,15 +17,15 @@ public abstract class BaseRequestHandler<TRequest, TResponse>
     /// <summary>
     /// Проверяет существует ли счет с определенным id и принадлежит ли он пользователю
     /// </summary>
-    /// <param name="dbContext">База данных</param>
+    /// <param name="accountsRepository">Репозиторий банковских счетов</param>
     /// <param name="accountId">Id счета</param>
     /// <param name="ownerId">Id владельца</param>
     /// <param name="cancellationToken">Токен отмены</param>
     /// <returns>Возвращает Account с определенным id</returns>
     /// <exception cref="AccountNotFoundException">В случае, если счет не найден или не принадлежит пользователю</exception>
-    protected async Task<Account> GetValidAccount(IBankAccountsDbContext dbContext, int accountId, Guid ownerId, CancellationToken cancellationToken)
+    protected async Task<Account> GetValidAccount(IAccountsRepositoryAsync accountsRepository, int accountId, Guid ownerId, CancellationToken cancellationToken)
     {
-        var account = await dbContext.Accounts.FindAsync([accountId], cancellationToken);
+        var account = await accountsRepository.GetByIdAsync(accountId, cancellationToken);
 
         if (account == null || account.OwnerId != ownerId)
             throw new AccountNotFoundException(accountId);

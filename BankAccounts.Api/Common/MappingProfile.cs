@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Features.Accounts.Commands;
+using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Transactions;
-using BankAccounts.Api.Features.Transactions.Commands;
+using BankAccounts.Api.Features.Transactions.Commands.PerformTransaction;
+using BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 using BankAccounts.Api.Features.Transactions.Dtos;
 
 namespace BankAccounts.Api.Common;
@@ -22,12 +23,12 @@ public class MappingProfile : Profile
     {
         CreateMap<Account, AccountDto>();
 
-        CreateMap<CreateAccountDto, CreateAccount.Command>();
+        CreateMap<CreateAccountDto, CreateAccountCommand>();
 
         CreateMap<Transaction, TransactionDto>();
 
-        CreateMap<PerformTransactionDto, PerformTransaction.Command>();
+        CreateMap<PerformTransactionDto, PerformTransactionCommand>();
 
-        CreateMap<PerformTransferDto, PerformTransfer.Command>();
+        CreateMap<PerformTransferDto, PerformTransferCommand>();
     }
 }
