@@ -130,9 +130,13 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// GET {{address}}/api/accounts/{accountId:int}/statement </code>
     /// </remarks>
     /// <param name="accountId">Id аккаунта</param>
-    /// <param name="fromDate">Начало периода</param>
-    /// <param name="toDate">Конец периода</param>
+    /// <param name="fromDate">Начало периода (DateOnly? YYYY-mm-dd)</param>
+    /// <param name="toDate">Конец периода (DateOnly? YYYY-mm-dd)</param>
     /// <returns>MbResult&lt;BankStatement&gt;</returns>
+    /// <response code="200">Успешно</response>
+    /// <response code="400">Ошибка валидации</response>
+    /// <response code="401">Пользователь не авторизован</response>
+    /// <response code="404">Счет не существует или не принадлежит пользователю</response>
     [HttpGet("{accountId:int}/statement")]
     [Authorize]
     [ProducesResponseType(typeof(MbResult<BankStatement>), StatusCodes.Status200OK)]
