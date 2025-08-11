@@ -14,10 +14,12 @@ using FluentValidation;
 using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -46,6 +48,19 @@ services
     .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var error = context.ModelState
+            .First(x => x.Value?.Errors.Count > 0);
+
+        var result = MbResult.Failure((int)HttpStatusCode.BadRequest, $"Validation error: {error.Value?.Errors[0].ErrorMessage} {error.Value?.Errors[0].Exception?.Message}");
+
+        return new ObjectResult(result);
+    };
+});
 
 // Cors
 services.AddCors(options => options.AddPolicy("AllowAll", policy =>
