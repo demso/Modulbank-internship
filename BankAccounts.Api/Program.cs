@@ -44,7 +44,7 @@ services
     .AddScoped<IAccountsRepositoryAsync, AccountsRepositoryAsync>()
     .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
     .AddSingleton<ICurrencyService, CurrencyService>()
-    .AddAutoMapper(options => options.AddProfile(new MappingProfile()))
+    .AddAutoMapper(options => options.AddMaps(Assembly.GetExecutingAssembly()))
     .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
