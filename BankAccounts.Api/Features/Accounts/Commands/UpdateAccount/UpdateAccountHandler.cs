@@ -7,9 +7,9 @@ namespace BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
 
 
     /// <summary>
-    /// Обработчик команды
+    /// Обработчик команды <see cref="UpdateAccountCommand"/>
     /// </summary>
-    public class UpdateAccountHandler(IAccountsRepositoryAsync accountsRepository) : BaseRequestHandler<UpdateAccountCommand, Unit>
+    public class UpdateAccountHandler(IAccountsRepositoryAsync accountsRepository) : RequestHandlerBase<UpdateAccountCommand, Unit>
     {
         /// <summary>
         /// Обрабатывает команду.

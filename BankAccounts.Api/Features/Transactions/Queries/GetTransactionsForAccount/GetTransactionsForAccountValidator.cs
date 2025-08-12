@@ -3,7 +3,7 @@
 namespace BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
 
 /// <summary>
-/// Валидатор команды
+/// Валидатор команды <see cref="GetTransactionsForAccountQuery"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global

@@ -3,15 +3,15 @@
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 
 /// <summary>
-/// Валидатор команды
+/// Валидатор команды <see cref="PerformTransferCommand"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global
-public class PerformTransferCommandValidator : AbstractValidator<PerformTransferCommand>
+public class PerformTransferValidator : AbstractValidator<PerformTransferCommand>
 {
         
     /// <inheritdoc />
-    public PerformTransferCommandValidator()
+    public PerformTransferValidator()
     {
         RuleFor(command => command.OwnerId).NotEmpty();
         RuleFor(command => command.FromAccountId).GreaterThan(0).NotEqual(command => command.ToAccountId);

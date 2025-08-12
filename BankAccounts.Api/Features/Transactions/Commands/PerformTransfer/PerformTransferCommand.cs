@@ -4,7 +4,7 @@ using MediatR;
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 
 /// <summary>
-/// Команда для проведения трансфера
+/// Команда для проведения трансфера 
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global Класс используется посредником
 public record PerformTransferCommand : IRequest<TransactionDto>

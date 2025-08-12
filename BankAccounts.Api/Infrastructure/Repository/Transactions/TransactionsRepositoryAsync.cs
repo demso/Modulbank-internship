@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BankAccounts.Api.Infrastructure.Repository.Transactions;
 
 /// <summary>
-/// Конкретный класс репозитория для работы с транзакциями.
+/// Конкретный класс репозитория для работы с транзакциями <see cref="Transaction"/>.
 /// </summary>
 public class TransactionsRepositoryAsync(IBankAccountsDbContext dbContext) : ITransactionsRepositoryAsync
 {

@@ -8,11 +8,11 @@ using BankAccounts.Api.Infrastructure.Repository.Transactions;
 namespace BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
 
 /// <summary>
-/// Обработчик команды
+/// Обработчик команды запроса <see cref="GetTransactionsForAccountQuery"/>
 /// </summary>>
 public class GetTransactionForAccountHandler(IAccountsRepositoryAsync accountsRepository,
     ITransactionsRepositoryAsync transactionsRepository, IMapper mapper) 
-    : BaseRequestHandler<GetTransactionsForAccountQuery, List<TransactionDto>>
+    : RequestHandlerBase<GetTransactionsForAccountQuery, List<TransactionDto>>
 {
     /// <inheritdoc />
     public override async Task<List<TransactionDto>> Handle(GetTransactionsForAccountQuery request,

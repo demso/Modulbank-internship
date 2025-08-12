@@ -6,7 +6,7 @@
 public interface ICurrencyService
 {
     /// <summary>
-    /// Конвертирует валюту.
+    /// Конвертирует валюту <see cref="Currencies"/>.
     /// </summary>
     /// <param name="sum">Сумма перобразуемой валюты</param>
     /// <param name="from">Тип валюты из которой преобразуем</param>

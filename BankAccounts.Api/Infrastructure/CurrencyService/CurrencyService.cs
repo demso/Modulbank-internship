@@ -1,6 +1,6 @@
 ﻿namespace BankAccounts.Api.Infrastructure.CurrencyService;
 /// <summary>
-/// Сервис конвертации валют.
+/// Сервис конвертации валют <see cref="Currencies"/>.
 /// </summary>
 public class CurrencyService : ICurrencyService
 { 

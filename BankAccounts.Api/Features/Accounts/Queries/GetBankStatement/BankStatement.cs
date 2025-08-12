@@ -5,7 +5,7 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 // ReSharper disable file NotAccessedPositionalProperty.Global Свойства используются
 
 /// <summary>
-/// ВЫписка о банковских операция по счету
+/// Выписка о банковских операциях по счету
 /// </summary>
 /// <param name="AccountId">Id аккаунта</param>
 /// <param name="Username">Имя пользователя</param>

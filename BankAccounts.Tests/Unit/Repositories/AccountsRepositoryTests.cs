@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BankAccounts.Tests.Unit.Repositories;
 
 /// <summary>
-/// Проверяет работу репозитория
+/// Проверяет работу репозитория <seealso cref="AccountsRepositoryAsync"/>
 /// </summary>
 public class AccountsRepositoryTests : IDisposable
 {
@@ -104,10 +104,6 @@ public class AccountsRepositoryTests : IDisposable
         // Assert
         result.Should().BeNull();
     }
-    
-    // - GetAllForUserAsync
-    // - UpdateAsync (включая оптимистичную блокировку)
-    // - GetByIdForOwnerAsync
 
     public void Dispose()
     {

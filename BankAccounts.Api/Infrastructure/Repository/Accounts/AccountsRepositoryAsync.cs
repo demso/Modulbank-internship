@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BankAccounts.Api.Infrastructure.Repository.Accounts;
 
 /// <summary>
-/// Репозиторий для работы сос счетами пользователя.
+/// Репозиторий для работы со счетами пользователя <see cref="Account"/>.
 /// </summary>
 /// <param name="dbContext"></param>
 public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext) : IAccountsRepositoryAsync

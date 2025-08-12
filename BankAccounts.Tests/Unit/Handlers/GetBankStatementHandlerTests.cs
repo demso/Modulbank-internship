@@ -10,7 +10,7 @@ using Moq;
 
 namespace BankAccounts.Tests.Unit.Handlers;
 /// <summary>
-/// Данный тест проверит функционал обработчика команды на получение банковской выписки
+/// Данный тест проверит функционал обработчика запроса на получение банковской выписки <seealso cref="GetBankStatementHandler"/>
 /// </summary>
 public class GetBankStatementHandlerTests
 {
@@ -26,7 +26,7 @@ public class GetBankStatementHandlerTests
     }
 
     /// <summary>
-    /// Обработчик, чтобы пройти этот тест должен вернуть выписку по счету с верными данными
+    /// Обработчик, чтобы пройти этот тест, должен вернуть выписку по счету с верными данными
     /// </summary>
     [Fact]
     public async Task Handle_ReturnValid_BankStatement()

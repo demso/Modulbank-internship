@@ -13,10 +13,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace BankAccounts.Api.Features.Transactions;
 
 /// <summary>
-/// Контроллер операций с транзакциями по счетам
+/// Контроллер операций с транзакциями по счетам.
+/// <seealso cref="Transaction"/>
 /// </summary>
-/// <param name="mapper">Mapper</param>
-/// <param name="mediator">Mediator</param>
+/// <param name="mapper"><see cref="Mapper"/></param>
+/// <param name="mediator"><see cref="Mediator"/></param>
 [ApiController]
 [Produces("application/json")]
 [Route("api/accounts")]
@@ -112,7 +113,7 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     /// <code>
     /// GET {{address}}/api/accounts/transactions/{transactionId:guid} </code>
     /// </remarks>
-    /// <returns> MbResult&lt;TransactionDto&gt;</returns>
+    /// <returns>MbResult&lt;TransactionDto&gt;</returns>
     /// <response code="200">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
     /// <response code="401">Пользователь не авторизован</response>

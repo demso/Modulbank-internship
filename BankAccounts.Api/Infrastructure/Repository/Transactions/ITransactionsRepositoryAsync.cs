@@ -4,7 +4,7 @@ using BankAccounts.Api.Infrastructure.CurrencyService;
 namespace BankAccounts.Api.Infrastructure.Repository.Transactions;
 
 /// <summary>
-/// Интерфейс репозитория для работы с транзакциями банковских счетов.
+/// Интерфейс репозитория для работы с транзакциями банковских счетов <see cref="Transaction"/>.
 /// </summary>
 public interface ITransactionsRepositoryAsync : IBankAccountsServiceRepositoryAsync
 {
@@ -13,7 +13,7 @@ public interface ITransactionsRepositoryAsync : IBankAccountsServiceRepositoryAs
     /// </summary>
     Task<Transaction?> GetByIdAsync(Guid transactionId, CancellationToken cancellationToken);
     /// <summary>
-    /// Получить транзакции по фмльтру для конкретного счета.
+    /// Получить транзакции по фильтру для конкретного счета.
     /// </summary>
     Task<List<Transaction>> GetByFilterAsync(int accountId, DateOnly? from, DateOnly? to, CancellationToken cancellationToken);
     /// <summary>

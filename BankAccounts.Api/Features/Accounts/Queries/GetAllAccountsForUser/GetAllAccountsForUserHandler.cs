@@ -6,9 +6,9 @@ using BankAccounts.Api.Infrastructure.Repository.Accounts;
 namespace BankAccounts.Api.Features.Accounts.Queries.GetAllAccountsForUser;
 
 /// <summary>
-/// Обработчик запроса
+/// Обработчик запроса <see cref="GetAllAccountsForUserQuery"/>
 /// </summary>
-public class GetAllAccountsForUserHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<GetAllAccountsForUserQuery, List<AccountDto>>
+public class GetAllAccountsForUserHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : RequestHandlerBase<GetAllAccountsForUserQuery, List<AccountDto>>
 {
     /// <inheritdoc />
     public override async Task<List<AccountDto>> Handle(GetAllAccountsForUserQuery request, CancellationToken cancellationToken)

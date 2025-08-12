@@ -24,11 +24,11 @@ namespace BankAccounts.Tests.Integration.Testcontainers;
 /// <param name="output">Вспомогательный объект для вывода логов теста</param>
 public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLifetime
 {
-    private INetwork _network = null!; // Общая сеть
+    private INetwork _network = null!; 
     private PostgreSqlContainer _bankAccountsDbContainer = null!;
-    private IContainer _identityServiceContainer = null!; // Или GenericContainer
-    private IContainer _bankAccountsApiContainer = null!; // Или GenericContainer
-    private HttpClient _apiHttpClient = null!; // HttpClient для вызова API контейнеров
+    private IContainer _identityServiceContainer = null!; 
+    private IContainer _bankAccountsApiContainer = null!; 
+    private HttpClient _apiHttpClient = null!;
     private HttpClient _identityHttpClient = null!;
 
     private const string DbConnectionString =

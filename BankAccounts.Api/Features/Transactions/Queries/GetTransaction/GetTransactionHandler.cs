@@ -8,12 +8,12 @@ using BankAccounts.Api.Infrastructure.Repository.Transactions;
 namespace BankAccounts.Api.Features.Transactions.Queries.GetTransaction;
 
 /// <summary>
-/// Обработчик команды.
+/// Обработчик запроса <see cref="GetTransactionQuery"/>.
 /// </summary>>
-public class GetTransactionHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, IMapper mapper) : BaseRequestHandler<GetTransactionQuery, TransactionDto>
+public class GetTransactionHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, IMapper mapper) : RequestHandlerBase<GetTransactionQuery, TransactionDto>
 {
     /// <summary>
-    /// Обрабатывает команду.
+    /// Обрабатывает запрос <see cref="GetTransactionQuery"/>.
     /// Выбрасывает исключение, если транзакция не найдена.
     /// </summary>
     /// <exception cref="NotFoundException"></exception>

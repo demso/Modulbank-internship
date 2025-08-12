@@ -6,9 +6,9 @@ using BankAccounts.Api.Infrastructure.Repository.Accounts;
 namespace BankAccounts.Api.Features.Accounts.Queries.GetAccount;
 
 /// <summary>
-/// Обработчик запроса
+/// Обработчик запроса <see cref="GetAccountQuery"/>
 /// </summary>
-public class GetAccountHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : BaseRequestHandler<GetAccountQuery, AccountDto>
+public class GetAccountHandler(IAccountsRepositoryAsync accountsRepository, IMapper mapper) : RequestHandlerBase<GetAccountQuery, AccountDto>
 {
     /// <inheritdoc />
     public override async Task<AccountDto> Handle(GetAccountQuery request, CancellationToken cancellationToken)

@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace BankAccounts.Api.Features.Shared;
 /// <summary>
-/// Вспомогательные методы для возврата результатов запросов с использованием  MbResult
+/// Вспомогательные методы для возврата результатов запросов с использованием  <see cref="MbResult"/>
 /// </summary>
 public class CustomControllerBase : ControllerBase
 {
@@ -18,10 +18,10 @@ public class CustomControllerBase : ControllerBase
     }
 
     /// <summary>
-    /// Возвращает MbResult с IsSuccess = true и заданный кодом
+    /// Возвращает <see cref="MbResult"/> с IsSuccess = true и заданный кодом
     /// </summary>
     /// <param name="statusCode">Http статус код</param>
-    /// <returns>MbResult</returns>
+    /// <returns><see cref="MbResult"/></returns>
     protected MbResult Success(int statusCode)
     {
         HttpContext.Response.StatusCode = statusCode;
@@ -29,11 +29,11 @@ public class CustomControllerBase : ControllerBase
     }
 
     /// <summary>
-    /// Возвращает MbResult с IsSuccess = true, заданный кодом и значением
+    /// Возвращает <see cref="MbResult"/> с IsSuccess = true, заданный кодом и значением
     /// </summary>
     /// <param name="statusCode">Http статус код</param>
     /// <param name="value">Результат выполнения операции</param>
-    /// <returns>MbResult</returns>
+    /// <returns><see cref="MbResult"/></returns>
     protected MbResult<T> Success<T>(int statusCode, T value)
     {
         HttpContext.Response.StatusCode = statusCode;

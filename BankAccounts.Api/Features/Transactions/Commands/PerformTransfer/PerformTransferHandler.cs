@@ -16,12 +16,12 @@ using IsolationLevel = System.Data.IsolationLevel;
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 
 /// <summary>
-/// Обработчик команды. Трансфер происходит с использованием двух транзакций, одна снимает средства с исходного счета
-/// и одна зачисляет на конченый счет.
+/// Обработчик команды <see cref="PerformTransferCommand"/> Трансфер происходит с использованием двух транзакций, одна снимает средства с исходного счета
+/// и одна зачисляет на конечный счет.
 /// </summary>
 public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, 
     IBankAccountsDbContext dbContext, ICurrencyService currencyService, IMapper mapper, 
-    ILogger<PerformTransferHandler> logger) : BaseRequestHandler<PerformTransferCommand, TransactionDto>
+    ILogger<PerformTransferHandler> logger) : RequestHandlerBase<PerformTransferCommand, TransactionDto>
 {
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransferCommand request,  CancellationToken cancellationToken)

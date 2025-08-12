@@ -6,11 +6,11 @@ using FluentValidation.TestHelper;
 namespace BankAccounts.Tests.Unit.Validators;
 
 /// <summary>
-///Тесты валидатора команды создания счета
+/// Тесты валидатора команды создания счета <seealso cref="CreateAccountValidator"/>
 /// </summary>
 public class CreateAccountValidatorTests
 {
-    private readonly CreateAccountCommandValidator _validator = new();
+    private readonly CreateAccountValidator _validator = new();
     
     [Fact]
     public void CreateAccountValidator_ShouldHaveErrorWhenOwnerIdIsEmpty()
@@ -21,7 +21,6 @@ public class CreateAccountValidatorTests
             AccountType = AccountType.Checking,
             Currency = Currencies.Rub, 
             InterestRate = 5.0m
-
         };
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(c => c.OwnerId);

@@ -19,7 +19,7 @@ public class Transaction
     /// </summary>
     public int AccountId { get; init; }
     /// <summary>
-    /// Ссылка на счет
+    /// Ссылка на счет <see cref="Account"/>
     /// </summary>
     public Account? Account { get; init; }
     /// <summary>
@@ -31,11 +31,11 @@ public class Transaction
     /// </summary>
     public decimal Amount { get; init; }
     /// <summary>
-    /// Валюта
+    /// Валюта <see cref="Currency"/>
     /// </summary>
     public Currencies Currency { get; init; }
     /// <summary>
-    /// Тип транзакции
+    /// Тип транзакции <see cref="TransactionType"/>
     /// </summary>
     public TransactionType TransactionType { get; init; }
     /// <summary>

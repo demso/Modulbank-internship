@@ -9,15 +9,15 @@ using Moq;
 namespace BankAccounts.Tests.Unit.Handlers;
 
 /// <summary>
-/// Проверяет, создает ли обработчик команды на создание счета правильный счет
+/// Проверяет, создает ли обработчик команды на создание счета правильный счет <seealso cref="CreateAccountHandler"/>
 /// </summary>
-public class CreateAccountCommandHandlerTests
+public class CreateAccountHandlerTests
 {
     private readonly Mock<IAccountsRepositoryAsync> _mockRepository;
     private readonly Mock<IMapper> _mockMapper;
     private readonly CreateAccountHandler _handler;
 
-    public CreateAccountCommandHandlerTests()
+    public CreateAccountHandlerTests()
     {
         _mockRepository = new Mock<IAccountsRepositoryAsync>();
         _mockMapper = new Mock<IMapper>();

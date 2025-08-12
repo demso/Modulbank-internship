@@ -14,7 +14,7 @@ public enum AccountType
     /// </summary>
     Deposit,
     /// <summary>
-    /// Крелитный счет
+    /// Кредитный счет
     /// </summary>
     // ReSharper disable once UnusedMember.Global Тип используется
     Credit

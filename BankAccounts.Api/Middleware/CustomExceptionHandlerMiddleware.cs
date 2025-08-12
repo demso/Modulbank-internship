@@ -29,7 +29,7 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
     }
 
     /// <summary>
-    /// Обработка исключений. Возваращает данные об ошибке с помощью MbResult (записывает ошибку в поле MbError).
+    /// Обработка исключений. Возвращает данные об ошибке с помощью <see cref="MbResult"/> (записывает ошибку в поле MbError).
     /// </summary>
     // ReSharper disable once MemberCanBeMadeStatic.Local
     private Task HandleExceptionAsync(HttpContext context, Exception exception)

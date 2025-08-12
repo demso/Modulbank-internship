@@ -15,7 +15,7 @@ public static class DatabaseMigrator
     {
         var context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<IBankAccountsDbContext>();
 
-        // Добавим расшриение чтобы создать индекс по дате в Transactions
+        // Добавим расширение, чтобы создать индекс по дате в Transactions
         var sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
 
         await context.Database.ExecuteSqlRawAsync(sql);

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
 /// <summary>
-/// Конфигурация сущности счета
+/// Конфигурация сущности счета <see cref="Account"/>
 /// </summary>
 public class AccountConfiguration : IEntityTypeConfiguration<Account>
 {

@@ -7,9 +7,9 @@ using MediatR;
 namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 
 /// <summary>
-/// Обработчик команды
+/// Обработчик запроса <see cref="GetBankStatementQuery"/>
 /// </summary>>
-public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository, IMediator mediator) : BaseRequestHandler<GetBankStatementQuery, BankStatement>
+public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository, IMediator mediator) : RequestHandlerBase<GetBankStatementQuery, BankStatement>
 {
     /// <inheritdoc />
     public override async Task<BankStatement> Handle(GetBankStatementQuery request, CancellationToken cancellationToken)

@@ -3,7 +3,7 @@
 namespace BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
 
 /// <summary>
-/// Валидатор команды
+/// Валидатор команды <see cref="UpdateAccountCommand"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global 

@@ -17,11 +17,11 @@ public class Account
     /// </summary>
     public Guid OwnerId { get; init; }
     /// <summary>
-    /// Тип счета
+    /// Тип счета <see cref="AccountType"/>
     /// </summary>
     public AccountType AccountType { get; init; } = AccountType.Checking;
     /// <summary>
-    /// Валюта счета
+    /// Валюта счета <see cref="Currency"/>
     /// </summary>
     public Currencies Currency { get; init; } = Currencies.Rub;
     /// <summary>
@@ -41,7 +41,7 @@ public class Account
     /// </summary>
     public DateTime? CloseDate { get; set; }
     /// <summary>
-    /// Список транзакций по счету
+    /// Список транзакций по счету <see cref="Transaction"/>
     /// </summary>
     public List<Transaction> Transactions { get; init; } = [];
     // ReSharper disable once CommentTypo Наименование верно

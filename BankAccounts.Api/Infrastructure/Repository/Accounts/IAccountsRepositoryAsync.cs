@@ -4,7 +4,7 @@ using BankAccounts.Api.Infrastructure.CurrencyService;
 namespace BankAccounts.Api.Infrastructure.Repository.Accounts;
 
 /// <summary>
-/// Интерфейс репозитория для работы с банковскими счетами.
+/// Интерфейс репозитория для работы с банковскими счетами <see cref="Account"/>.
 /// </summary>
 public interface IAccountsRepositoryAsync : IBankAccountsServiceRepositoryAsync
 {

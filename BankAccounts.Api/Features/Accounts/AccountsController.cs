@@ -53,7 +53,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <code>
     /// GET {{address}}/api/accounts </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;List&lt;AccountDto&gt;&gt;</returns>
+    /// <returns>MbResult&lt;List&lt;AccountDto&gt;&gt;</returns>
     /// <response code="200">Успешно</response>
     /// <response code="401">Пользователь не авторизован</response>
     /// <response code="404">Счет не существует или не принадлежит пользователю</response>
@@ -76,7 +76,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     /// <code>
     /// GET {{address}}/api/accounts/{id:int} </code>
     /// </remarks>
-    /// <returns>Returns MbResult&lt;AccountDto&gt;</returns>
+    /// <returns>MbResult&lt;AccountDto&gt;</returns>
     /// <response code="200">Успешно</response>
     /// <response code="400">Ошибка валидации</response>
     /// <response code="401">Пользователь не авторизован</response>
@@ -95,7 +95,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     }
 
     /// <summary>
-    /// Обновляет информацию о счете пользователя. Используется чтобы закрыть счет или поменять процентную ставку на счету.
+    /// Обновляет информацию о счете пользователя. Используется, чтобы закрыть счет или поменять процентную ставку на счету.
     /// </summary>
     /// <remarks>
     /// <code>

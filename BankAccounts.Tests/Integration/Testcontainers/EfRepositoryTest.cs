@@ -7,7 +7,7 @@ using Testcontainers.PostgreSql;
 namespace BankAccounts.Tests.Integration.Testcontainers;
 
 /// <summary>
-/// Тест работы Entity Framework с контекстом BankAccountsDbContext и базой данных Postgres
+/// Тест работы Entity Framework с контекстом <see cref="BankAccountsDbContext" /> и базой данных Postgres
 /// </summary>
 public class EfRepositoryTests : IAsyncLifetime
 {

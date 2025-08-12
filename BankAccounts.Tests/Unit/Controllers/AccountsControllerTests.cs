@@ -15,7 +15,7 @@ using System.Security.Claims;
 namespace BankAccounts.Tests.Unit.Controllers;
 
 /// <summary>
-/// Тесты контроллера счетов
+/// Тесты контроллера счетов <seealso cref="AccountsController"/>
 /// </summary>
 public class AccountsControllerTests
 {
@@ -78,8 +78,7 @@ public class AccountsControllerTests
         createdAtActionResult.Should().NotBeNull();
         createdAtActionResult.StatusCode.Should().Be(StatusCodes.Status201Created);
         createdAtActionResult.Value.Should().BeEquivalentTo(accountDto);
-
-        // Verify command sent to mediator
+        
         _mockMediator.Verify(m => m.Send(It.Is<CreateAccountCommand>(cmd =>
             cmd.OwnerId == _testUserId &&
             cmd.AccountType == createDto.AccountType &&
@@ -87,6 +86,4 @@ public class AccountsControllerTests
             cmd.InterestRate == createDto.InterestRate),
             CancellationToken.None), Times.Once);
     }
-    
-    // Проверка авторизации (если GetUserGuid выбрасывает исключение при отсутствии пользователя)
 }
