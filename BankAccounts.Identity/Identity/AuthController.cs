@@ -64,7 +64,7 @@ public class AuthController(
     /// <returns>Токен</returns>
     /// <response code="200">Успешно</response>
     ///  <response code="404">Пользователь не зарегистрирован</response>
-    /// <response code="500">Ошибка входа</response>
+    /// <response code="400">Ошибка входа</response>
     [HttpPost]
     [ProducesResponseType(typeof(ActionResult), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
@@ -77,7 +77,7 @@ public class AuthController(
         var result = await signInManager.PasswordSignInAsync(data.Username!,
             data.Password!, false, false);
         if (!result.Succeeded)
-            return StatusCode(500, "Login failed");
+            return StatusCode(400, "Login failed");
 
         var token = GenerateJwtToken(user);
 
