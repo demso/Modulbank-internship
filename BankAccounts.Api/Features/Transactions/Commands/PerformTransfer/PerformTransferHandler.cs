@@ -16,8 +16,8 @@ using IsolationLevel = System.Data.IsolationLevel;
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 
 /// <summary>
-/// Обработчик команды <see cref="PerformTransferCommand"/> Трансфер происходит с использованием двух транзакций, одна снимает средства с исходного счета
-/// и одна зачисляет на конечный счет.
+/// Обработчик команды <see cref="PerformTransferCommand"/> Трансфер происходит с использованием двух транзакций,
+/// одна снимает средства с исходного счета и одна зачисляет на конечный счет.
 /// </summary>
 public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, 
     IBankAccountsDbContext dbContext, ICurrencyService currencyService, IMapper mapper, 
@@ -81,7 +81,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
             var expectedFromBalance = fromAccount.Balance;
             var expectedToBalance = toAccount.Balance;
 
-            // Получем значения для проверки 
+            // Получаем значения для проверки 
             var updatedFromAccount = await accountsRepository.GetByIdAsync(request.FromAccountId, cancellationToken);
             var updatedToAccount = await accountsRepository.GetByIdAsync(request.ToAccountId, cancellationToken);
 
