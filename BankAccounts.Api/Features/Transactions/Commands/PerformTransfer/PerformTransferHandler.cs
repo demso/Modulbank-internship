@@ -8,6 +8,7 @@ using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Data;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -109,23 +110,13 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
 
             return mapper.Map<TransactionDto>(transactionFrom);
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (Exception ex)
         {
-            logger.LogWarning(ex,
-                "Конфликт параллельного обновления при переводе средств со счёта {FromAccountId} на счёт {ToAccountId}",
-                request.FromAccountId, request.ToAccountId);
-            // Откатываем транзакцию
-            throw new ConcurrencyException(
-                "Запись была изменена другим пользователем. Пожалуйста, повторите операцию.",
-                ex);
-        }
-        catch (Exception)
-        {
-            logger.LogError("Ошибка при переводе средств со счёта {FromAccountId} на счёт {ToAccountId}. Транзакция отменена.",
-                request.FromAccountId, request.ToAccountId);
+             var message = $"Ошибка при переводе средств со счёта {request.FromAccountId} на счёт {request.ToAccountId}." +
+                           $" Транзакция отменена.";
 
-            // Откатываем транзакцию
-            throw;
+             // Откатываем транзакцию
+            throw new TransferException(message, ex);
         }
         finally
         {
