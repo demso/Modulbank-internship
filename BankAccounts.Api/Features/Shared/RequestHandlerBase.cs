@@ -17,7 +17,7 @@ public abstract class RequestHandlerBase<TRequest, TResponse>
     /// <summary>
     /// Проверяет, существует ли счет (<see cref="Account"/>) с определенным id и принадлежит ли он пользователю
     /// </summary>
-    /// <param name="accountsRepository">Репозиторий банковских счетов<see cref="AccountsRepositoryAsync"/></param>
+    /// <param name="accountsRepository">Репозиторий банковских счетов <see cref="AccountsRepositoryAsync"/></param>
     /// <param name="accountId">Id счета</param>
     /// <param name="ownerId">Id владельца</param>
     /// <param name="cancellationToken">Токен отмены</param>
