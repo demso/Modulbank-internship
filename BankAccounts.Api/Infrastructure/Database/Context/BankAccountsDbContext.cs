@@ -2,6 +2,7 @@
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace BankAccounts.Api.Infrastructure.Database.Context;
 
@@ -11,19 +12,18 @@ namespace BankAccounts.Api.Infrastructure.Database.Context;
 public sealed class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext> options) : DbContext(options), IBankAccountsDbContext
 {
     /// <summary>
-    /// Банковские счета пользователей
+    /// Банковские счета пользователей (<see cref="Account"/>)
     /// </summary>
     public DbSet<Account> Accounts => Set<Account>();
 
     /// <summary>
-    /// Транзакции
+    /// Транзакции (<see cref="Transaction"/>)
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new AccountConfiguration());
-        modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
