@@ -6,7 +6,7 @@ namespace BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
 /// <summary>
 /// Конфигурация сущности счета <see cref="Account"/>
 /// </summary>
-public class AccountConfiguration : IEntityTypeConfiguration<Account>
+public class AccountEntityConfiguration : IEntityTypeConfiguration<Account>
 {
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Account> builder)

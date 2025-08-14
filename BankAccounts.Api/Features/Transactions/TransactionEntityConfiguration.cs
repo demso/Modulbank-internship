@@ -7,7 +7,7 @@ namespace BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration
     /// <summary>
     /// Конфигурация сущности транзакции <see cref="Transaction"/>
     /// </summary>
-    public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
+    public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transaction>
     {
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Transaction> builder)
