@@ -8,8 +8,8 @@ using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using System.Data;
+using System.Data.Common;
 using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable once UnusedType.Global Класс используется посредником
@@ -27,40 +27,39 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransferCommand request,  CancellationToken cancellationToken)
     {
-        logger.LogInformation(
-            "Начало перевода {Amount} со счёта {FromAccountId} на счёт {ToAccountId}",
-            request.Amount, request.FromAccountId, request.ToAccountId);
+        LogBegin(request);
 
         // Получаем соединение и открываем его при необходимости
-        var connection = dbContext.Database.GetDbConnection();
-        var wasClosed = connection.State == ConnectionState.Closed;
+        DbConnection connection = dbContext.Database.GetDbConnection();
+        bool wasClosed = connection.State == ConnectionState.Closed;
 
         if (wasClosed)
             await connection.OpenAsync(cancellationToken);
 
         // Создаём транзакцию с уровнем изоляции Serializable
-        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        await using DbTransaction transaction = 
+            await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
 
         try
         {
-            var fromAccount = await GetValidAccount(accountsRepository, request.FromAccountId, request.OwnerId, cancellationToken);
-            var toAccount = await accountsRepository.GetByIdAsync(request.ToAccountId, cancellationToken);
+            Account fromAccount = 
+                await GetValidAccount(accountsRepository, request.FromAccountId, request.OwnerId, cancellationToken);
+            Account? toAccount = await accountsRepository.GetByIdAsync(request.ToAccountId, cancellationToken);
             
             if (toAccount is null)
                 throw new AccountNotFoundException(request.ToAccountId);
 
             // Проверяем достаточность средств
-            if (fromAccount.Balance < request.Amount && !fromAccount.AccountType.Equals(AccountType.Credit))
-                throw new BadRequestException("Недостаточно средств на счёте");
+            CheckBalance(request, fromAccount);
 
-            var toAccountAmount = currencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
+            decimal toAccountAmount = currencyService.Convert(request.Amount, fromAccount.Currency, toAccount.Currency);
 
             // Выполняем перевод
             fromAccount.Balance -= request.Amount;
             toAccount.Balance += toAccountAmount;
             // Транзакция с первого счета
-            var transactionFrom = await transactionsRepository.AddAsync(
+            Transaction transactionFrom = await transactionsRepository.AddAsync(
                 fromAccount.AccountId,
                 toAccount.AccountId,
                 request.Amount,
@@ -78,42 +77,24 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Сохраняем ожидаемые значения балансов для проверки
-            var expectedFromBalance = fromAccount.Balance;
-            var expectedToBalance = toAccount.Balance;
-
             // Получаем значения для проверки 
-            var updatedFromAccount = await accountsRepository.GetByIdAsync(request.FromAccountId, cancellationToken);
-            var updatedToAccount = await accountsRepository.GetByIdAsync(request.ToAccountId, cancellationToken);
+            Account updatedFromAccount = (await accountsRepository.GetByIdAsync(request.FromAccountId, cancellationToken))!;
+            Account updatedToAccount = (await accountsRepository.GetByIdAsync(request.ToAccountId, cancellationToken))!;
 
             // Проверяем соответствие балансов
-            if (updatedFromAccount?.Balance != expectedFromBalance ||
-                updatedToAccount?.Balance != expectedToBalance)
-            {
-                logger.LogWarning(
-                    "Несоответствие балансов после перевода. Откат транзакции. " +
-                    "Ожидалось: From={ExpectedFrom}, To={ExpectedTo}. " +
-                    "Фактически: From={ActualFrom}, To={ActualTo}",
-                    expectedFromBalance, expectedToBalance,
-                    updatedFromAccount?.Balance, updatedToAccount?.Balance);
-
-                // Откатываем транзакцию
-                throw new BadRequestException("Несоответствие балансов. Транзакция отменена.");
-            }
+            CheckBalanceCompliance(updatedFromAccount, fromAccount, updatedToAccount, toAccount);
 
             // Подтверждаем транзакцию
             await transaction.CommitAsync(cancellationToken);
-
-            logger.LogInformation(
-                "Перевод успешно выполнен. Счёт {FromAccountId}: {FromBalance}, Счёт {ToAccountId}: {ToBalance}",
-                request.FromAccountId, updatedFromAccount.Balance, request.ToAccountId, updatedToAccount.Balance);
+            
+            LogSuccess(request,  updatedFromAccount, updatedToAccount);
 
             return mapper.Map<TransactionDto>(transactionFrom);
         }
         catch (Exception ex)
         {
-             var message = $"Ошибка при переводе средств со счёта {request.FromAccountId} на счёт {request.ToAccountId}." +
-                           $" Транзакция отменена.";
+             string message = $"Transfer error from {request.FromAccountId} to {request.ToAccountId}." +
+                              $" Transaction canceled.";
 
              // Откатываем транзакцию
             throw new TransferException(message, ex);
@@ -127,5 +108,50 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
             if (wasClosed)
                 await connection.CloseAsync();
         }
+    }
+
+    private static void CheckBalance(PerformTransferCommand request, Account fromAccount)
+    {
+        if (fromAccount.Balance < request.Amount && !fromAccount.AccountType.Equals(AccountType.Credit))
+            throw new BadRequestException("Недостаточно средств на счёте");
+    }
+
+    private void CheckBalanceCompliance(Account updatedFromAccount, Account fromAccount, 
+        Account updatedToAccount, Account toAccount)
+    {
+        // Сохраняем ожидаемые значения балансов для проверки
+        decimal expectedFromBalance = fromAccount.Balance;
+        decimal expectedToBalance = toAccount.Balance;
+        
+        if (updatedFromAccount.Balance == expectedFromBalance &&
+            updatedToAccount.Balance == expectedToBalance)
+        {
+            return;
+        }
+
+        logger.LogWarning(
+            "Несоответствие балансов после перевода. Откат транзакции. " +
+            "Ожидалось: From={ExpectedFrom}, To={ExpectedTo}. " +
+            "Фактически: From={ActualFrom}, To={ActualTo}",
+            expectedFromBalance, expectedToBalance,
+            updatedFromAccount, updatedToAccount);
+
+        // Откатываем транзакцию
+        throw new BadRequestException("Несоответствие балансов. Транзакция отменена.");
+
+    }
+
+    private void LogBegin(PerformTransferCommand request)
+    {
+        logger.LogInformation(
+            "Начало перевода {Amount} со счёта {FromAccountId} на счёт {ToAccountId}",
+            request.Amount, request.FromAccountId, request.ToAccountId);
+    }
+
+    private void LogSuccess(PerformTransferCommand request, Account updatedFromAccount, Account updatedToAccount)
+    {
+        logger.LogInformation(
+            "Перевод успешно выполнен. Счёт {FromAccountId}: {FromBalance}, Счёт {ToAccountId}: {ToBalance}",
+            request.FromAccountId, updatedFromAccount.Balance, request.ToAccountId, updatedToAccount.Balance);
     }
 }
