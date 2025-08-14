@@ -1,7 +1,6 @@
 ﻿using BankAccounts.Api.Common;
 using BankAccounts.Api.Common.Exceptions;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json;
 
@@ -31,58 +30,88 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
     /// <summary>
     /// Обработка исключений. Возвращает данные об ошибке с помощью <see cref="MbResult"/> (записывает ошибку в поле MbError).
     /// </summary>
-    // ReSharper disable once MemberCanBeMadeStatic.Local
+    // ReSharper disable once MemberCanBeMadeStatic.Local Метод используется
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        var code = HttpStatusCode.BadRequest;
-        var result = string.Empty;
-        switch (exception)
-        {
-            case ValidationException validationException:
-                code = HttpStatusCode.BadRequest;
-                result = validationException.Errors.First().ToString();
-                break;
-            case AccountNotFoundException:
-            case NotFoundException:
-                code = HttpStatusCode.NotFound;
-                break;
-            case ConcurrencyException:
-                code = HttpStatusCode.Conflict;
-                result = $"[{exception.GetType().Name}] {exception.Message}";
-                break;
-            case DbUpdateException:
-                code = HttpStatusCode.BadRequest;
-                result = $"[{exception.GetType().Name}] {exception.Message} \n " +
-                         $"{exception.InnerException?.Message} \n {exception.InnerException?.StackTrace}";
-                break;
-        }
-
-        var exceptionDiver = exception;
-        var count = 0;
-
-        while (exceptionDiver != null)
-        {
-            logger.LogError($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ({count}) {exceptionDiver.GetType().Name}: {exceptionDiver.Message} " +
-                            $"\n" + exceptionDiver.StackTrace + "\n");
-
-            if (exceptionDiver.Message.Contains("could not serialize"))
-            {
-                result = $"[{exceptionDiver.GetType().Name}] {exceptionDiver.Message}";
-                code = HttpStatusCode.Conflict;
-            }
-
-            count++;
-            
-            exceptionDiver = exceptionDiver.InnerException;
-        }
+        HttpStatusCode code = HttpStatusCode.BadRequest;
+        string message = string.Empty;
+        
+        ProcessException(exception, ref code, ref message);
+        
+        if (message == string.Empty)
+            message = $"[{exception.GetType().Name}] {exception.Message}";
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
         
-        if (result == string.Empty)
-            result = $"[{exception.GetType().Name}] {exception.Message}";
+        return context.Response.WriteAsync(JsonSerializer.Serialize(MbResult.Failure((int)code, message)));
+    }
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(MbResult.Failure((int)code, result)));
+    /// <summary>
+    /// Обработка исключения
+    /// </summary>
+    private void ProcessException(Exception exception, ref HttpStatusCode code, ref string message)
+    {
+        Exception? realException = ExceptionDiver(exception);
+        
+        switch (exception)
+        {
+            case ValidationException validationException:
+                code = HttpStatusCode.BadRequest;
+                message = validationException.Errors.First().ToString();
+                break;
+            case NotFoundException:
+                code = HttpStatusCode.NotFound;
+                break;
+            case TransferException:
+                if (realException is not null && CheckIfDbConcurrencyAccessException(realException))
+                    code = HttpStatusCode.Conflict;
+                break;
+        }
+    }
+    
+    private static bool CheckIfDbConcurrencyAccessException(Exception ex)
+    {
+        return ex.Message.Contains("40001: could not serialize");
+    }
+
+    /// <summary>
+    /// Записывает в лог каждое исключение и возвращает самое вложенное.
+    /// </summary>
+    /// <param name="exception">Исключение на обработку</param>
+    /// <returns>Самое вложенное исключение</returns>
+    private Exception? ExceptionDiver(Exception exception)
+    {
+        Exception? exceptionDiver = exception.InnerException;
+        Exception? realException = exceptionDiver;
+        int count = 0;
+        string message = string.Empty;
+
+        AddToMessage(exception, count, ref message);
+        
+        while (exceptionDiver != null)
+        {
+            count++;
+            
+            // Вывести stackTrace только у самого вложенного исключения
+            if (exceptionDiver.InnerException != null)
+                AddToMessage(exceptionDiver, count, ref message, false);
+            else
+                AddToMessage(exceptionDiver, count, ref message);
+            
+            realException = exceptionDiver;
+            exceptionDiver = exceptionDiver.InnerException;
+        }
+        
+        logger.LogError("{Message}", message);
+        
+        return realException;
+    }
+
+    private static void AddToMessage(Exception ex, int count, ref string message, bool logStackTrace = true)
+    {
+        message += $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ({count}) {ex.GetType().Name}: {ex.Message} " + 
+            (logStackTrace ? $"\n{ex.StackTrace}" : string.Empty);
     }
 }
 
