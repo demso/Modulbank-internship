@@ -8,14 +8,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=bank-accounts-db
-    command:
-      - "postgres"
-      - "-c"
-      - "log_min_messages=notice"
-      - "-c"
-      - "client_min_messages=notice"
-      - "-c"
-      - "log_statement=all"
     volumes:
       - bankaccounts_db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -24,6 +16,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 5s
 
   bankaccounts.api:
     image: lithiumkgp/bankaccounts.api:latest
@@ -35,10 +28,8 @@ services:
     depends_on:
       bankaccounts.db:
         condition: service_healthy
-#    environment:
-#      - ASPNETCORE_ENVIRONMENT=Development
-#      - ASPNETCORE_HTTP_PORTS=80
-#      - ASPNETCORE_URLS=http://+:80
+      rabbitmq:
+        condition: service_healthy
 
   bankaccounts.identity:
     image: lithiumkgp/bankaccounts.identity:latest
@@ -47,10 +38,26 @@ services:
       dockerfile: BankAccounts.Identity/Dockerfile
     ports:
       - "7045:7045"
-#    environment:
-#      - ASPNETCORE_ENVIRONMENT=Development
-#      - ASPNETCORE_HTTP_PORTS=7045
-#      - ASPNETCORE_URLS=http://+:7045
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq 
+    restart: unless-stopped
+    healthcheck:
+        test: [ "CMD-SHELL", "rabbitmq-diagnostics -q check_virtual_hosts" ]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+        start_period: 5s
 
 volumes:
   bankaccounts_db_data:
+  rabbitmq_data:
