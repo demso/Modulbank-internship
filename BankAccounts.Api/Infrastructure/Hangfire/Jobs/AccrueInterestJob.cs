@@ -1,5 +1,6 @@
 ﻿using BankAccounts.Api.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 
@@ -19,7 +20,7 @@ public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInt
     /// </summary>
     public async Task Job()
     {
-        var accountIds = await context.Accounts.Where(a =>
+        List<int> accountIds = await context.Accounts.Where(a =>
                 a.Balance != 0
                 && a.CloseDate == null
                 && a.InterestRate != 0)
@@ -28,16 +29,16 @@ public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInt
             .ToListAsync(cancellationToken);
 
 
-        await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
 
         try
         {
-            foreach (var accountId in accountIds) 
+            foreach (int accountId in accountIds) 
                 await context.Database.ExecuteSqlRawAsync("CALL public.accrue_interest({0})", accountId);
 
             await transaction.CommitAsync();
 
-            logger.LogInformation("Начисление процентов по счетам успешно. Количество измененных счетов: " + accountIds.Count);
+            logger.LogInformation("Начисление процентов по счетам успешно. Количество измененных счетов: {Count}", accountIds.Count);
         }
         catch (Exception ex)
         {

@@ -17,7 +17,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransactionCommand request, CancellationToken cancellationToken)
     {
-        var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
+        Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault Решарпер предлагает непонятный код
         switch (request.TransactionType)
@@ -33,7 +33,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
                 break;
         }
 
-        var transaction = await transactionsRepository.AddAsync(
+        Transaction transaction = await transactionsRepository.AddAsync(
             account.AccountId, 
             0, 
             request.Amount, 

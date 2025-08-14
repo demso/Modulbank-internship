@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
 
@@ -8,7 +7,9 @@ namespace BankAccounts.Api.Features.Accounts;
 /// <summary>
 /// Профиль для сопоставления типов
 /// </summary>
-public class AccountsMappingProfile : Profile
+// ReSharper disable once UnusedType.Global Класс используется маппером
+// ReSharper disable once UnusedMember.Global
+public class AccountsMappingProfile : Profile 
 {
     /// <summary>
     /// Инициализирует новый экземпляр <see cref="AccountsMappingProfile"/>,

@@ -13,7 +13,7 @@ public class GetAccountHandler(IAccountsRepositoryAsync accountsRepository, IMap
     /// <inheritdoc />
     public override async Task<AccountDto> Handle(GetAccountQuery request, CancellationToken cancellationToken)
     {
-        var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
+        Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
         return mapper.Map<AccountDto>(account);
     }

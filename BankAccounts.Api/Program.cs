@@ -15,6 +15,7 @@ using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,9 +25,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var services = builder.Services;
+IServiceCollection services = builder.Services;
 
 // Common services
 services
@@ -53,10 +54,10 @@ services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
     {
-        var error = context.ModelState
+        KeyValuePair<string, ModelStateEntry?> error = context.ModelState
             .First(x => x.Value?.Errors.Count > 0);
 
-        var result = MbResult.Failure((int)HttpStatusCode.BadRequest, $"Validation error: {error.Value?.Errors[0].ErrorMessage} {error.Value?.Errors[0].Exception?.Message}");
+        MbResult<object?> result = MbResult.Failure((int)HttpStatusCode.BadRequest, $"Validation error: {error.Value?.Errors[0].ErrorMessage} {error.Value?.Errors[0].Exception?.Message}");
 
         return new ObjectResult(result);
     };
@@ -105,7 +106,7 @@ services
     .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
     .AddSwaggerGen();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 await app.MigrateDatabase();
 

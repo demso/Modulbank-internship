@@ -12,8 +12,8 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
     /// <inheritdoc />
     public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        var context = new ValidationContext<TRequest>(request);
-        var failure = validators
+        ValidationContext<TRequest> context = new(request);
+        ValidationFailure? failure = validators
             .Select(validator => validator.Validate(context))
             .SelectMany(result => result.Errors)
             .FirstOrDefault(failure => failure != null); //вернем только первую ошибку

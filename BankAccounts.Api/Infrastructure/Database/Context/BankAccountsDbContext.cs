@@ -1,6 +1,5 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
-using BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 

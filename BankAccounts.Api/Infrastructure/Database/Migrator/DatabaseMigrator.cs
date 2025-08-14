@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 namespace BankAccounts.Api.Infrastructure.Database.Migrator;
 
 /// <summary>
-/// DatabaseMigrator - класс, позволяющий поддерживать актуальность БД и обеспечивать порядок и выполнение задач в БД при запуске банковского сервиса.
+/// DatabaseMigrator - класс, позволяющий поддерживать актуальность БД и обеспечивать порядок и выполнение задач в БД
+/// при запуске банковского сервиса.
 /// </summary>
 public static class DatabaseMigrator
 {
@@ -13,10 +14,10 @@ public static class DatabaseMigrator
     /// </summary>
     public static async Task MigrateDatabase(this IApplicationBuilder app)
     {
-        var context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<IBankAccountsDbContext>();
+        IBankAccountsDbContext context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<IBankAccountsDbContext>();
 
         // Добавим расширение, чтобы создать индекс по дате в Transactions
-        var sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
+        string sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
 
         await context.Database.ExecuteSqlRawAsync(sql);
 

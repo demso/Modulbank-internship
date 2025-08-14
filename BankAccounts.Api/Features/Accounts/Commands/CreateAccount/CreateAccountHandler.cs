@@ -14,7 +14,7 @@ public class CreateAccountHandler(IAccountsRepositoryAsync accountsRepository, I
     /// <inheritdoc />
     public override async Task<AccountDto> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
     {
-        var account = await accountsRepository.AddAsync(request.OwnerId, request.AccountType, request.Currency, 
+        Account account = await accountsRepository.AddAsync(request.OwnerId, request.AccountType, request.Currency, 
             request.InterestRate, cancellationToken);
 
         await accountsRepository.SaveChangesAsync(cancellationToken);

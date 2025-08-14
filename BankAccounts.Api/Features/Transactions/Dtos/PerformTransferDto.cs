@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 // ReSharper disable NotAccessedPositionalProperty.Global
 
 namespace BankAccounts.Api.Features.Transactions.Dtos;

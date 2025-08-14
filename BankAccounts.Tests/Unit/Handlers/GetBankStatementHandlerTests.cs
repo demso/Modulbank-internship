@@ -32,15 +32,15 @@ public class GetBankStatementHandlerTests
     public async Task Handle_ReturnValid_BankStatement()
     {
         // Arrange
-        var ownerId = Guid.NewGuid();
-        var username = "username";
-        var accountId = 1;
-        var cancellationToken =CancellationToken.None;
-        var request = new GetBankStatementQuery(ownerId, username, accountId, null, null);
+        Guid ownerId = Guid.NewGuid();
+        const string username = "username";
+        const int accountId = 1;
+        CancellationToken cancellationToken =CancellationToken.None;
+        GetBankStatementQuery request = new (ownerId, username, accountId, null, null);
         
         // Список транзакций для обработчика
-        var transactions = new List<TransactionDto>()
-        {
+        List<TransactionDto> transactions =
+        [
             new(Guid.NewGuid(), accountId, 0, 100, Currencies.Rub,
                 TransactionType.Debit, null, DateTime.Now),
             new(Guid.NewGuid(), accountId, 0, 110, Currencies.Rub,
@@ -51,11 +51,11 @@ public class GetBankStatementHandlerTests
                 TransactionType.Debit, null, DateTime.Now.AddMinutes(-10)),
             new(Guid.NewGuid(), accountId, 2, 200, Currencies.Rub,
                 TransactionType.Credit, null, DateTime.Now.AddMinutes(10))
-        };
+        ];
         
         // Операции на выходе должны быть отсортированы в порядке проведения транзакций по времени
-        var operations = new List<AccountOperation>()
-        {
+        List<AccountOperation> operations =
+        [
             new(transactions[3].DateTime,
                 transactions[3].CounterpartyAccountId,
                 transactions[3].Amount * (transactions[3].TransactionType == TransactionType.Debit ? 1 : -1),
@@ -73,7 +73,7 @@ public class GetBankStatementHandlerTests
             new(transactions[4].DateTime, transactions[4].CounterpartyAccountId,
                 transactions[4].Amount * (transactions[4].TransactionType == TransactionType.Debit ? 1 : -1),
                 20, null)
-        };
+        ];
         
         // Счет, с которым проводим операции
         Account account = new()
@@ -96,7 +96,7 @@ public class GetBankStatementHandlerTests
             .ReturnsAsync(transactions);
         
         // Act
-        var bankStatement = await _handler.Handle(request, cancellationToken);
+        BankStatement bankStatement = await _handler.Handle(request, cancellationToken);
         
         // Assert
         Assert.Equal(accountId, bankStatement.AccountId);

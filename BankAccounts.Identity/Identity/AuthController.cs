@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace BankAccounts.Identity.Identity;
 
@@ -35,15 +36,15 @@ public class AuthController(
     [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Register(RegisterData data)
     {
-        var user = new BankUser
+        BankUser user = new()
         {
             UserName = data.Username
         };
 
-        var result = await userManager.CreateAsync(user, data.Password!);
+        IdentityResult result = await userManager.CreateAsync(user, data.Password!);
         if (!result.Succeeded)
         {
-            var errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
+            string errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
             return StatusCode(500, errorMessage);
         }
 
@@ -70,33 +71,33 @@ public class AuthController(
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Login(LoginData data) {
-        var user = await userManager.FindByNameAsync(data.Username!);
+        BankUser? user = await userManager.FindByNameAsync(data.Username!);
         if (user == null)
             return NotFound("User is not registered");
 
-        var result = await signInManager.PasswordSignInAsync(data.Username!,
+        SignInResult result = await signInManager.PasswordSignInAsync(data.Username!,
             data.Password!, false, false);
         if (!result.Succeeded)
             return StatusCode(400, "Login failed");
 
-        var token = GenerateJwtToken(user);
+        string token = GenerateJwtToken(user);
 
         return Ok(token);
     }
 
     private string GenerateJwtToken(BankUser user)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+        SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, user.UserName!),
-            new Claim(ClaimTypes.NameIdentifier, CreateGuidFromString(user.UserName!).ToString())
-        };
+        Claim[] claims =
+        [
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Name, user.UserName!),
+            new(ClaimTypes.NameIdentifier, CreateGuidFromString(user.UserName!).ToString())
+        ];
 
-        var token = new JwtSecurityToken(
+        JwtSecurityToken token = new(
             issuer: configuration["Jwt:Issuer"],
             audience: configuration["Jwt:Audience"],
             claims: claims,
@@ -107,13 +108,12 @@ public class AuthController(
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private Guid CreateGuidFromString(string input)
+    private static Guid CreateGuidFromString(string input)
     {
-        using var sha1 = SHA1.Create();
-        var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
+        byte[] hash = SHA1.HashData(Encoding.UTF8.GetBytes(input));
 
         // Берём первые 16 байт для GUID
-        var guidBytes = new byte[16];
+        byte[] guidBytes = new byte[16];
         Array.Copy(hash, guidBytes, 16);
 
         // Устанавливаем версию GUID (RFC 4122)

@@ -9,8 +9,8 @@ public interface ICurrencyService
     /// Конвертирует валюту <see cref="Currencies"/>.
     /// </summary>
     /// <param name="sum">Сумма перобразуемой валюты</param>
-    /// <param name="from">Тип валюты из которой преобразуем</param>
-    /// <param name="to">Тип валюты в которую преобразуем</param>
+    /// <param name="from">Тип валюты из которой преобразуем (<see cref="Currencies"/>)</param>
+    /// <param name="to">Тип валюты в которую преобразуем (<see cref="Currencies"/>)</param>
     /// <returns>decimal</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public decimal Convert(decimal sum, Currencies from, Currencies to);

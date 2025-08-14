@@ -2,6 +2,7 @@
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Testcontainers.PostgreSql;
 
 namespace BankAccounts.Tests.Integration.Testcontainers;
@@ -20,14 +21,14 @@ public class EfRepositoryTests : IAsyncLifetime
     {
         await _container.StartAsync();
 
-        var options = new DbContextOptionsBuilder<BankAccountsDbContext>()
+        DbContextOptions<BankAccountsDbContext> options = new DbContextOptionsBuilder<BankAccountsDbContext>()
             .UseNpgsql(_container.GetConnectionString())
             .Options;
 
         _context = new BankAccountsDbContext(options);
         
         // Необходимо для создания индекса
-        var sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
+        const string sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
         await _context.Database.ExecuteSqlRawAsync(sql);
         
         await _context.Database.EnsureCreatedAsync(); 
@@ -47,7 +48,7 @@ public class EfRepositoryTests : IAsyncLifetime
     public async Task Can_Add_Account()
     {
         // Arrange
-        var account = new Account
+        Account account = new()
         {
             OwnerId = Guid.NewGuid(),
             AccountType = AccountType.Checking,
@@ -56,11 +57,11 @@ public class EfRepositoryTests : IAsyncLifetime
         };
         
         // Act
-        var returnedAccount = _context.Accounts.Add(account);
+        EntityEntry<Account> returnedAccount = _context.Accounts.Add(account);
         await _context.SaveChangesAsync();
 
         // Assert
-        var saved = await _context.Accounts.FindAsync(returnedAccount.Entity.AccountId);
+        Account? saved = await _context.Accounts.FindAsync(returnedAccount.Entity.AccountId);
         Assert.NotNull(saved);
         Assert.Equal(2.5m, saved.InterestRate);
         Assert.Equal(account.OwnerId, saved.OwnerId);

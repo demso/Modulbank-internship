@@ -19,7 +19,7 @@ public class GetTransactionHandler(IAccountsRepositoryAsync accountsRepository, 
     /// <exception cref="NotFoundException"></exception>
     public override async Task<TransactionDto> Handle(GetTransactionQuery request, CancellationToken cancellationToken)
     {
-        var transaction = await transactionsRepository.GetByIdAsync(request.TransactionId, cancellationToken);
+        Transaction? transaction = await transactionsRepository.GetByIdAsync(request.TransactionId, cancellationToken);
 
         if (transaction == null)
             throw new NotFoundException(nameof(Transaction), request.TransactionId);

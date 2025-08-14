@@ -3,6 +3,7 @@ using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
+
 // ReSharper disable once UnusedType.Global Класс используется посредником
 
 namespace BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
@@ -20,10 +21,10 @@ public class GetTransactionForAccountHandler(IAccountsRepositoryAsync accountsRe
     {
        await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
    
-        var entities = await transactionsRepository.GetByFilterAsync(request.AccountId, request.FromDate,
+        List<Transaction> entities = await transactionsRepository.GetByFilterAsync(request.AccountId, request.FromDate,
             request.ToDate, cancellationToken);
 
-        var entitiesDto = mapper.Map<List<TransactionDto>>(entities);
+        List<TransactionDto>? entitiesDto = mapper.Map<List<TransactionDto>>(entities);
 
         return entitiesDto;
     }

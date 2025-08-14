@@ -26,7 +26,7 @@ public abstract class RequestHandlerBase<TRequest, TResponse>
     protected async Task<Account> GetValidAccount(IAccountsRepositoryAsync accountsRepository, int accountId, 
         Guid ownerId, CancellationToken cancellationToken)
     {
-        var account = await accountsRepository.GetByIdAsync(accountId, cancellationToken);
+        Account? account = await accountsRepository.GetByIdAsync(accountId, cancellationToken);
 
         if (account == null || account.OwnerId != ownerId)
             throw new AccountNotFoundException(accountId);

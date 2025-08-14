@@ -7,8 +7,5 @@ namespace BankAccounts.Api.Common.Exceptions
     /// </summary>
     /// <param name="message">Сообщение</param>
     /// <param name="ex">Исключение</param>
-    public class TransferException(string message, Exception ex) : Exception(message, ex)
-    {
-        
-    }
+    public class TransferException(string message, Exception ex) : Exception(message, ex);
 }

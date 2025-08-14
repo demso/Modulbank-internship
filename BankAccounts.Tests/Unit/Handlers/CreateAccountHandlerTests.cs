@@ -30,15 +30,15 @@ public class CreateAccountHandlerTests
     [Fact]
     public async Task Handle_CallRepositoryAddAsync_AccountDto()
     {
-        var ownerId = Guid.NewGuid();
-        var command = new CreateAccountCommand() 
+        Guid ownerId = Guid.NewGuid();
+        CreateAccountCommand command = new() 
         {
             OwnerId = ownerId, 
             AccountType = AccountType.Checking, 
             Currency = Currencies.Rub, 
             InterestRate = 3.5m
         };
-        var account = new Account
+        Account account = new()
         {
             AccountId = 1,
             OwnerId = ownerId,
@@ -58,7 +58,7 @@ public class CreateAccountHandlerTests
                 a.InterestRate, a.OpenDate, a.CloseDate));
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        AccountDto result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
        Assert.NotNull(result);

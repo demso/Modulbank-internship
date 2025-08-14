@@ -28,12 +28,12 @@ public class DatabaseIntegrationTests : IAsyncLifetime
     public async Task Can_Connect_To_Database()
     {
         // Arrange
-        await using  var connection = new NpgsqlConnection(_connectionString);
+        await using  NpgsqlConnection connection = new(_connectionString);
         await connection.OpenAsync();
-        await using var cmd = new NpgsqlCommand("SELECT 1", connection);
+        await using NpgsqlCommand cmd = new("SELECT 1", connection);
         
         // Act
-        var result = await cmd.ExecuteScalarAsync();
+        object? result = await cmd.ExecuteScalarAsync();
 
         //Assert
         Assert.Equal(1, Convert.ToInt32(result));

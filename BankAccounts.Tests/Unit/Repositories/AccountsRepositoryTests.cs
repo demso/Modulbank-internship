@@ -19,7 +19,7 @@ public class AccountsRepositoryTests : IDisposable
     public AccountsRepositoryTests()
     {
         
-        var options = new DbContextOptionsBuilder<BankAccountsDbContext>()
+        DbContextOptions<BankAccountsDbContext> options = new DbContextOptionsBuilder<BankAccountsDbContext>()
             .UseInMemoryDatabase(_databaseName)
             .Options;
 
@@ -35,8 +35,8 @@ public class AccountsRepositoryTests : IDisposable
     public async Task AddAsync_AddAccountToDatabase_Account()
     {
         // Arrange
-        var ownerId = Guid.NewGuid();
-        var account = new Account
+        Guid ownerId = Guid.NewGuid();
+        Account account = new()
         {
             OwnerId = ownerId,
             AccountType = AccountType.Checking,
@@ -46,8 +46,8 @@ public class AccountsRepositoryTests : IDisposable
         };
 
         // Act
-        var addedAccount = await _repository.AddAsync(account.OwnerId, account.AccountType, account.Currency, account.InterestRate, CancellationToken.None);
-        var accountFromDb = await _context.Accounts.FindAsync(addedAccount.AccountId);
+        Account addedAccount = await _repository.AddAsync(account.OwnerId, account.AccountType, account.Currency, account.InterestRate, CancellationToken.None);
+        Account? accountFromDb = await _context.Accounts.FindAsync(addedAccount.AccountId);
         
         // Assert
         addedAccount.Should().NotBeNull();
@@ -68,7 +68,7 @@ public class AccountsRepositoryTests : IDisposable
     public async Task GetByIdAsync_ReturnIfExists_Account()
     {
         // Arrange
-        var account = new Account
+        Account account = new()
         {
             OwnerId = Guid.NewGuid(),
             AccountType = AccountType.Deposit,
@@ -81,7 +81,7 @@ public class AccountsRepositoryTests : IDisposable
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetByIdAsync(account.AccountId, CancellationToken.None);
+        Account? result = await _repository.GetByIdAsync(account.AccountId, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -99,7 +99,7 @@ public class AccountsRepositoryTests : IDisposable
     public async Task GetByIdAsync_ReturnIfNotExists_Null()
     {
         // Act
-        var result = await _repository.GetByIdAsync(99999, CancellationToken.None); // Non-existing ID
+        Account? result = await _repository.GetByIdAsync(99999, CancellationToken.None); // Non-existing ID
 
         // Assert
         result.Should().BeNull();
@@ -110,5 +110,6 @@ public class AccountsRepositoryTests : IDisposable
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract В исключительных случаях null
         _context?.Database.EnsureDeleted();
         _context?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

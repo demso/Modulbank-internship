@@ -15,56 +15,57 @@ public class CreateAccountValidatorTests
     [Fact]
     public void CreateAccountValidator_ShouldHaveErrorWhenOwnerIdIsEmpty()
     {
-        var command = new CreateAccountCommand() 
+        CreateAccountCommand command = new()
         {
             OwnerId = Guid.Empty,
             AccountType = AccountType.Checking,
             Currency = Currencies.Rub, 
             InterestRate = 5.0m
         };
-        var result = _validator.TestValidate(command);
+        TestValidationResult<CreateAccountCommand>? result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(c => c.OwnerId);
     }
 
     [Fact]
     public void CreateAccountValidator_ShouldNotHaveErrorWhenOwnerIdIsValid()
     {
-        var command = new CreateAccountCommand()
+        CreateAccountCommand command = new()
         {
             OwnerId = Guid.NewGuid(),
             AccountType = AccountType.Checking,
             Currency = Currencies.Rub,
             InterestRate = 5.0m
         };
-        var result = _validator.TestValidate(command);
+        TestValidationResult<CreateAccountCommand>? result = _validator.TestValidate(command);
         result.ShouldNotHaveValidationErrorFor(c => c.OwnerId);
     }
 
     [Fact]
     public void CreateAccountValidator_ShouldNotHaveErrorWhenInterestRateIsNegative()
     {
-        var command = new CreateAccountCommand()
+        CreateAccountCommand command = new()
         {
             OwnerId = Guid.Empty,
             AccountType = AccountType.Checking,
             Currency = Currencies.Rub,
             InterestRate = -1.0m
         };
-        var result = _validator.TestValidate(command);
+        TestValidationResult<CreateAccountCommand>? result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(c => c.InterestRate);
     }
 
     [Fact]
     public void CreateAccountValidator_ShouldNotHaveErrorWhenInterestRateIsZeroOrPositive()
     {
-        var command1 = new CreateAccountCommand()
+        CreateAccountCommand command1 = new()
         {
             OwnerId = Guid.Empty,
             AccountType = AccountType.Checking,
             Currency = Currencies.Rub,
             InterestRate = 0m
         };
-        var command2 = new CreateAccountCommand() {
+        CreateAccountCommand command2 = new()
+        {
             OwnerId = Guid.Empty,
             AccountType = AccountType.Checking,
             Currency = Currencies.Rub, 

@@ -74,12 +74,12 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         await _bankAccountsApiContainer.StartAsync();
 
         // Настройка HttpClient для вызова API контейнера Identity
-        var identityPort = _identityServiceContainer.GetMappedPublicPort(7045);
+        ushort identityPort = _identityServiceContainer.GetMappedPublicPort(7045);
         _identityHttpClient = new HttpClient();
         _identityHttpClient.BaseAddress = new Uri($"http://localhost:{identityPort}/");
         
         // Настройка HttpClient для вызова API контейнера BankAccounts
-        var bankApiPort = _bankAccountsApiContainer.GetMappedPublicPort(80);
+        ushort bankApiPort = _bankAccountsApiContainer.GetMappedPublicPort(80);
         _apiHttpClient = new HttpClient();
         _apiHttpClient.BaseAddress = new Uri($"http://localhost:{bankApiPort}/");
     }
@@ -91,97 +91,95 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
     public async Task GetUserAccounts_WithValidTokenFromIdentity_ReturnsAccounts()
     {
         // Arrange
-        var registerData = new RegisterData { Username = "testuser", Password = "password" };
-        var loginData = new LoginData { Username = "testuser", Password = "password" };
+        RegisterData registerData = new() { Username = "testuser", Password = "password" };
+        LoginData loginData = new() { Username = "testuser", Password = "password" };
 
         // Регистрация пользователя через Identity контейнер
-        var identityPort = _identityServiceContainer.GetMappedPublicPort(7045);
+        ushort identityPort = _identityServiceContainer.GetMappedPublicPort(7045);
         
-        using var identityClient = new HttpClient();
+        using HttpClient identityClient = new();
         
         identityClient.BaseAddress = new Uri($"http://localhost:{identityPort}/ ");
-        var registerResponse = await identityClient.PostAsJsonAsync("/api/auth/register", registerData);
+        HttpResponseMessage registerResponse = await identityClient.PostAsJsonAsync("/api/auth/register", registerData);
         registerResponse.EnsureSuccessStatusCode();
 
         // Вход и получение токена через Identity контейнер
-        var loginResponse = await identityClient.PostAsJsonAsync("/api/auth/login", loginData);
+        HttpResponseMessage loginResponse = await identityClient.PostAsJsonAsync("/api/auth/login", loginData);
         loginResponse.EnsureSuccessStatusCode();
-        var token = await loginResponse.Content.ReadAsStringAsync();
+        string token = await loginResponse.Content.ReadAsStringAsync();
         _apiHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Trim('"'));
 
         // Act
-        var accountsResponse = await _apiHttpClient.GetAsync("/api/accounts/all");
+        HttpResponseMessage accountsResponse = await _apiHttpClient.GetAsync("/api/accounts/all");
 
         // Assert
         accountsResponse.EnsureSuccessStatusCode();
-        var responseString = await accountsResponse.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<MbResult<List<AccountDto>>>(responseString, GetJsonSerializerOptions());
+        string responseString = await accountsResponse.Content.ReadAsStringAsync();
+        MbResult<List<AccountDto>>? result = JsonSerializer.Deserialize<MbResult<List<AccountDto>>>(responseString, GetJsonSerializerOptions());
         Assert.True(result!.IsSuccess);
     }
     
     [Fact]
     public async Task ParallelTransferTests_50ParallelTransfers_SumBalanceConserved()
     {
-        using var clientHelper = new ApiClientHelper(_identityHttpClient, _apiHttpClient);
+        using ApiClientHelper clientHelper = new(_identityHttpClient, _apiHttpClient);
 
         // Регистрация пользователей
         // Пользователь 1
-        using var apiClientUser1 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
+        using HttpClient apiClientUser1 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
 
         // Пользователь 2
-        using var apiClientUser2 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
+        using HttpClient apiClientUser2 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
 
         // Создание счетов
-        var account1Id = await clientHelper.CreateAccount(apiClientUser1);
-        var account2Id = await clientHelper.CreateAccount(apiClientUser2); 
+        int account1Id = await ApiClientHelper.CreateAccount(apiClientUser1);
+        int account2Id = await ApiClientHelper.CreateAccount(apiClientUser2); 
         
         // Пополнение счетов начальными средствами
-        var initialBalanceUser1 = 10000m; 
-        var initialBalanceUser2 = 5000m; 
-        var totalInitialBalance = initialBalanceUser1 + initialBalanceUser2;
+        const decimal initialBalanceUser1 = 10000m; 
+        const decimal initialBalanceUser2 = 5000m; 
+        const decimal totalInitialBalance = initialBalanceUser1 + initialBalanceUser2;
 
         // Пополнение счета 1
-        var depositDto1 = new PerformTransactionDto(TransactionType.Debit, initialBalanceUser1, "Начальное пополнение");
+        PerformTransactionDto depositDto1 = new(TransactionType.Debit, initialBalanceUser1, "Начальное пополнение");
         await apiClientUser1.PostAsJsonAsync($"/api/accounts/{account1Id}/transactions", depositDto1);
 
         // Пополнение счета 2
-        var depositDto2 = new PerformTransactionDto(TransactionType.Debit, initialBalanceUser2, "Начальное пополнение");
+        PerformTransactionDto depositDto2 = new(TransactionType.Debit, initialBalanceUser2, "Начальное пополнение");
         await apiClientUser2.PostAsJsonAsync($"/api/accounts/{account2Id}/transactions", depositDto2);
 
         // Проверка начальных балансов
-        Assert.Equal(initialBalanceUser1, await clientHelper.GetBalance(apiClientUser1, account1Id));
-        Assert.Equal(initialBalanceUser2, await clientHelper.GetBalance(apiClientUser2, account2Id));
+        Assert.Equal(initialBalanceUser1, await ApiClientHelper.GetBalance(apiClientUser1, account1Id));
+        Assert.Equal(initialBalanceUser2, await ApiClientHelper.GetBalance(apiClientUser2, account2Id));
 
         // Настройка параллельных переводов
-        var transferAmount = 10m; // Сумма одного перевода
-        var numberOfTransfers = 50; // Количество параллельных переводов
-        var fromAccountId = account1Id; // Переводим со счета user1
-        var toAccountId = account2Id;    // На счет user2
-        var tasks = new List<Task<HttpResponseMessage?>>(); // Список для хранения задач
+        const decimal transferAmount = 10m; // Сумма одного перевода
+        const int numberOfTransfers = 50; // Количество параллельных переводов
+        List<Task<HttpResponseMessage?>> tasks = []; // Список для хранения задач
 
-        var transferDto = new PerformTransferDto(fromAccountId, toAccountId, transferAmount);
+        PerformTransferDto transferDto = new(account1Id, account2Id, transferAmount);
 
         // Создаем HttpClient для выполнения переводов от имени user1
-        using var transferClient = new HttpClient();
+        using HttpClient transferClient = new();
         transferClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", 
             apiClientUser1.DefaultRequestHeaders.Authorization!.Parameter);
         transferClient.BaseAddress = _apiHttpClient.BaseAddress;
 
         // Запуск параллельных переводов
         output.WriteLine($"Запуск {numberOfTransfers} параллельных переводов по {transferAmount} RUB...");
-        var startTime = DateTime.UtcNow;
+        DateTime startTime = DateTime.UtcNow;
 
         for (int i = 0; i < numberOfTransfers; i++)
         {
             // Создаем локальную копию для захвата в замыкании
-            var clientCopy = transferClient;
-            var dtoCopy = transferDto;
-            var task = Task.Run(async () =>
+            HttpClient clientCopy = transferClient;
+            PerformTransferDto dtoCopy = transferDto;
+            Task<HttpResponseMessage?> task = Task.Run(async () =>
             {
                 try
                 {
                     // Выполняем перевод
-                    var response = await clientCopy.PostAsJsonAsync("/api/accounts/transfer", dtoCopy);
+                    HttpResponseMessage response = await clientCopy.PostAsJsonAsync("/api/accounts/transfer", dtoCopy);
                     return response; 
                 }
                 catch (Exception ex)
@@ -194,16 +192,16 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         }
 
         // Ожидание завершения всех переводов
-        var responses = await Task.WhenAll(tasks);
-        var endTime = DateTime.UtcNow;
+        HttpResponseMessage?[] responses = await Task.WhenAll(tasks);
+        DateTime endTime = DateTime.UtcNow;
         output.WriteLine($"Все переводы завершены за {endTime - startTime}");
 
         // Анализ результатов
-        var successfulTransfers = 0;
-        var failedTransfers = 0;
-        var concurrencyConflicts = 0; // Счетчик конфликтов оптимистичной блокировки
+        int successfulTransfers = 0;
+        int failedTransfers = 0;
+        int concurrencyConflicts = 0; // Счетчик конфликтов оптимистичной блокировки
 
-        foreach (var response in responses)
+        foreach (HttpResponseMessage? response in responses)
         {
             if (response == null)
             {
@@ -219,7 +217,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             else
             {
                 failedTransfers++;
-                var content = await response.Content.ReadAsStringAsync();
+                string content = await response.Content.ReadAsStringAsync();
                 output?.WriteLine($"Неуспешный перевод. Статус: {response.StatusCode}, Content: {content}");
 
                 // Проверим, была ли ошибка связана с оптимистичной блокировкой
@@ -234,10 +232,10 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         output?.WriteLine($"Неуспешных переводов: {failedTransfers} (из них конфликтов: {concurrencyConflicts})");
 
         // Проверка суммарного баланса
-        var finalBalanceUser1 = await clientHelper.GetBalance(apiClientUser1, account1Id);
-        var finalBalanceUser2 = await clientHelper.GetBalance(apiClientUser2, account2Id);
+        decimal finalBalanceUser1 = await ApiClientHelper.GetBalance(apiClientUser1, account1Id);
+        decimal finalBalanceUser2 = await ApiClientHelper.GetBalance(apiClientUser2, account2Id);
 
-        var totalFinalBalance = finalBalanceUser1 + finalBalanceUser2;
+        decimal totalFinalBalance = finalBalanceUser1 + finalBalanceUser2;
 
         output?.WriteLine($"Начальный суммарный баланс: {totalInitialBalance} RUB");
         output?.WriteLine($"Финальный суммарный баланс: {totalFinalBalance} RUB");
@@ -263,15 +261,15 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         /// </summary>
         internal async Task<HttpClient> AuthorizeApiHttpClient(string username, string password)
         {
-            var userRegisterData = new RegisterData { Username = username, Password = password };
-            var userLoginData = new LoginData { Username = username, Password = password };
+            RegisterData userRegisterData = new() { Username = username, Password = password };
+            LoginData userLoginData = new() { Username = username, Password = password };
             await identityHttpClient.PostAsJsonAsync("/api/auth/register", userRegisterData);
-            var userLoginResponse = await identityHttpClient.PostAsJsonAsync("/api/auth/login", userLoginData);
+            HttpResponseMessage userLoginResponse = await identityHttpClient.PostAsJsonAsync("/api/auth/login", userLoginData);
             userLoginResponse.EnsureSuccessStatusCode();
-            var userTokenResponse = await userLoginResponse.Content.ReadAsStringAsync();
-            var userToken = userTokenResponse ?? throw new InvalidOperationException($"Не удалось получить токен для {username}");
+            string? userTokenResponse = await userLoginResponse.Content.ReadAsStringAsync();
+            string userToken = userTokenResponse ?? throw new InvalidOperationException($"Не удалось получить токен для {username}");
             
-            var apiClientUser1 = new HttpClient();
+            HttpClient apiClientUser1 = new();
             apiClientUser1.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
             apiClientUser1.BaseAddress = apiHttpClient.BaseAddress; // Используем адрес BankAccountsAPI
 
@@ -281,13 +279,13 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         /// <summary>
         /// Создает счет для определенного пользователя
         /// </summary>
-        internal async Task<int> CreateAccount(HttpClient apiClientUser)
+        internal static async Task<int> CreateAccount(HttpClient apiClientUser)
         {
-            var createAccountDto1 = new CreateAccountDto (AccountType.Checking, Currencies.Rub, 0);
-            var createAccountResponse1 = await apiClientUser.PostAsJsonAsync("/api/accounts", createAccountDto1);
+            CreateAccountDto createAccountDto1 = new(AccountType.Checking, Currencies.Rub, 0);
+            HttpResponseMessage createAccountResponse1 = await apiClientUser.PostAsJsonAsync("/api/accounts", createAccountDto1);
             createAccountResponse1.EnsureSuccessStatusCode();
-            var account1Result = await createAccountResponse1.Content.ReadFromJsonAsync<MbResult<AccountDto>>(GetJsonSerializerOptions());
-            var account1Id = account1Result?.Value?.AccountId ?? throw new InvalidOperationException($"Не удалось создать счет для {apiClientUser}");
+            MbResult<AccountDto>? account1Result = await createAccountResponse1.Content.ReadFromJsonAsync<MbResult<AccountDto>>(GetJsonSerializerOptions());
+            int account1Id = account1Result?.Value?.AccountId ?? throw new InvalidOperationException($"Не удалось создать счет для {apiClientUser}");
             return account1Id;
         }
         /// <summary>
@@ -296,11 +294,11 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         /// <param name="apiClientUser"></param>
         /// <param name="accountId"></param>
         /// <returns>Баланс счета</returns>
-        internal async Task<decimal> GetBalance(HttpClient apiClientUser, int accountId)
+        internal static async Task<decimal> GetBalance(HttpClient apiClientUser, int accountId)
         {
-            var account1DetailsResponse = await apiClientUser.GetAsync($"/api/accounts/{accountId}");
+            HttpResponseMessage account1DetailsResponse = await apiClientUser.GetAsync($"/api/accounts/{accountId}");
             account1DetailsResponse.EnsureSuccessStatusCode();
-            var account1Details = await account1DetailsResponse.Content.ReadFromJsonAsync<MbResult<AccountDto>>(GetJsonSerializerOptions());
+            MbResult<AccountDto>? account1Details = await account1DetailsResponse.Content.ReadFromJsonAsync<MbResult<AccountDto>>(GetJsonSerializerOptions());
             return account1Details!.Value!.Balance;
         }
         public void Dispose()
@@ -312,7 +310,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
     
     private static JsonSerializerOptions GetJsonSerializerOptions()
     {
-        var options = new JsonSerializerOptions
+        JsonSerializerOptions options = new()
         {
             PropertyNameCaseInsensitive = true
         };

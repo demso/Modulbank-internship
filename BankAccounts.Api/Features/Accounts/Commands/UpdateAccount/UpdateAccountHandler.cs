@@ -18,7 +18,7 @@ namespace BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
         /// <exception cref="Exception"></exception>>
         public override async Task<Unit> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
+            Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
             if (account.CloseDate == null && request.InterestRate.HasValue)
                 account.InterestRate = request.InterestRate.Value;

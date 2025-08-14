@@ -9,7 +9,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddDbContext<AuthDbContext>()
@@ -70,7 +70,7 @@ builder.Services.AddCors(options => options.AddPolicy("AllowAll", policy =>
 }));
 
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI(config =>

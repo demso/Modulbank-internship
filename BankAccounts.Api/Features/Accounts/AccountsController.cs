@@ -40,9 +40,9 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     public async Task<MbResult<AccountDto>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
     {
-        var command = mapper.Map<CreateAccountCommand>(createAccountDto);
+        CreateAccountCommand? command = mapper.Map<CreateAccountCommand>(createAccountDto);
         command.OwnerId = GetUserGuid();
-        var result = await mediator.Send(command);
+        AccountDto result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
     }
 
@@ -64,8 +64,8 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<List<AccountDto>>> GetAllAccounts()
     {
-        var query = new GetAllAccountsForUserQuery(GetUserGuid());
-        var accountList = await mediator.Send(query);
+        GetAllAccountsForUserQuery query = new(GetUserGuid());
+        List<AccountDto> accountList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, accountList);
     }
 
@@ -89,8 +89,8 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<AccountDto>> GetAccount(int accountId)
     {
-        var query = new GetAccountQuery(GetUserGuid(), accountId);
-        var account = await mediator.Send(query);
+        GetAccountQuery query = new(GetUserGuid(), accountId);
+        AccountDto account = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, account);
     }
 
@@ -117,7 +117,7 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult> UpdateAccount(int accountId, [FromQuery] decimal? interestRate, [FromQuery] bool close)
     {
-        var command = new UpdateAccountCommand(GetUserGuid(), accountId, interestRate, close);
+        UpdateAccountCommand command = new(GetUserGuid(), accountId, interestRate, close);
         await mediator.Send(command);
         return Success(StatusCodes.Status204NoContent);
     }
@@ -146,9 +146,9 @@ public class AccountsController(IMapper mapper, IMediator mediator) : CustomCont
     public async Task<MbResult<BankStatement>> GetStatementForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetBankStatementQuery(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!,
+        GetBankStatementQuery query = new(GetUserGuid(), User.FindFirst(ClaimTypes.Name)?.Value!,
             accountId, fromDate, toDate);
-        var bankStatement = await mediator.Send(query);
+        BankStatement bankStatement = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, bankStatement);
     }
 }

@@ -44,10 +44,10 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     public async Task<MbResult<TransactionDto>> PerformTransaction(int accountId,
         [FromBody] PerformTransactionDto performTransactionDto)
     {
-        var command = mapper.Map<PerformTransactionCommand>(performTransactionDto);
+        PerformTransactionCommand? command = mapper.Map<PerformTransactionCommand>(performTransactionDto);
         command.OwnerId = GetUserGuid();
         command.AccountId = accountId;
-        var result = await mediator.Send(command);
+        TransactionDto result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
     }
 
@@ -71,9 +71,9 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<TransactionDto>> PerformTransfer([FromBody] PerformTransferDto performTransferDto)
     {
-        var command = mapper.Map<PerformTransferCommand>(performTransferDto);
+        PerformTransferCommand? command = mapper.Map<PerformTransferCommand>(performTransferDto);
         command.OwnerId = GetUserGuid();
-        var result = await mediator.Send(command);
+        TransactionDto result = await mediator.Send(command);
         return Success(StatusCodes.Status201Created, result);
     }
 
@@ -101,8 +101,8 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     public async Task<MbResult<List<TransactionDto>>> GetTransactionsForAccount(int accountId,
         [FromQuery] DateOnly? fromDate, DateOnly? toDate)
     {
-        var query = new GetTransactionsForAccountQuery(GetUserGuid(), accountId, fromDate, toDate);
-        var transactionList = await mediator.Send(query);
+        GetTransactionsForAccountQuery query = new(GetUserGuid(), accountId, fromDate, toDate);
+        List<TransactionDto> transactionList = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, transactionList);
     }
 
@@ -126,8 +126,8 @@ public class TransactionsController(IMapper mapper, IMediator mediator) : Custom
     [ProducesResponseType(typeof(MbResult), StatusCodes.Status404NotFound)]
     public async Task<MbResult<TransactionDto>> GetTransaction(Guid transactionId)
     {
-        var query = new GetTransactionQuery(GetUserGuid(), transactionId);
-        var transaction = await mediator.Send(query);
+        GetTransactionQuery query = new(GetUserGuid(), transactionId);
+        TransactionDto transaction = await mediator.Send(query);
         return Success(StatusCodes.Status200OK, transaction);
     }
 }

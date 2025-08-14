@@ -35,7 +35,7 @@ public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext) : IAccoun
     /// <inheritdoc />
     public async Task<List<Account>> GetByFilterAsync(Guid ownerId, CancellationToken cancellationToken)
     {
-        var query = dbContext.Accounts
+        IQueryable<Account> query = dbContext.Accounts
             .Where(a => a.OwnerId == ownerId);
 
         return await query.ToListAsync(cancellationToken);

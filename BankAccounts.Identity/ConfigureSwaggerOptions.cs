@@ -20,12 +20,12 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
             Version = "v1"
         });
 
-        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         options.IncludeXmlComments(xmlPath);
 
         options.CustomOperationIds(apiDescription =>
-            apiDescription.TryGetMethodInfo(out var methodInfo)
+            apiDescription.TryGetMethodInfo(out MethodInfo? methodInfo)
                 ? methodInfo.Name
                 : null);
     }
