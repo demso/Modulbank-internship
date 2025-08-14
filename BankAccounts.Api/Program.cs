@@ -5,6 +5,7 @@ using BankAccounts.Api.Infrastructure;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Database.Migrator;
+using BankAccounts.Api.Infrastructure.Extensions;
 using BankAccounts.Api.Infrastructure.Hangfire;
 using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
@@ -29,82 +30,13 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 IServiceCollection services = builder.Services;
 
-// Common services
 services
-    .AddDbContext<BankAccountsDbContext>(optionsBuilder => 
-        optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString(nameof(BankAccountsDbContext)), options =>
-        {
-            options.MapEnum<Currencies>();
-            options.MapEnum<TransactionType>();
-            options.MapEnum<AccountType>();
-        })
-    )
-    .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
-    .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
-    .AddScoped<IBankAccountsDbContext>(provider => provider.GetRequiredService<BankAccountsDbContext>())
-    .AddScoped<IAccountsRepositoryAsync, AccountsRepositoryAsync>()
-    .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
-    .AddSingleton<ICurrencyService, CurrencyService>()
-    .AddAutoMapper(options => options.AddMaps(Assembly.GetExecutingAssembly()))
-    .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
-    .AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        KeyValuePair<string, ModelStateEntry?> error = context.ModelState
-            .First(x => x.Value?.Errors.Count > 0);
-
-        MbResult<object?> result = MbResult.Failure((int)HttpStatusCode.BadRequest, $"Validation error: {error.Value?.Errors[0].ErrorMessage} {error.Value?.Errors[0].Exception?.Message}");
-
-        return new ObjectResult(result);
-    };
-});
-
-// Cors
-services.AddCors(options => options.AddPolicy("AllowAll", policy =>
-{
-    policy.AllowAnyHeader();
-    policy.AllowAnyMethod();
-    policy.AllowAnyOrigin();
-}));
-
-// Authentication
-services.AddAuthentication(config =>
-    {
-        config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.Authority = "http://localhost:7045";
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-            )
-        };
-    });
-
-// Hangfire
-services.AddHangfire(config => config.UseInMemoryStorage())
-    .AddHangfireServer()
-    .AddHostedService<JobsRegistrator>();
-
-// Swagger
-services
-    .AddEndpointsApiExplorer()
-    .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
-    .AddSwaggerGen();
+    .AddCommonServices(builder.Configuration)
+    .SetupApiBehavior()
+    .SetupCors()
+    .SetupAuthentication(builder.Configuration)
+    .SetupHangfire(builder.Configuration)
+    .SetupSwagger();
 
 WebApplication app = builder.Build();
 
