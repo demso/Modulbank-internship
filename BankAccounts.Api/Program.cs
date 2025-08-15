@@ -3,45 +3,70 @@ using BankAccounts.Api.Infrastructure.Extensions;
 using BankAccounts.Api.Infrastructure.Hangfire;
 using BankAccounts.Api.Middleware;
 using Hangfire;
+using Serilog;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-IServiceCollection services = builder.Services;
+Log.Information("Starting up!");
 
-services
-    .AddCommonServices(builder.Configuration)
-    .SetupApiBehavior()
-    .SetupCors()
-    .SetupAuthentication(builder.Configuration)
-    .SetupHangfire(builder.Configuration)
-    .SetupSwagger()
-    .SetupRabbitMq();
+try
+{ 
+    WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-WebApplication app = builder.Build();
+    IServiceCollection services = builder.Services;
+    IConfiguration configuration = builder.Configuration;
 
-await app.MigrateDatabase();
+    services
+        .SetupSerilog(configuration)
+        .AddCommonServices(configuration)
+        .SetupApiBehavior()
+        .SetupCors()
+        .SetupAuthentication(configuration)
+        .SetupHangfire(configuration)
+        .SetupSwagger()
+        .SetupRabbitMq();
 
-app.UseStaticFiles();
+    WebApplication app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(config =>
+    await app.MigrateDatabase();
+
+    app.UseStaticFiles();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(config =>
+    {
+        config.InjectStylesheet("swagger-ui/custom.css");
+        config.RoutePrefix = string.Empty;
+        config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts API");
+    });
+
+    app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+    app.UseRouting();
+    app.UseCors("AllowAll");
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = [new HangfireAuthorizationFilter()]
+    });
+
+    await app.RunAsync();
+
+    Log.Information("Stopped cleanly");
+    return 0;
+}
+catch (Exception ex)
 {
-    config.InjectStylesheet("swagger-ui/custom.css");
-    config.RoutePrefix = string.Empty;
-    config.SwaggerEndpoint("swagger/v1/swagger.json", "BankAccounts API");
-});
-
-app.UseMiddleware<CustomExceptionHandlerMiddleware>();
-app.UseRouting();
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    Log.Fatal(ex, "An unhandled exception occurred during bootstrapping");
+    return 1;
+}
+finally
 {
-    Authorization = [new HangfireAuthorizationFilter()]
-});
+    Log.CloseAndFlush();
+}
 
-app.Run();
 

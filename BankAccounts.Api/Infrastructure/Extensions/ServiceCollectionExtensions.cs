@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Templates;
+using Serilog.Templates.Themes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
@@ -63,7 +66,6 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
                 .AddControllers()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-           
             
             return services;
         }
@@ -182,6 +184,26 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         {
             services.AddScoped<Sender>();
             services.AddHostedService<Reciever>();
+            return services;
+        }
+
+        /// <summary>
+        /// Добавит и настроит Serilog
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
+        public static IServiceCollection SetupSerilog(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSerilog((servicess, lc) => lc
+                .ReadFrom.Configuration(configuration)
+                .ReadFrom.Services(servicess)
+                .Enrich.FromLogContext()
+                .WriteTo.Console(new ExpressionTemplate(
+                    // Include trace and span ids when present.
+                    "[{@t:HH:mm:ss} {@l:u3}{#if @tr is not null} ({substring(@tr,0,4)}:{substring(@sp,0,4)}){#end}] {@m}\n{@x}",
+                    theme: TemplateTheme.Code)));
+
             return services;
         }
     }
