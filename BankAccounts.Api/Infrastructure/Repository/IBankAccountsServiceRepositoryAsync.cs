@@ -1,4 +1,7 @@
-﻿namespace BankAccounts.Api.Infrastructure.Repository;
+﻿using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+
+namespace BankAccounts.Api.Infrastructure.Repository;
 
 /// <summary>
 /// Базовый интерфейс для репозиториев сервиса банковских счетов.

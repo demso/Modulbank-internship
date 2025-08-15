@@ -1,4 +1,5 @@
 ﻿using BankAccounts.Api.Infrastructure.Hangfire.Jobs;
+using BankAccounts.Api.Infrastructure.RabbitMQ;
 using Hangfire;
 
 namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
@@ -6,11 +7,12 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 /// <summary>
 /// Конкретный класс для регистрации ежедневного начисления процентов.
 /// </summary>
-public class JobsRegistrator : AbstractJobsRegistrator
+public class JobsRegistrator(IServiceProvider services) : AbstractJobsRegistrator
 {
     /// <inheritdoc />
     protected override void AddJobs()
     {
         RecurringJob.AddOrUpdate<AccrueInterestJob>("accrueInterest", obj => obj.Job(), Cron.Daily);
+        RecurringJob.AddOrUpdate<Sender>("send_events", obj => obj.Job(), Cron.Minutely);
     }
 }

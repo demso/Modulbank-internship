@@ -1,30 +1,8 @@
-using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Features.Transactions;
-using BankAccounts.Api.Infrastructure;
-using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Database.Migrator;
 using BankAccounts.Api.Infrastructure.Extensions;
 using BankAccounts.Api.Infrastructure.Hangfire;
-using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
-using BankAccounts.Api.Infrastructure.Repository.Accounts;
-using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using BankAccounts.Api.Middleware;
-using FluentValidation;
 using Hangfire;
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +14,8 @@ services
     .SetupCors()
     .SetupAuthentication(builder.Configuration)
     .SetupHangfire(builder.Configuration)
-    .SetupSwagger();
+    .SetupSwagger()
+    .SetupRabbitMq();
 
 WebApplication app = builder.Build();
 

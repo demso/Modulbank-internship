@@ -4,6 +4,7 @@ using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BankAccounts.Tests.Unit.Repositories;
 
@@ -25,7 +26,7 @@ public class AccountsRepositoryTests : IDisposable
 
         _context = new BankAccountsDbContext(options);
         _context.Database.EnsureCreated();
-        _repository = new AccountsRepositoryAsync(_context);
+        _repository = new AccountsRepositoryAsync(_context, new LoggerFactory().CreateLogger<AccountsRepositoryAsync>());
     }
 
     /// <summary>
@@ -46,7 +47,7 @@ public class AccountsRepositoryTests : IDisposable
         };
 
         // Act
-        Account addedAccount = await _repository.AddAsync(account.OwnerId, account.AccountType, account.Currency, account.InterestRate, CancellationToken.None);
+        Account addedAccount = await _repository.AddAsync(account.OwnerId, account.AccountType, account.Currency, account.InterestRate, Guid.AllBitsSet,  CancellationToken.None);
         Account? accountFromDb = await _context.Accounts.FindAsync(addedAccount.AccountId);
         
         // Assert

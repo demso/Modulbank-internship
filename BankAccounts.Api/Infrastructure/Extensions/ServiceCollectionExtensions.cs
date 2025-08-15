@@ -3,7 +3,9 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
+using BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
+using BankAccounts.Api.Infrastructure.RabbitMQ;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
@@ -20,6 +22,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace BankAccounts.Api.Infrastructure.Extensions
@@ -29,6 +32,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        public static JsonSerializerOptions JsonOptions = new();
         /// <summary>
         /// Добавит компоненты, не требующие сложной настройки
         /// </summary>
@@ -38,6 +42,8 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         public static IServiceCollection AddCommonServices(this IServiceCollection services,
             IConfiguration configuration)
         {
+            JsonOptions.Converters.Add(new JsonStringEnumConverter());
+            
             services
                 .AddDbContext<BankAccountsDbContext>(optionsBuilder => 
                     optionsBuilder.UseNpgsql(configuration.GetConnectionString(nameof(BankAccountsDbContext)), options =>
@@ -57,12 +63,13 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
                 .AddControllers()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+           
             
             return services;
         }
 
         /// <summary>
-        /// Добавит и настроит обработчик ModelState ошибок, чтоб возвращал MbResult
+        /// Добавит и настроит обработчик ModelState ошибок, чтоб возвращал <see cref="MbResult"/>
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
@@ -83,6 +90,11 @@ namespace BankAccounts.Api.Infrastructure.Extensions
             return services;
         }
 
+        /// <summary>
+        /// Настроит Cors
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection SetupCors(this IServiceCollection services)
         {
             services.AddCors(options => options.AddPolicy("AllowAll", policy =>
@@ -158,6 +170,18 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
                 .AddSwaggerGen();
 
+            return services;
+        }
+
+        /// <summary>
+        /// Добавит и настроит необходимые компоненты RabbitMQ
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection SetupRabbitMq(this IServiceCollection services)
+        {
+            services.AddScoped<Sender>();
+            services.AddHostedService<Reciever>();
             return services;
         }
     }

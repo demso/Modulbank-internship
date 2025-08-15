@@ -50,7 +50,7 @@ public class CreateAccountHandlerTests
         };
         
         _mockRepository.Setup(r => r.AddAsync(account.OwnerId, account.AccountType, account.Currency, 
-                account.InterestRate, CancellationToken.None))
+                account.InterestRate, Guid.AllBitsSet, CancellationToken.None))
             .ReturnsAsync(account); 
         
         _mockMapper.Setup(m => m.Map<AccountDto>(account))
@@ -70,7 +70,7 @@ public class CreateAccountHandlerTests
        Assert.Equal(result.OpenDate, account.OpenDate);
        Assert.Equal(result.CloseDate, account.CloseDate);
        _mockRepository.Verify(r => r.AddAsync(account.OwnerId, account.AccountType, account.Currency,
-           account.InterestRate, CancellationToken.None), Times.Once);
+           account.InterestRate, Guid.AllBitsSet,  CancellationToken.None), Times.Once);
        _mockMapper.Verify(m => m.Map<AccountDto>(account), Times.Once);
     }
 }

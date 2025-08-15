@@ -1,5 +1,8 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -19,6 +22,9 @@ public sealed class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext
     /// Транзакции (<see cref="Transaction"/>)
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<OutboxPublishedEntity>  OutboxPublished => Set<OutboxPublishedEntity>();
+    
+    public DbSet<InboxConsumedEntity> InboxConsumed => Set<InboxConsumedEntity>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

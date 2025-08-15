@@ -1,0 +1,37 @@
+﻿using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
+
+namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+
+public abstract class Event
+{
+    public Guid EventId { get; set; }
+    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
+    public required Metadata Metadata { get; init; }
+    
+    private static Dictionary<EventType, string> _eventMap = new Dictionary<EventType, string>()
+    {
+        {EventType.AccountOpened, "account.opened"},
+        {EventType.InterestAccrued, "money.interest.accrued"},
+        {EventType.MoneyCredited, "money.credited"},
+        {EventType.MoneyDebited, "money.debited"},
+        {EventType.TransferComplited, "transfer.completed"},
+    };
+        
+    public static string GetRoute(EventType type)
+    {
+        return _eventMap[type];
+    }
+
+    public static EventType GetEventType(Event route)
+    {
+        return route switch
+        {
+            AccountOpened => EventType.AccountOpened,
+            InterestAccrued => EventType.InterestAccrued,
+            MoneyCredited => EventType.MoneyCredited,
+            MoneyDebited => EventType.MoneyDebited,
+            TransferComplited => EventType.TransferComplited,
+            _ => throw new ArgumentOutOfRangeException(nameof(route), route, null)
+        };
+    }
+}
