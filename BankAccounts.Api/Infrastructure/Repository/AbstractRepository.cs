@@ -30,7 +30,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
             await SaveChangesAsync(cancellationToken);
         }
         
-        public async Task<TransactionScope> BeginSerializableTransactionAsync(CancellationToken cancellationToken =  default)
+        public async Task<ISimpleTransactionScope> BeginSerializableTransactionAsync(CancellationToken cancellationToken =  default)
         {
             DbConnection connection = DbContext.Database.GetDbConnection();
             bool wasClosed = connection.State == ConnectionState.Closed;
@@ -41,19 +41,25 @@ namespace BankAccounts.Api.Infrastructure.Repository
             DbTransaction transaction = await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
             await DbContext.Database.UseTransactionAsync(transaction, cancellationToken);
     
-            return new TransactionScope(transaction, DbContext, wasClosed);
+            return new SimpleTransactionScope(transaction, DbContext, wasClosed);
         }
+    }
+
+    public interface ISimpleTransactionScope : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync();
+        public Task CommitAsync(CancellationToken cancellationToken = default);
     }
     
     //await using var
-    public class TransactionScope : IAsyncDisposable
+    public class SimpleTransactionScope : ISimpleTransactionScope
     {
         public readonly DbTransaction Transaction;
         private readonly IBankAccountsDbContext _dbContext;
         private readonly bool _wasClosed;
         private bool _disposed;
 
-        internal TransactionScope(DbTransaction transaction, IBankAccountsDbContext dbContext, bool wasClosed)
+        internal SimpleTransactionScope(DbTransaction transaction, IBankAccountsDbContext dbContext, bool wasClosed)
         {
             Transaction = transaction;
             _dbContext = dbContext;
