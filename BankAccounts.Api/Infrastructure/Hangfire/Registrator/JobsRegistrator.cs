@@ -12,6 +12,6 @@ public class JobsRegistrator(IServiceProvider services) : AbstractJobsRegistrato
     protected override void AddJobs()
     {
         RecurringJob.AddOrUpdate<AccrueInterestJob>("accrueInterest", obj => obj.Job(), Cron.Daily);
-        RecurringJob.AddOrUpdate<Sender>("send_events", obj => obj.Job(), Cron.Minutely);
+        RecurringJob.AddOrUpdate<Sender>("send_events", obj => obj.Job(), "*/10 * * * * *");
     }
 }
