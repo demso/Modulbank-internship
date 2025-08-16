@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 
 namespace BankAccounts.Api.Features.Accounts.Commands.CreateAccount;

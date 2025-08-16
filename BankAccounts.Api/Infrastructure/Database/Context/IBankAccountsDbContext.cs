@@ -1,11 +1,9 @@
 ﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankAccounts.Api.Infrastructure.Database.Context;
 

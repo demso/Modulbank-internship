@@ -1,5 +1,4 @@
-﻿using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+﻿using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 
 namespace BankAccounts.Api.Infrastructure.Repository;
 
