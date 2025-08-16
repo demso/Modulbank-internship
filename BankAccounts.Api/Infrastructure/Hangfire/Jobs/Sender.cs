@@ -130,143 +130,28 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
                     {
                         await pt;
                         dbContext.OutboxPublished.Remove(entity);
+                        await dbContext.SaveChangesAsync(CancellationToken.None);
                         succedeedTasks++;
+                        LogSuccess(entity);
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"{DateTime.Now} [ERROR] saw nack or return, ex: '{ex}'");
+                        logger.LogError("Error during event publishing: '{Exception}'", ex);
                         entity.TryCount += 1;
                         dbContext.OutboxPublished.Update(entity);
+                        await dbContext.SaveChangesAsync(CancellationToken.None);
                     }
-
-                    await dbContext.SaveChangesAsync(CancellationToken.None);
                 }
                 publishTasks.Clear();
             }
             return succedeedTasks;
         }
-        
-        // private async Task<bool> RetryWithJitterAsync<T>(
-        //     Func<Task> operation,
-        //     Func<bool> condition,
-        //     int maxRetries = 10,
-        //     int baseDelayMs = 1000)
-        // {
-        //     var random = new Random();
-        //
-        //     for (int attempt = 0; attempt <= maxRetries; attempt++)
-        //     {
-        //         await operation();
-        //         
-        //         if (condition())
-        //             return true;
-        //     
-        //         // Экспоненциальная задержка с джиттером
-        //         var delay = baseDelayMs * Math.Pow(2, attempt);
-        //         var jitter = random.Next((int)(delay * 0.5), (int)(delay * 1.5));
-        //
-        //         Console.WriteLine($"Попытка {attempt + 1} не удалась. Пауза: {jitter} мс");
-        //         await Task.Delay(jitter);
-        //     }
-        //
-        //     return false;
-        // }
-        
-        private TaskCompletionSource<bool> allMessagesConfirmedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private LinkedList<ulong> outstandingConfirms = new LinkedList<ulong>();
-        private SemaphoreSlim semaphore = new(1, 1);
-        int confirmedCount = 0;
-        bool debug = true;
-        
-        async Task HandlePublishConfirmsAsynchronously()
+
+        private void LogSuccess(OutboxPublishedEntity entity)
         {
-            Console.WriteLine($"{DateTime.Now} [INFO] publishing {MESSAGE_COUNT:N0} messages and handling confirms asynchronously");
-            
-            // declare a server-named queue
-            QueueDeclareOk queueDeclareResult = await channel.QueueDeclareAsync();
-            string queueName = queueDeclareResult.QueueName;
-        
-            channel.BasicReturnAsync += (sender, ea) =>
-            {
-                ulong sequenceNumber = 0;
-        
-                IReadOnlyBasicProperties props = ea.BasicProperties;
-                if (props.Headers is not null)
-                {
-                    object? maybeSeqNum = props.Headers[Constants.PublishSequenceNumberHeader];
-                    if (maybeSeqNum is not null)
-                    {
-                        sequenceNumber = BinaryPrimitives.ReadUInt64BigEndian((byte[])maybeSeqNum);
-                    }
-                }
-        
-                Console.WriteLine($"{DateTime.Now} [WARNING] message sequence number {sequenceNumber} has been basic.return-ed");
-                return CleanOutstandingConfirms(sequenceNumber, false);
-            };
-            channel.BasicAcksAsync += (sender, ea) => CleanOutstandingConfirms(ea.DeliveryTag, ea.Multiple);
-            channel.BasicNacksAsync += (sender, ea) =>
-            {
-                Console.WriteLine($"{DateTime.Now} [WARNING] message sequence number: {ea.DeliveryTag} has been nacked (multiple: {ea.Multiple})");
-                return CleanOutstandingConfirms(ea.DeliveryTag, ea.Multiple);
-            };
-        
-            var sw = new Stopwatch();
-            sw.Start();
-        
-            var publishTasks = new List<ValueTuple<ulong, ValueTask>>();
-            for (int i = 0; i < MESSAGE_COUNT; i++)
-            {
-                string msg = i.ToString();
-                byte[] body = Encoding.UTF8.GetBytes(msg);
-                ulong nextPublishSeqNo = await channel.GetNextPublishSequenceNumberAsync();
-                if ((ulong)(i + 1) != nextPublishSeqNo)
-                {
-                    Console.WriteLine($"{DateTime.Now} [WARNING] i {i + 1} does not equal next sequence number: {nextPublishSeqNo}");
-                }
-                await semaphore.WaitAsync();
-                try
-                {
-                    outstandingConfirms.AddLast(nextPublishSeqNo);
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-                
-                (ulong, ValueTask) data =
-                    (nextPublishSeqNo, channel.BasicPublishAsync(exchange: string.Empty, routingKey: queueName, body: body, mandatory: true, basicProperties: props));
-                publishTasks.Add(data);
-            }
-        
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-            // await Task.WhenAll(publishTasks).WaitAsync(cts.Token);
-            foreach ((ulong SeqNo, ValueTask PublishTask) datum in publishTasks)
-            {
-                try
-                {
-                    await datum.PublishTask;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"{DateTime.Now} [ERROR] saw nack, seqNo: '{datum.SeqNo}', ex: '{ex}'");
-                }
-            }
-        
-            try
-            {
-                await allMessagesConfirmedTcs.Task.WaitAsync(cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                Console.Error.WriteLine("{0} [ERROR] all messages could not be published and confirmed within 10 seconds", DateTime.Now);
-            }
-            catch (TimeoutException)
-            {
-                Console.Error.WriteLine("{0} [ERROR] all messages could not be published and confirmed within 10 seconds", DateTime.Now);
-            }
-        
-            sw.Stop();
-            Console.WriteLine($"{DateTime.Now} [INFO] published {MESSAGE_COUNT:N0} messages and handled confirm asynchronously {sw.ElapsedMilliseconds:N0} ms");
+            logger.LogInformation("Successfully published event: id = {id}, type = {type}, " +
+                                  "correlationId = {correlationId}, retry = {retry}, latency = {latency}", entity.EventId, 
+                entity.EventType.ToString(), entity.CorrelationId, entity.TryCount, DateTime.UtcNow - entity.Created); // eventId, type, correlationId, retry, latency
         }
         
         
