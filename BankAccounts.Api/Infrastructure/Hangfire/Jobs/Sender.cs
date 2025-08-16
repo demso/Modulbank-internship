@@ -21,7 +21,8 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         private const string ExchangeName = Receiver.ExchangeName;
         BasicProperties props = new()
         {
-            Persistent = true
+            Persistent = true,
+            Headers = new Dictionary<string, object?>()
         };
         
         public async Task Init()
@@ -101,7 +102,9 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             {
                 string message = entity.Message;
                 var body = Encoding.UTF8.GetBytes(message);
-                
+                props.Headers!["type"] = entity.EventType.ToString();
+                props.Headers["x-correlation-id"] = entity.CorrelationId.ToString();
+                props.Headers["x-causation-id"] = entity.CausationId.ToString();
                 ValueTask publishTask = channel!.BasicPublishAsync(exchange: ExchangeName, routingKey: Event.GetRoute(entity.EventType), 
                     body: body, basicProperties: props, mandatory: false);
                 publishTasks.Add((entity, publishTask));
