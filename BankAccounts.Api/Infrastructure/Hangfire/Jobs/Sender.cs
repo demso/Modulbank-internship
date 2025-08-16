@@ -1,5 +1,4 @@
 ﻿using BankAccounts.Api.Infrastructure.Database.Context;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,7 @@ using System.Text;
 namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
 {
     // Рекомендуется использовать Retry с экспоненциальной паузой и джиттером; при достижении MAX_RETRIES — статус dead‑letter, алерт в логах.
-    public class Sender(ILogger<Sender> logger, IBankAccountsDbContext dbContext)
+    public class Sender(ILogger<Sender> logger, IBankAccountsDbContext dbContext, IConfiguration configuration)
     {
         const ushort MAX_OUTSTANDING_CONFIRMS = 256;
         int MESSAGE_COUNT = 1000;
@@ -55,11 +54,10 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<ValueTask> publishTasks = new List<ValueTask>();
+            List<(OutboxPublishedEntity, ValueTask)> publishTasks = new();
             //var successfulGuids = new List<Guid>();
 
             List<OutboxPublishedEntity> entities = await dbContext.OutboxPublished.ToListAsync();
-            int entitiesCount = entities.Count;
             
             int publishedCount = await Send(publishTasks, entities);
 
@@ -69,7 +67,8 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             //             () => publishTasks.Count == 0))
             // {
                  sw.Stop();
-                 logger.LogInformation($"Published {publishedCount} messages (should {entitiesCount}) in batch in {sw.ElapsedMilliseconds:N0} ms");
+                 var count = (await dbContext.OutboxPublished.CountAsync());
+                 logger.LogInformation($"Published {publishedCount} messages (failed and queued for retry: {count}) in batch in {sw.ElapsedMilliseconds:N0} ms");
             // }
             // else if (publishTasks.Count != 0)
             // {
@@ -78,21 +77,19 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             // }
         }
 
-        private async Task<int> Send(List<ValueTask> publishTasks, List<OutboxPublishedEntity> entities)
+        private async Task<int> Send(List<(OutboxPublishedEntity, ValueTask)> publishTasks, List<OutboxPublishedEntity> entities)
         {
             int batchSize = Math.Max(1, MAX_OUTSTANDING_CONFIRMS / 2);
             int succededPublishes = 0;
             
             foreach (OutboxPublishedEntity entity in entities)
             {
-                //object serviceEvent = GetEventFromJson(entity);
-                //((Event)serviceEvent).EventId = entity.Id;
                 string message = entity.Message;
                 var body = Encoding.UTF8.GetBytes(message);
                 
-                ValueTask publishTask = channel!.BasicPublishAsync(exchange: ExchangeName, routingKey: Event.GetRoute(EventType.AccountOpened), 
+                ValueTask publishTask = channel!.BasicPublishAsync(exchange: ExchangeName, routingKey: Event.GetRoute(entity.EventType), 
                     body: body, basicProperties: props, mandatory: false);
-                publishTasks.Add(publishTask);
+                publishTasks.Add((entity, publishTask));
                 
                 succededPublishes += await MaybeAwaitPublishes(publishTasks, batchSize, logger);
             }
@@ -104,23 +101,27 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             return succededPublishes;
         }
         
-        static async Task<int> MaybeAwaitPublishes(List<ValueTask> publishTasks, int batchSize, ILogger logger)
+        async Task<int> MaybeAwaitPublishes(List<(OutboxPublishedEntity, ValueTask)> publishTasks, int batchSize, ILogger logger)
         {
             int succedeedTasks = 0;
             if (publishTasks.Count >= batchSize)
             {
-                foreach (ValueTask pt in publishTasks)
+                foreach ((OutboxPublishedEntity entity, ValueTask pt)  in publishTasks)
                 {
                     try
                     {
                         await pt;
+                        dbContext.OutboxPublished.Remove(entity);
                         succedeedTasks++;
                     }
                     catch (Exception ex)
                     {
-                        
                         logger.LogError($"{DateTime.Now} [ERROR] saw nack or return, ex: '{ex}'");
+                        entity.TryCount += 1;
+                        dbContext.OutboxPublished.Update(entity);
                     }
+
+                    await dbContext.SaveChangesAsync(CancellationToken.None);
                 }
                 publishTasks.Clear();
             }
