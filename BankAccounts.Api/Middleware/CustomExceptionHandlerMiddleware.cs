@@ -110,7 +110,7 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
 
     private static void AddToMessage(Exception ex, int count, ref string message, bool logStackTrace = true)
     {
-        message += $"\n({count}) {ex.GetType().Name}: {ex.Message} " + 
+        message += $"({count}) {ex.GetType().Name}: {ex.Message} " + 
             (logStackTrace ? $"\n{ex.StackTrace}" : string.Empty);
     }
 }
