@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Testcontainers.PostgreSql;
+using Testcontainers.RabbitMq;
 using Xunit.Abstractions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -28,6 +29,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
     private PostgreSqlContainer _bankAccountsDbContainer = null!;
     private IContainer _identityServiceContainer = null!; 
     private IContainer _bankAccountsApiContainer = null!; 
+    private RabbitMqContainer _rabbitMqContainer = null!;
     private HttpClient _apiHttpClient = null!;
     private HttpClient _identityHttpClient = null!;
 
@@ -43,33 +45,49 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         _bankAccountsDbContainer = new PostgreSqlBuilder()
             .WithNetwork(_network) 
             .WithNetworkAliases("bankaccounts.db")
-            .WithName("bankaccounts_db_test")
+            .WithName("bankaccounts_db_test" + Random.Shared.NextInt64())
             .WithDatabase("bank-accounts-db")
             .WithUsername("postgres")
             .WithPassword("password")
             .WithPortBinding(5432, true)
-            .WithImage("lithiumkgp/postgres:latest")
+            .WithImage("lithiumkgp/postgres")
+            .WithCleanUp(true)
             .Build();
         await _bankAccountsDbContainer.StartAsync();
+        
+        _rabbitMqContainer = new RabbitMqBuilder()
+            .WithNetwork(_network) 
+            .WithImage("rabbitmq:4-management")
+            .WithName("rabbitmq_test" + Random.Shared.NextInt64())
+            .WithUsername("admin")
+            .WithPassword("admin")
+            .WithHostname("rabbitmq")
+            .WithPortBinding(5672, true)
+            .WithPortBinding(15672, true) 
+            .WithCleanUp(true)
+            .Build();
+        await _rabbitMqContainer.StartAsync();
         
         // Запуск контейнеров сервисов (предполагается, что образы собраны и доступны)
         _identityServiceContainer = new ContainerBuilder()
             .WithNetwork(_network) 
-            .WithName("bankaccounts_identity_test")
+            .WithName("bankaccounts_identity_test" + Random.Shared.NextInt64())
             .WithImage("lithiumkgp/bankaccounts.identity:latest")
             .WithPortBinding(7045, true)
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(7045))
+            .WithCleanUp(true)
             .Build();
         await _identityServiceContainer.StartAsync();
 
         _bankAccountsApiContainer = new ContainerBuilder()
             .WithNetwork(_network) 
-            .WithName("bankaccounts_api_test")
+            .WithName("bankaccounts_api_test" + Random.Shared.NextInt64())
             .WithImage("lithiumkgp/bankaccounts.api:latest") 
             .WithPortBinding(80, true)
             .WithEnvironment("ConnectionStrings__BankAccountsDbContext", DbConnectionString)
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80))
             .DependsOn(_bankAccountsDbContainer)
+            .DependsOn(_rabbitMqContainer)
+            .WithCleanUp(true)
             .Build();
         await _bankAccountsApiContainer.StartAsync();
 
