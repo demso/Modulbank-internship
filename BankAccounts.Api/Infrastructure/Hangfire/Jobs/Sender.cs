@@ -1,10 +1,10 @@
 ﻿using BankAccounts.Api.Infrastructure.Database.Context;
+using BankAccounts.Api.Infrastructure.RabbitMQ;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
-using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Text;
 
@@ -42,24 +42,6 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
                 prefetchCount: 1,
                 global: false
             );
-            
-            await channel.ExchangeDeclareAsync(exchange: ExchangeName, type: ExchangeType.Topic);
-            await SetupQueues();
-        }
-
-        /// <summary>
-        /// Создаст очереди принимающие события по типам для наглядного представления отправленных сообщений
-        /// </summary>
-        private async Task SetupQueues()
-        {
-            foreach (EventType type in Enum.GetValues<EventType>())
-            {
-                if (type is EventType.ClientBlocked or EventType.ClientUnblocked)
-                    continue;
-                
-                await channel!.QueueDeclareAsync(queue: $"test_{type.ToString()}", false, false);
-                await channel!.QueueBindAsync($"test_{type.ToString()}", ExchangeName, Event.GetRoute(type));
-            }
         }
 
         [AutomaticRetry(Attempts = 0)]
@@ -70,27 +52,18 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<(OutboxPublishedEntity, ValueTask)> publishTasks = new();
+            List<(OutboxPublishedEntity, ValueTask)> publishTasks = [];
             //var successfulGuids = new List<Guid>();
 
             List<OutboxPublishedEntity> entities = await dbContext.OutboxPublished.ToListAsync();
             
             int publishedCount = await Send(publishTasks, entities);
 
-            // if (publishTasks.Count != 0 
-            //     && await RetryWithJitterAsync<Task>(() => 
-            //             Send(publishTasks, successfulGuids), 
-            //             () => publishTasks.Count == 0))
-            // {
-                 sw.Stop();
-                 var count = (await dbContext.OutboxPublished.CountAsync());
-                 logger.LogInformation($"Published {publishedCount} messages (failed and queued for retry: {count}) in batch in {sw.ElapsedMilliseconds:N0} ms");
-            // }
-            // else if (publishTasks.Count != 0)
-            // {
-            //     sw.Stop();
-            //     logger.LogError($"{DateTime.Now} Не удалось опубликовать {publishTasks.Count} задач. Попытки прекращаются.");
-            // }
+
+             sw.Stop();
+             int count = (await dbContext.OutboxPublished.CountAsync());
+             logger.LogInformation($"Published {publishedCount} messages (failed and queued for retry: {count}) in batch in {sw.ElapsedMilliseconds:N0} ms");
+
         }
 
         private async Task<int> Send(List<(OutboxPublishedEntity, ValueTask)> publishTasks, List<OutboxPublishedEntity> entities)
@@ -152,61 +125,6 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             logger.LogInformation("Successfully published event: id = {id}, type = {type}, " +
                                   "correlationId = {correlationId}, retry = {retry}, latency = {latency}", entity.EventId, 
                 entity.EventType.ToString(), entity.CorrelationId, entity.TryCount, DateTime.UtcNow - entity.Created); // eventId, type, correlationId, retry, latency
-        }
-        
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="deliveryTag"></param>
-        /// <param name="multiple"></param>
-        async Task CleanOutstandingConfirms(ulong deliveryTag, bool multiple)
-        {
-            if (debug)
-            {
-                Console.WriteLine("{0} [DEBUG] confirming message: {1} (multiple: {2})",
-                    DateTime.Now, deliveryTag, multiple);
-            }
-        
-            await semaphore.WaitAsync();
-            try
-            {
-                if (multiple)
-                {
-                    do
-                    {
-                        LinkedListNode<ulong>? node = outstandingConfirms.First;
-                        if (node is null)
-                        {
-                            break;
-                        }
-                        if (node.Value <= deliveryTag)
-                        {
-                            outstandingConfirms.RemoveFirst();
-                        }
-                        else
-                        {
-                            break;
-                        }
-        
-                        confirmedCount++;
-                    } while (true);
-                }
-                else
-                {
-                    confirmedCount++;
-                    outstandingConfirms.Remove(deliveryTag);
-                }
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        
-            if (outstandingConfirms.Count == 0 || confirmedCount == MESSAGE_COUNT)
-            {
-                allMessagesConfirmedTcs.SetResult(true);
-            }
         }
     }
 }
