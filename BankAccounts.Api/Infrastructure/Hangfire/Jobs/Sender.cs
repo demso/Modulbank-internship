@@ -1,6 +1,7 @@
 ﻿using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using System.Buffers.Binary;
@@ -60,6 +61,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             }
         }
 
+        [AutomaticRetry(Attempts = 0)]
         public async Task Job()
         {
             if (connection is null || connection.IsOpen == false || channel is null || channel.IsClosed == false)
