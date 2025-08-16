@@ -2,5 +2,11 @@
 
 namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity
 {
-    public record InboxConsumedEntity(Guid Id, string Message, EventType EventType);
+    public class InboxConsumedEntity
+    {
+        public Guid MessageId { get; init; }
+        public EventType EventType { get; set; }
+        public DateTime ProcessedAt { get; set; }
+        public string Handler { get; set; }
+    };
 }
