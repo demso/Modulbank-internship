@@ -1,6 +1,9 @@
-﻿using BankAccounts.Api.Infrastructure.Database.Context;
+﻿using BankAccounts.Api.Common.Exceptions;
+using BankAccounts.Api.Infrastructure.Database.Context;
+using BankAccounts.Api.Infrastructure.Repository;
+using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
 
 namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 
@@ -11,10 +14,9 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 /// <param name="logger"></param>
 /// <param name="cancellationToken"></param>
 // ReSharper disable once ClassNeverInstantiated.Global Класс используется Hangfire.
-public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, 
+public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, 
     CancellationToken cancellationToken = default) 
 {
-
     /// <summary>
     /// Фоновая задача
     /// </summary>
@@ -28,23 +30,28 @@ public class AccrueInterestJob(IBankAccountsDbContext context, ILogger<AccrueInt
             .Select(a => a.AccountId)
             .ToListAsync(cancellationToken);
 
-
-        await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        await using TransactionScope transaction = await accountsRepository.BeginSerializableTransactionAsync(cancellationToken);
+       // await using TransactionScope transaction = await accountsRepository.BeginSerializableTransactionAsync(cancellationToken);
 
         try
         {
-            foreach (int accountId in accountIds) 
-                await context.Database.ExecuteSqlRawAsync("CALL public.accrue_interest({0})", accountId);
-
+            await using NpgsqlCommand command = new("SELECT * FROM accrue_interest(@account_id)", (NpgsqlConnection) context.Database.GetDbConnection());
+            
+            foreach (int accountId in accountIds)
+            {
+                command.Parameters.AddWithValue("account_id", accountId);
+                using var reader = await command.ExecuteReaderAsync();
+                await context.Database.ExecuteSqlRawAsync("SELECT public.accrue_interest({0})", accountId);
+            }
+            
             await transaction.CommitAsync();
 
-            logger.LogInformation("Начисление процентов по счетам успешно. Количество измененных счетов: {Count}", accountIds.Count);
+            logger.LogInformation("Начисление процентов по счетам успешно. Количество измененных балансов счетов: {Count}", accountIds.Count);
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-            logger.LogError(ex, "Ошибка при начислении процентов, отмена операции ");
-            throw; 
+            const string msg = "Ошибка при начислении процентов, отмена операции ";
+            throw new AccrueInterestException(msg, ex); 
         }
     }
 }
