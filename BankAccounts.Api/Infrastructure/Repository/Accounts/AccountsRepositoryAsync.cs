@@ -1,14 +1,7 @@
-﻿using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Accounts;
+﻿using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Data.Common;
 
 namespace BankAccounts.Api.Infrastructure.Repository.Accounts;
 

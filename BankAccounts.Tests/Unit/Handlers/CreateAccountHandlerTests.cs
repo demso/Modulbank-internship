@@ -5,11 +5,9 @@ using BankAccounts.Api.Features.Accounts.Dtos;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using Moq;
-using System.Transactions;
 
 namespace BankAccounts.Tests.Unit.Handlers;
 
