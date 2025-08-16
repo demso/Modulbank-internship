@@ -6,6 +6,7 @@ using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 using BankAccounts.Api.Infrastructure.RabbitMQ;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using FluentValidation;
@@ -54,6 +55,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                         options.MapEnum<Currencies>();
                         options.MapEnum<TransactionType>();
                         options.MapEnum<AccountType>();
+                        options.MapEnum<EventType>();
                     })
                 )
                 .AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()])
