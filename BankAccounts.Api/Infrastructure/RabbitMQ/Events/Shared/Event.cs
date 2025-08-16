@@ -15,6 +15,8 @@ public abstract class Event
         {EventType.MoneyCredited, "money.credited"},
         {EventType.MoneyDebited, "money.debited"},
         {EventType.TransferCompleted, "transfer.completed"},
+        {EventType.ClientBlocked, "client.blocked"},
+        {EventType.ClientUnblocked, "client.unblocked"},
     };
         
     public static string GetRoute(EventType type)
@@ -22,16 +24,16 @@ public abstract class Event
         return _eventMap[type];
     }
 
-    public static EventType GetEventType(Event route)
+    public static EventType GetEventType(Event type)
     {
-        return route switch
+        return type switch
         {
             AccountOpened => EventType.AccountOpened,
             InterestAccrued => EventType.InterestAccrued,
             MoneyCredited => EventType.MoneyCredited,
             MoneyDebited => EventType.MoneyDebited,
             TransferCompleted => EventType.TransferCompleted,
-            _ => throw new ArgumentOutOfRangeException(nameof(route), route, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
 }
