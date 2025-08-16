@@ -34,7 +34,7 @@ public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBan
             .Select(a => a.AccountId)
             .ToListAsync(cancellationToken);
 
-        await using TransactionScope transaction = await accountsRepository.BeginSerializableTransactionAsync(cancellationToken);
+        await using ISimpleTransactionScope dbTransaction = await accountsRepository.BeginSerializableTransactionAsync(cancellationToken);
 
         try
         {
@@ -57,7 +57,7 @@ public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBan
                     });
             }
             
-            await transaction.CommitAsync();
+            await dbTransaction.CommitAsync();
 
             logger.LogInformation("Начисление процентов по счетам успешно. Количество измененных балансов счетов: {Count}", accountIds.Count);
         }

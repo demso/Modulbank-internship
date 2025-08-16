@@ -28,7 +28,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
     {
         LogBegin(request);
 
-        await using TransactionScope dbTransaction = 
+        await using ISimpleTransactionScope dbTransaction = 
             await transactionsRepository.BeginSerializableTransactionAsync(cancellationToken);
 
         try

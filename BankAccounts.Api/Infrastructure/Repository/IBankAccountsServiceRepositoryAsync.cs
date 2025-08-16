@@ -14,6 +14,6 @@ public interface IBankAccountsServiceRepositoryAsync
 
     public Task AddToOutboxAsync<T>(T serviceEvent, CancellationToken cancellationToken = default) where T : Event;
 
-    public Task<TransactionScope>
+    public Task<ISimpleTransactionScope>
         BeginSerializableTransactionAsync(CancellationToken cancellationToken = default);
 }

@@ -24,7 +24,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
     {
         Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
-        await using TransactionScope dbTransaction = await transactionsRepository.BeginSerializableTransactionAsync(cancellationToken);
+        await using ISimpleTransactionScope dbTransaction = await transactionsRepository.BeginSerializableTransactionAsync(cancellationToken);
         
         try
         {
@@ -88,7 +88,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
         }
         catch (Exception ex)
         {
-            const string message = "Account not opened due to an error. ";
+            const string message = "Transaction not performed due to an error. ";
             throw new PerformTransactionException(message, ex);
         }
     }
