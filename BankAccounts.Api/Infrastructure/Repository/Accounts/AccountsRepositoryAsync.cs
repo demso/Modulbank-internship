@@ -1,5 +1,4 @@
 ﻿using BankAccounts.Api.Common;
-using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
@@ -7,7 +6,6 @@ using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
-using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Data.Common;
@@ -100,16 +98,12 @@ public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext, ILogger<A
             await DbContext.SaveChangesAsync(cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
-            
-            logger.LogInformation("Account with ID {AccountId} has been opened. ", account.AccountId);
         
             return (await GetByIdAsync(account.AccountId, cancellationToken))!;
         }
         catch (Exception ex)
         {
-            string message = $"Add account error." +
-                             $"Transaction canceled.";
-
+            const string message = "Account not opened due to an error. ";
             // Откатываем транзакцию
             throw new Exception(message, ex);
         }
