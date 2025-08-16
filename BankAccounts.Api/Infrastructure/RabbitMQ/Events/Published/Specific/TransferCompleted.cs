@@ -3,7 +3,7 @@ using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 
 namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events
 {
-    public class TransferComplited : Event
+    public class TransferCompleted : Event
     {
         public int? SourceAccountId { get; set; }
         public int? DestinationAccountId { get; set; }

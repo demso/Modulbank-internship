@@ -4,7 +4,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 
 public abstract class Event
 {
-    public Guid EventId { get; set; }
+    public Guid EventId { get; set; } = Guid.NewGuid();
     public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
     public required Metadata Metadata { get; init; }
     
@@ -14,7 +14,7 @@ public abstract class Event
         {EventType.InterestAccrued, "money.interest.accrued"},
         {EventType.MoneyCredited, "money.credited"},
         {EventType.MoneyDebited, "money.debited"},
-        {EventType.TransferComplited, "transfer.completed"},
+        {EventType.TransferCompleted, "transfer.completed"},
     };
         
     public static string GetRoute(EventType type)
@@ -30,7 +30,7 @@ public abstract class Event
             InterestAccrued => EventType.InterestAccrued,
             MoneyCredited => EventType.MoneyCredited,
             MoneyDebited => EventType.MoneyDebited,
-            TransferComplited => EventType.TransferComplited,
+            TransferCompleted => EventType.TransferCompleted,
             _ => throw new ArgumentOutOfRangeException(nameof(route), route, null)
         };
     }

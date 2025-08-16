@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events
+﻿namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared
 {
     public enum EventType
     {
@@ -6,7 +6,7 @@
         InterestAccrued,
         MoneyCredited,
         MoneyDebited,
-        TransferComplited,
+        TransferCompleted,
         ClientBlocked,
         ClientUnblocked
     }
