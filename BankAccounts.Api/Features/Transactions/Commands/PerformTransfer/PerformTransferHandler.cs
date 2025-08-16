@@ -4,13 +4,11 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.Database.Context;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+using BankAccounts.Api.Infrastructure.Repository;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Data.Common;
-using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable once UnusedType.Global Класс используется посредником
 
@@ -20,26 +18,18 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 /// Обработчик команды <see cref="PerformTransferCommand"/> Трансфер происходит с использованием двух транзакций,
 /// одна снимает средства с исходного счета и одна зачисляет на конечный счет.
 /// </summary>
-public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, 
-    IBankAccountsDbContext dbContext, ICurrencyService currencyService, IMapper mapper, 
+public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository, 
+    ITransactionsRepositoryAsync transactionsRepository, ICurrencyService currencyService, IMapper mapper, 
     ILogger<PerformTransferHandler> logger) : RequestHandlerBase<PerformTransferCommand, TransactionDto>
 {
+    public static readonly Guid CausationId = CausationIds.PerformTransfer;
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransferCommand request,  CancellationToken cancellationToken)
     {
         LogBegin(request);
 
-        // Получаем соединение и открываем его при необходимости
-        DbConnection connection = dbContext.Database.GetDbConnection();
-        bool wasClosed = connection.State == ConnectionState.Closed;
-
-        if (wasClosed)
-            await connection.OpenAsync(cancellationToken);
-
-        // Создаём транзакцию с уровнем изоляции Serializable
-        await using DbTransaction transaction = 
-            await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        await dbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+        await using TransactionScope dbTransaction = 
+            await transactionsRepository.BeginSerializableTransactionAsync(cancellationToken);
 
         try
         {
@@ -75,7 +65,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
                 TransactionType.Debit,
                 $"Перевод на счет {toAccount.AccountId} со счета {fromAccount.AccountId}.", cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await transactionsRepository.SaveChangesAsync(cancellationToken);
 
             // Получаем значения для проверки 
             Account updatedFromAccount = (await accountsRepository.GetByIdAsync(request.FromAccountId, cancellationToken))!;
@@ -84,8 +74,23 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
             // Проверяем соответствие балансов
             CheckBalanceCompliance(updatedFromAccount, fromAccount, updatedToAccount, toAccount);
 
+            await transactionsRepository.AddToOutboxAsync(new TransferCompleted
+            {
+                Metadata = new Metadata()
+                {
+                    CausationId = CausationId
+                },
+                SourceAccountId = fromAccount.AccountId,
+                DestinationAccountId = toAccount.AccountId,
+                Amount = request.Amount,
+                Currency = fromAccount.Currency,
+                TransferId = transactionFrom.TransactionId
+            }, cancellationToken);
+            
+            await transactionsRepository.SaveChangesAsync(cancellationToken);
+
             // Подтверждаем транзакцию
-            await transaction.CommitAsync(cancellationToken);
+            await dbTransaction.CommitAsync(cancellationToken);
             
             LogSuccess(request,  updatedFromAccount, updatedToAccount);
 
@@ -93,20 +98,9 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
         }
         catch (Exception ex)
         {
-             string message = $"Transfer error from {request.FromAccountId} to {request.ToAccountId}." +
+            string message = $"Transfer error from {request.FromAccountId} to {request.ToAccountId}." +
                               $" Transaction canceled.";
-
-             // Откатываем транзакцию
             throw new TransferException(message, ex);
-        }
-        finally
-        {
-            // Убираем транзакцию из контекста
-            await dbContext.Database.UseTransactionAsync(null, cancellationToken);
-
-            // Возвращаем соединение в исходное состояние
-            if (wasClosed)
-                await connection.CloseAsync();
         }
     }
 
