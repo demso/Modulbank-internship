@@ -1,11 +1,10 @@
-﻿using BankAccounts.Api.Common;
-using BankAccounts.Api.Infrastructure.Database.Context;
+﻿using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Text;
 
@@ -20,6 +19,10 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         private IConnection? connection;
         private IChannel? channel;
         private const string ExchangeName = "account.events";
+        BasicProperties props = new()
+        {
+            Persistent = true
+        };
         
         public async Task Init()
         {
@@ -66,7 +69,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             //             () => publishTasks.Count == 0))
             // {
                  sw.Stop();
-                 logger.LogInformation($"{DateTime.Now} [INFO] published {publishedCount} messages (should {entitiesCount}) in batch in {sw.ElapsedMilliseconds:N0} ms");
+                 logger.LogInformation($"Published {publishedCount} messages (should {entitiesCount}) in batch in {sw.ElapsedMilliseconds:N0} ms");
             // }
             // else if (publishTasks.Count != 0)
             // {
@@ -77,25 +80,14 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
 
         private async Task<int> Send(List<ValueTask> publishTasks, List<OutboxPublishedEntity> entities)
         {
-            var props = new BasicProperties
-            {
-                Persistent = true,
-                Type = "AccountOpened"
-            };
-                
-            // AccountOpened accountOpened = new(Guid.NewGuid(), DateTime.UtcNow, new Metadata(), 1, 
-            //     Guid.NewGuid(), Currencies.Rub, AccountType.Checking);
-            
-            
-            
             int batchSize = Math.Max(1, MAX_OUTSTANDING_CONFIRMS / 2);
             int succededPublishes = 0;
             
             foreach (OutboxPublishedEntity entity in entities)
             {
-                object serviceEvent = GetEventFromJson(entity);
-                ((Event)serviceEvent).EventId = entity.Id;
-                string message = JsonObjectSerializer.ToJson(serviceEvent);
+                //object serviceEvent = GetEventFromJson(entity);
+                //((Event)serviceEvent).EventId = entity.Id;
+                string message = entity.Message;
                 var body = Encoding.UTF8.GetBytes(message);
                 
                 ValueTask publishTask = channel!.BasicPublishAsync(exchange: ExchangeName, routingKey: Event.GetRoute(EventType.AccountOpened), 
@@ -110,21 +102,6 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             succededPublishes += await MaybeAwaitPublishes(publishTasks, 0, logger);
             
             return succededPublishes;
-        }
-
-        private Event GetEventFromJson(OutboxPublishedEntity entity)
-        {
-            EventType type = entity.EventType;
-            string json = entity.Message;
-            
-            switch (type)
-            {
-                case EventType.AccountOpened:
-                return JsonObjectSerializer.FromJson<AccountOpened>(json)!;
-            }
-
-            logger.LogError("Wrong event type");
-            throw new InvalidOperationException("Wrong entity type");
         }
         
         static async Task<int> MaybeAwaitPublishes(List<ValueTask> publishTasks, int batchSize, ILogger logger)
@@ -141,6 +118,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
                     }
                     catch (Exception ex)
                     {
+                        
                         logger.LogError($"{DateTime.Now} [ERROR] saw nack or return, ex: '{ex}'");
                     }
                 }
@@ -175,155 +153,156 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         //     return false;
         // }
         
-        // private TaskCompletionSource<bool> allMessagesConfirmedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        // private LinkedList<ulong> outstandingConfirms = new LinkedList<ulong>();
-        // private SemaphoreSlim semaphore = new(1, 1);
-        // int confirmedCount = 0;
-        // bool debug = true;
-        // async Task HandlePublishConfirmsAsynchronously()
-        // {
-        //     Console.WriteLine($"{DateTime.Now} [INFO] publishing {MESSAGE_COUNT:N0} messages and handling confirms asynchronously");
-        //     
-        //     // declare a server-named queue
-        //     QueueDeclareOk queueDeclareResult = await channel.QueueDeclareAsync();
-        //     string queueName = queueDeclareResult.QueueName;
-        //
-        //     channel.BasicReturnAsync += (sender, ea) =>
-        //     {
-        //         ulong sequenceNumber = 0;
-        //
-        //         IReadOnlyBasicProperties props = ea.BasicProperties;
-        //         if (props.Headers is not null)
-        //         {
-        //             object? maybeSeqNum = props.Headers[Constants.PublishSequenceNumberHeader];
-        //             if (maybeSeqNum is not null)
-        //             {
-        //                 sequenceNumber = BinaryPrimitives.ReadUInt64BigEndian((byte[])maybeSeqNum);
-        //             }
-        //         }
-        //
-        //         Console.WriteLine($"{DateTime.Now} [WARNING] message sequence number {sequenceNumber} has been basic.return-ed");
-        //         return CleanOutstandingConfirms(sequenceNumber, false);
-        //     };
-        //     channel.BasicAcksAsync += (sender, ea) => CleanOutstandingConfirms(ea.DeliveryTag, ea.Multiple);
-        //     channel.BasicNacksAsync += (sender, ea) =>
-        //     {
-        //         Console.WriteLine($"{DateTime.Now} [WARNING] message sequence number: {ea.DeliveryTag} has been nacked (multiple: {ea.Multiple})");
-        //         return CleanOutstandingConfirms(ea.DeliveryTag, ea.Multiple);
-        //     };
-        //
-        //     var sw = new Stopwatch();
-        //     sw.Start();
-        //
-        //     var publishTasks = new List<ValueTuple<ulong, ValueTask>>();
-        //     for (int i = 0; i < MESSAGE_COUNT; i++)
-        //     {
-        //         string msg = i.ToString();
-        //         byte[] body = Encoding.UTF8.GetBytes(msg);
-        //         ulong nextPublishSeqNo = await channel.GetNextPublishSequenceNumberAsync();
-        //         if ((ulong)(i + 1) != nextPublishSeqNo)
-        //         {
-        //             Console.WriteLine($"{DateTime.Now} [WARNING] i {i + 1} does not equal next sequence number: {nextPublishSeqNo}");
-        //         }
-        //         await semaphore.WaitAsync();
-        //         try
-        //         {
-        //             outstandingConfirms.AddLast(nextPublishSeqNo);
-        //         }
-        //         finally
-        //         {
-        //             semaphore.Release();
-        //         }
-        //         
-        //         (ulong, ValueTask) data =
-        //             (nextPublishSeqNo, channel.BasicPublishAsync(exchange: string.Empty, routingKey: queueName, body: body, mandatory: true, basicProperties: props));
-        //         publishTasks.Add(data);
-        //     }
-        //
-        //     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-        //     // await Task.WhenAll(publishTasks).WaitAsync(cts.Token);
-        //     foreach ((ulong SeqNo, ValueTask PublishTask) datum in publishTasks)
-        //     {
-        //         try
-        //         {
-        //             await datum.PublishTask;
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             Console.Error.WriteLine($"{DateTime.Now} [ERROR] saw nack, seqNo: '{datum.SeqNo}', ex: '{ex}'");
-        //         }
-        //     }
-        //
-        //     try
-        //     {
-        //         await allMessagesConfirmedTcs.Task.WaitAsync(cts.Token);
-        //     }
-        //     catch (OperationCanceledException)
-        //     {
-        //         Console.Error.WriteLine("{0} [ERROR] all messages could not be published and confirmed within 10 seconds", DateTime.Now);
-        //     }
-        //     catch (TimeoutException)
-        //     {
-        //         Console.Error.WriteLine("{0} [ERROR] all messages could not be published and confirmed within 10 seconds", DateTime.Now);
-        //     }
-        //
-        //     sw.Stop();
-        //     Console.WriteLine($"{DateTime.Now} [INFO] published {MESSAGE_COUNT:N0} messages and handled confirm asynchronously {sw.ElapsedMilliseconds:N0} ms");
-        // }
-        //
-        //
-        // /// <summary>
-        // /// 
-        // /// </summary>
-        // /// <param name="deliveryTag"></param>
-        // /// <param name="multiple"></param>
-        // async Task CleanOutstandingConfirms(ulong deliveryTag, bool multiple)
-        // {
-        //     if (debug)
-        //     {
-        //         Console.WriteLine("{0} [DEBUG] confirming message: {1} (multiple: {2})",
-        //             DateTime.Now, deliveryTag, multiple);
-        //     }
-        //
-        //     await semaphore.WaitAsync();
-        //     try
-        //     {
-        //         if (multiple)
-        //         {
-        //             do
-        //             {
-        //                 LinkedListNode<ulong>? node = outstandingConfirms.First;
-        //                 if (node is null)
-        //                 {
-        //                     break;
-        //                 }
-        //                 if (node.Value <= deliveryTag)
-        //                 {
-        //                     outstandingConfirms.RemoveFirst();
-        //                 }
-        //                 else
-        //                 {
-        //                     break;
-        //                 }
-        //
-        //                 confirmedCount++;
-        //             } while (true);
-        //         }
-        //         else
-        //         {
-        //             confirmedCount++;
-        //             outstandingConfirms.Remove(deliveryTag);
-        //         }
-        //     }
-        //     finally
-        //     {
-        //         semaphore.Release();
-        //     }
-        //
-        //     if (outstandingConfirms.Count == 0 || confirmedCount == MESSAGE_COUNT)
-        //     {
-        //         allMessagesConfirmedTcs.SetResult(true);
-        //     }
-        // }
+        private TaskCompletionSource<bool> allMessagesConfirmedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private LinkedList<ulong> outstandingConfirms = new LinkedList<ulong>();
+        private SemaphoreSlim semaphore = new(1, 1);
+        int confirmedCount = 0;
+        bool debug = true;
+        
+        async Task HandlePublishConfirmsAsynchronously()
+        {
+            Console.WriteLine($"{DateTime.Now} [INFO] publishing {MESSAGE_COUNT:N0} messages and handling confirms asynchronously");
+            
+            // declare a server-named queue
+            QueueDeclareOk queueDeclareResult = await channel.QueueDeclareAsync();
+            string queueName = queueDeclareResult.QueueName;
+        
+            channel.BasicReturnAsync += (sender, ea) =>
+            {
+                ulong sequenceNumber = 0;
+        
+                IReadOnlyBasicProperties props = ea.BasicProperties;
+                if (props.Headers is not null)
+                {
+                    object? maybeSeqNum = props.Headers[Constants.PublishSequenceNumberHeader];
+                    if (maybeSeqNum is not null)
+                    {
+                        sequenceNumber = BinaryPrimitives.ReadUInt64BigEndian((byte[])maybeSeqNum);
+                    }
+                }
+        
+                Console.WriteLine($"{DateTime.Now} [WARNING] message sequence number {sequenceNumber} has been basic.return-ed");
+                return CleanOutstandingConfirms(sequenceNumber, false);
+            };
+            channel.BasicAcksAsync += (sender, ea) => CleanOutstandingConfirms(ea.DeliveryTag, ea.Multiple);
+            channel.BasicNacksAsync += (sender, ea) =>
+            {
+                Console.WriteLine($"{DateTime.Now} [WARNING] message sequence number: {ea.DeliveryTag} has been nacked (multiple: {ea.Multiple})");
+                return CleanOutstandingConfirms(ea.DeliveryTag, ea.Multiple);
+            };
+        
+            var sw = new Stopwatch();
+            sw.Start();
+        
+            var publishTasks = new List<ValueTuple<ulong, ValueTask>>();
+            for (int i = 0; i < MESSAGE_COUNT; i++)
+            {
+                string msg = i.ToString();
+                byte[] body = Encoding.UTF8.GetBytes(msg);
+                ulong nextPublishSeqNo = await channel.GetNextPublishSequenceNumberAsync();
+                if ((ulong)(i + 1) != nextPublishSeqNo)
+                {
+                    Console.WriteLine($"{DateTime.Now} [WARNING] i {i + 1} does not equal next sequence number: {nextPublishSeqNo}");
+                }
+                await semaphore.WaitAsync();
+                try
+                {
+                    outstandingConfirms.AddLast(nextPublishSeqNo);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+                
+                (ulong, ValueTask) data =
+                    (nextPublishSeqNo, channel.BasicPublishAsync(exchange: string.Empty, routingKey: queueName, body: body, mandatory: true, basicProperties: props));
+                publishTasks.Add(data);
+            }
+        
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            // await Task.WhenAll(publishTasks).WaitAsync(cts.Token);
+            foreach ((ulong SeqNo, ValueTask PublishTask) datum in publishTasks)
+            {
+                try
+                {
+                    await datum.PublishTask;
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"{DateTime.Now} [ERROR] saw nack, seqNo: '{datum.SeqNo}', ex: '{ex}'");
+                }
+            }
+        
+            try
+            {
+                await allMessagesConfirmedTcs.Task.WaitAsync(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                Console.Error.WriteLine("{0} [ERROR] all messages could not be published and confirmed within 10 seconds", DateTime.Now);
+            }
+            catch (TimeoutException)
+            {
+                Console.Error.WriteLine("{0} [ERROR] all messages could not be published and confirmed within 10 seconds", DateTime.Now);
+            }
+        
+            sw.Stop();
+            Console.WriteLine($"{DateTime.Now} [INFO] published {MESSAGE_COUNT:N0} messages and handled confirm asynchronously {sw.ElapsedMilliseconds:N0} ms");
+        }
+        
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deliveryTag"></param>
+        /// <param name="multiple"></param>
+        async Task CleanOutstandingConfirms(ulong deliveryTag, bool multiple)
+        {
+            if (debug)
+            {
+                Console.WriteLine("{0} [DEBUG] confirming message: {1} (multiple: {2})",
+                    DateTime.Now, deliveryTag, multiple);
+            }
+        
+            await semaphore.WaitAsync();
+            try
+            {
+                if (multiple)
+                {
+                    do
+                    {
+                        LinkedListNode<ulong>? node = outstandingConfirms.First;
+                        if (node is null)
+                        {
+                            break;
+                        }
+                        if (node.Value <= deliveryTag)
+                        {
+                            outstandingConfirms.RemoveFirst();
+                        }
+                        else
+                        {
+                            break;
+                        }
+        
+                        confirmedCount++;
+                    } while (true);
+                }
+                else
+                {
+                    confirmedCount++;
+                    outstandingConfirms.Remove(deliveryTag);
+                }
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        
+            if (outstandingConfirms.Count == 0 || confirmedCount == MESSAGE_COUNT)
+            {
+                allMessagesConfirmedTcs.SetResult(true);
+            }
+        }
     }
 }
