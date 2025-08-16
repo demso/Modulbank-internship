@@ -22,6 +22,9 @@ namespace BankAccounts.Api.Infrastructure.Repository
             OutboxPublishedEntity entity = new() { 
                 EventType = Event.GetEventType(serviceEvent), 
                 Message = JsonObjectSerializer.ToJson(serviceEvent), 
+                EventId = serviceEvent.EventId,
+                CausationId = serviceEvent.Metadata.CausationId,
+                CorrelationId = serviceEvent.Metadata.CorrelationId,
                 Created = serviceEvent.OccurredAt 
             };
             
@@ -51,7 +54,6 @@ namespace BankAccounts.Api.Infrastructure.Repository
         public Task CommitAsync(CancellationToken cancellationToken = default);
     }
     
-    //await using var
     public class SimpleTransactionScope : ISimpleTransactionScope
     {
         public readonly DbTransaction Transaction;
@@ -92,45 +94,4 @@ namespace BankAccounts.Api.Infrastructure.Repository
             await Transaction.CommitAsync(cancellationToken);
         }
     }
-    
-    // public class TransactionScope : IAsyncDisposable
-    // {
-    //     public readonly DbTransaction Transaction;
-    //     private readonly IBankAccountsDbContext _dbContext;
-    //     private readonly bool _wasClosed;
-    //     private bool _disposed;
-    //
-    //     internal TransactionScope(DbTransaction transaction, IBankAccountsDbContext dbContext, bool wasClosed)
-    //     {
-    //         Transaction = transaction;
-    //         _dbContext = dbContext;
-    //         _wasClosed = wasClosed;
-    //     }
-    //
-    //     public async ValueTask DisposeAsync()
-    //     {
-    //         if (_disposed) return;
-    //     
-    //         try
-    //         {
-    //             await _dbContext.Database.UseTransactionAsync(null);
-    //             if (_wasClosed)
-    //             {
-    //                 var connection = _dbContext.Database.GetDbConnection();
-    //                 if (connection.State == ConnectionState.Open)
-    //                     await connection.CloseAsync();
-    //             }
-    //         }
-    //         finally
-    //         {
-    //             await Transaction.DisposeAsync();
-    //             _disposed = true;
-    //         }
-    //     }
-    //
-    //     public async Task CommitAsync(CancellationToken cancellationToken = default)
-    //     {
-    //         await Transaction.CommitAsync(cancellationToken);
-    //     }
-    // }
 }
