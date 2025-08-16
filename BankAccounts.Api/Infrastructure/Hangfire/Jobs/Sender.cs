@@ -42,9 +42,22 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             );
             
             await channel.ExchangeDeclareAsync(exchange: ExchangeName, type: ExchangeType.Topic);
-            await channel.QueueDeclareAsync(queue: "test", false, false);
-            
-            await channel.QueueBindAsync("test", ExchangeName, "account.*");
+            await SetupQueues();
+        }
+
+        /// <summary>
+        /// Создаст очереди принимающие события по типам для наглядного представления отправленных сообщений
+        /// </summary>
+        private async Task SetupQueues()
+        {
+            foreach (EventType type in Enum.GetValues<EventType>())
+            {
+                if (type is EventType.ClientBlocked or EventType.ClientUnblocked)
+                    continue;
+                
+                await channel!.QueueDeclareAsync(queue: $"test_{type.ToString()}", false, false);
+                await channel!.QueueBindAsync($"test_{type.ToString()}", ExchangeName, Event.GetRoute(type));
+            }
         }
 
         public async Task Job()
