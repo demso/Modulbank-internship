@@ -203,7 +203,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .Enrich.FromLogContext()
                 .WriteTo.Console(new ExpressionTemplate(
                     // Include trace and span ids when present.
-                    "[{@t:HH:mm:ss} {@l:u3}{#if @tr is not null} ({substring(@tr,0,4)}:{substring(@sp,0,4)}){#end}] {SourceContext} \n{@m}\n{@x}",
+                    "[{@t:HH:mm:ss} {@l:u3}{#if @tr is not null} ({substring(@tr,0,4)}:{substring(@sp,0,4)}){#end}] {SourceContext} \n  {@m}\n{@x}",
                     theme: TemplateTheme.Code)));
 
             return services;
