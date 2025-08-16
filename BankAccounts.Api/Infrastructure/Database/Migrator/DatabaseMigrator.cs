@@ -27,10 +27,10 @@ public static class DatabaseMigrator
         // ReSharper disable once StringLiteralTypo Наименование верно
         sql =
             """
-            CREATE OR REPLACE PROCEDURE accrue_interest(
+            CREATE OR REPLACE FUNCTION accrue_interest(
                 p_account_id int
             )
-            LANGUAGE plpgsql
+            RETURNS NUMERIC
             AS $$
             DECLARE
                 v_account_type account_type;
@@ -54,19 +54,19 @@ public static class DatabaseMigrator
             
                 IF v_close_date IS NOT NULL THEN
                     RAISE NOTICE 'Счёт % закрыт', p_account_id;
-                    RETURN;
+                    RETURN 0;
                 END IF;
             
                 -- Проверяем, что это счёт с начислением процентов
                 IF v_interest_rate IS NULL OR v_interest_rate <= 0 THEN
                     RAISE NOTICE 'Счёт % не поддерживает начисление процентов', p_account_id;
-                    RETURN;
+                    RETURN 0;
                 END IF;
             
                 -- Проверяем, есть ли задолженность по кредитному счету
                 IF v_account_type = 'credit' AND v_balance > 0 THEN
                     RAISE NOTICE 'Положмтельный баланс на счету % начислять проценты не нужно', p_account_id;
-                    RETURN;
+                    RETURN 0;
                 END IF;
             
                 -- Вычисляем проценты (проценты начисляются каждый день, interestRate - годовые проценты)
@@ -78,7 +78,7 @@ public static class DatabaseMigrator
                 -- Проверяем, что сумма не равна 0
                 IF v_interest_amount = 0 THEN
                     RAISE NOTICE 'Начисленные проценты по счёту % равны 0', p_account_id;
-                    RETURN;
+                    RETURN 0;
                 END IF;
             
                 -- Вычисляем новый баланс
@@ -117,9 +117,10 @@ public static class DatabaseMigrator
                 );
             
                 RAISE NOTICE 'Начислены проценты по счёту %: %', p_account_id, v_interest_amount;
-            
+                
+                RETURN v_interest_amount;
             END;
-            $$;
+            $$ LANGUAGE plpgsql;
             """;
 
         await context.Database.ExecuteSqlRawAsync(sql);
