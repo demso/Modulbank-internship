@@ -153,6 +153,9 @@ namespace BankAccounts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long>("TryCount")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.ToTable("outbox_published", (string)null);

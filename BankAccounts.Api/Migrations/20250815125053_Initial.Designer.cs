@@ -15,7 +15,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BankAccounts.Api.Migrations
 {
     [DbContext(typeof(BankAccountsDbContext))]
-    [Migration("20250808184431_Initial")]
+    [Migration("20250815125053_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -120,6 +120,48 @@ namespace BankAccounts.Api.Migrations
                         .HasDatabaseName("ix_transactions_account_id_date");
 
                     b.ToTable("Transactions", (string)null);
+                });
+
+            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity.InboxConsumedEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("inbox_consumed", (string)null);
+                });
+
+            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity.OutboxPublishedEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("TryCount")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("outbox_published", (string)null);
                 });
 
             modelBuilder.Entity("BankAccounts.Api.Features.Transactions.Transaction", b =>
