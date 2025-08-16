@@ -2,6 +2,7 @@
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.DeadLetter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -23,6 +24,8 @@ public interface IBankAccountsDbContext
    
     DbSet<OutboxPublishedEntity> OutboxPublished { get; }
     DbSet<InboxConsumedEntity> InboxConsumed { get; }
+    
+    DbSet<DeadLetterEntity> DeadLetters { get; }
     /// <summary>
     /// Сохранение изменений
     /// </summary>

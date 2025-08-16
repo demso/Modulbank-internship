@@ -2,6 +2,7 @@
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.DeadLetter;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -22,8 +23,8 @@ public sealed class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<OutboxPublishedEntity>  OutboxPublished => Set<OutboxPublishedEntity>();
-    
     public DbSet<InboxConsumedEntity> InboxConsumed => Set<InboxConsumedEntity>();
+    public DbSet<DeadLetterEntity> DeadLetters => Set<DeadLetterEntity>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
