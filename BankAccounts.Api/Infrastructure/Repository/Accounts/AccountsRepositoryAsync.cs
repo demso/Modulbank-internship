@@ -48,73 +48,19 @@ public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext, ILogger<A
     public async Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate,
         Guid causationId, CancellationToken cancellationToken)
     {
-        // Получаем соединение и открываем его при необходимости
-        DbConnection connection = DbContext.Database.GetDbConnection();
-        bool wasClosed = connection.State == ConnectionState.Closed;
-
-        if (wasClosed)
-            await connection.OpenAsync(cancellationToken);
-
-        // Создаём транзакцию с уровнем изоляции Serializable
-        await using DbTransaction transaction = 
-            await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        await DbContext.Database.UseTransactionAsync(transaction, cancellationToken);
-
-        try
-        {
-            Account account = (await DbContext.Accounts.AddAsync(
-                new Account
-                {
-                    OwnerId = ownerId,
-                    AccountType = accountType,
-                    Currency = currency,
-                    InterestRate = interestRate,
-                    OpenDate = DateTime.UtcNow
-                }, cancellationToken
-            )).Entity;
-            
-            await DbContext.SaveChangesAsync(cancellationToken);
-
-            AccountOpened accountOpened = new AccountOpened
+        Account account = (await DbContext.Accounts.AddAsync(
+            new Account
             {
-                AccountId = account.AccountId, 
-                OwnerId = ownerId, 
-                AccountType = accountType, 
+                OwnerId = ownerId,
+                AccountType = accountType,
                 Currency = currency,
-                Metadata = new Metadata
-                {
-                    CausationId = causationId
-                }
-            };
-            
-            OutboxPublishedEntity entity = new() { 
-                EventType = EventType.AccountOpened, 
-                Message = JsonObjectSerializer.ToJson(accountOpened), 
-                Created = accountOpened.OccurredAt 
-            };
-            
-            await DbContext.OutboxPublished.AddAsync(entity, cancellationToken);
-            
-            await DbContext.SaveChangesAsync(cancellationToken);
-            
-            await transaction.CommitAsync(cancellationToken);
+                InterestRate = interestRate,
+                OpenDate = DateTime.UtcNow
+            }, cancellationToken
+        )).Entity;
         
-            return (await GetByIdAsync(account.AccountId, cancellationToken))!;
-        }
-        catch (Exception ex)
-        {
-            const string message = "Account not opened due to an error. ";
-            // Откатываем транзакцию
-            throw new Exception(message, ex);
-        }
-        finally
-        {
-            // Убираем транзакцию из контекста
-            await DbContext.Database.UseTransactionAsync(null, cancellationToken);
-
-            // Возвращаем соединение в исходное состояние
-            if (wasClosed)
-                await connection.CloseAsync();
-        }
+        await DbContext.SaveChangesAsync(cancellationToken);
+    
+        return (await GetByIdAsync(account.AccountId, cancellationToken))!;
     }
 }
