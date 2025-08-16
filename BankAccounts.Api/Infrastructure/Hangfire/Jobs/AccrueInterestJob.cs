@@ -1,5 +1,8 @@
 ﻿using BankAccounts.Api.Common.Exceptions;
+using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.Database.Context;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +18,9 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 /// <param name="cancellationToken"></param>
 // ReSharper disable once ClassNeverInstantiated.Global Класс используется Hangfire.
 public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBankAccountsDbContext context, ILogger<AccrueInterestJob> logger, 
-    CancellationToken cancellationToken = default) 
+    CancellationToken cancellationToken = default)
 {
+    private static readonly Guid CausationId = CausationIds.AccrueInterest;
     /// <summary>
     /// Фоновая задача
     /// </summary>
@@ -31,17 +35,26 @@ public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBan
             .ToListAsync(cancellationToken);
 
         await using TransactionScope transaction = await accountsRepository.BeginSerializableTransactionAsync(cancellationToken);
-       // await using TransactionScope transaction = await accountsRepository.BeginSerializableTransactionAsync(cancellationToken);
 
         try
         {
-            await using NpgsqlCommand command = new("SELECT * FROM accrue_interest(@account_id)", (NpgsqlConnection) context.Database.GetDbConnection());
-            
+            await using NpgsqlCommand command = new("SELECT accrue_interest(@account_id)", (NpgsqlConnection) context.Database.GetDbConnection());
             foreach (int accountId in accountIds)
             {
                 command.Parameters.AddWithValue("account_id", accountId);
-                using var reader = await command.ExecuteReaderAsync();
-                await context.Database.ExecuteSqlRawAsync("SELECT public.accrue_interest({0})", accountId);
+                await using NpgsqlDataReader reader = await command.ExecuteReaderAsync();
+                await reader.ReadAsync();
+                int result = reader.GetInt32(0);
+                await reader.CloseAsync();
+                if (result != 0)
+                    await accountsRepository.AddToOutboxAsync(new InterestAccrued
+                    {
+                        AccountId = accountId,
+                        Amount = result,
+                        Metadata = new Metadata { CausationId = CausationId },
+                        PeriodFrom = DateOnly.FromDateTime(DateTime.UtcNow), // начисление за одни сутки
+                        PeriodTo = DateOnly.FromDateTime(DateTime.UtcNow)
+                    });
             }
             
             await transaction.CommitAsync();
