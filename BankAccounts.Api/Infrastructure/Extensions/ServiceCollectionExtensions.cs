@@ -185,7 +185,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         public static IServiceCollection SetupRabbitMq(this IServiceCollection services)
         {
             services.AddScoped<Sender>();
-            services.AddHostedService<Reciever>();
+            services.AddHostedService<Receiver>();
             return services;
         }
 

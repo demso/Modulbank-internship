@@ -18,7 +18,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         ConnectionFactory factory = new() { HostName = "rabbitmq", UserName = "admin", Password = "admin"};
         private IConnection? connection;
         private IChannel? channel;
-        private const string ExchangeName = "account.events";
+        private const string ExchangeName = Receiver.ExchangeName;
         BasicProperties props = new()
         {
             Persistent = true
