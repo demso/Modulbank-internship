@@ -2,6 +2,9 @@
 using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Data.Common;
 
 namespace BankAccounts.Api.Infrastructure.Repository
 {
@@ -13,5 +16,115 @@ namespace BankAccounts.Api.Infrastructure.Repository
         {
             return await DbContext.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task AddToOutboxAsync<T>(T serviceEvent, CancellationToken cancellationToken = default) where T : Event
+        {
+            OutboxPublishedEntity entity = new() { 
+                EventType = Event.GetEventType(serviceEvent), 
+                Message = JsonObjectSerializer.ToJson(serviceEvent), 
+                Created = serviceEvent.OccurredAt 
+            };
+            
+            await DbContext.OutboxPublished.AddAsync(entity, cancellationToken);
+            
+            await SaveChangesAsync(cancellationToken);
+        }
+        
+        public async Task<TransactionScope> BeginSerializableTransactionAsync(CancellationToken cancellationToken =  default)
+        {
+            DbConnection connection = DbContext.Database.GetDbConnection();
+            bool wasClosed = connection.State == ConnectionState.Closed;
+
+            if (wasClosed)
+                await connection.OpenAsync(cancellationToken);
+
+            DbTransaction transaction = await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            await DbContext.Database.UseTransactionAsync(transaction, cancellationToken);
+    
+            return new TransactionScope(transaction, DbContext, wasClosed);
+        }
     }
+    
+    //await using var
+    public class TransactionScope : IAsyncDisposable
+    {
+        public readonly DbTransaction Transaction;
+        private readonly IBankAccountsDbContext _dbContext;
+        private readonly bool _wasClosed;
+        private bool _disposed;
+
+        internal TransactionScope(DbTransaction transaction, IBankAccountsDbContext dbContext, bool wasClosed)
+        {
+            Transaction = transaction;
+            _dbContext = dbContext;
+            _wasClosed = wasClosed;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed) return;
+        
+            try
+            {
+                await _dbContext.Database.UseTransactionAsync(null);
+                if (_wasClosed)
+                {
+                    var connection = _dbContext.Database.GetDbConnection();
+                    if (connection.State == ConnectionState.Open)
+                        await connection.CloseAsync();
+                }
+            }
+            finally
+            {
+                await Transaction.DisposeAsync();
+                _disposed = true;
+            }
+        }
+
+        public async Task CommitAsync(CancellationToken cancellationToken = default)
+        {
+            await Transaction.CommitAsync(cancellationToken);
+        }
+    }
+    
+    // public class TransactionScope : IAsyncDisposable
+    // {
+    //     public readonly DbTransaction Transaction;
+    //     private readonly IBankAccountsDbContext _dbContext;
+    //     private readonly bool _wasClosed;
+    //     private bool _disposed;
+    //
+    //     internal TransactionScope(DbTransaction transaction, IBankAccountsDbContext dbContext, bool wasClosed)
+    //     {
+    //         Transaction = transaction;
+    //         _dbContext = dbContext;
+    //         _wasClosed = wasClosed;
+    //     }
+    //
+    //     public async ValueTask DisposeAsync()
+    //     {
+    //         if (_disposed) return;
+    //     
+    //         try
+    //         {
+    //             await _dbContext.Database.UseTransactionAsync(null);
+    //             if (_wasClosed)
+    //             {
+    //                 var connection = _dbContext.Database.GetDbConnection();
+    //                 if (connection.State == ConnectionState.Open)
+    //                     await connection.CloseAsync();
+    //             }
+    //         }
+    //         finally
+    //         {
+    //             await Transaction.DisposeAsync();
+    //             _disposed = true;
+    //         }
+    //     }
+    //
+    //     public async Task CommitAsync(CancellationToken cancellationToken = default)
+    //     {
+    //         await Transaction.CommitAsync(cancellationToken);
+    //     }
+    // }
 }

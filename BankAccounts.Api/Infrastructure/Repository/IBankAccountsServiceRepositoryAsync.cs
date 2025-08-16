@@ -12,4 +12,9 @@ public interface IBankAccountsServiceRepositoryAsync
     /// Метод для сохранения изменений в базе данных асинхронно.
     /// </summary>
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    public Task AddToOutboxAsync<T>(T serviceEvent, CancellationToken cancellationToken = default) where T : Event;
+
+    public Task<TransactionScope>
+        BeginSerializableTransactionAsync(CancellationToken cancellationToken = default);
 }
