@@ -119,48 +119,6 @@ namespace BankAccounts.Api.Migrations
                     b.ToTable("Transactions", (string)null);
                 });
 
-            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity.InboxConsumedEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("EventType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("inbox_consumed", (string)null);
-                });
-
-            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity.OutboxPublishedEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("EventType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("TryCount")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("outbox_published", (string)null);
-                });
-
             modelBuilder.Entity("BankAccounts.Api.Features.Transactions.Transaction", b =>
                 {
                     b.HasOne("BankAccounts.Api.Features.Accounts.Account", "Account")
