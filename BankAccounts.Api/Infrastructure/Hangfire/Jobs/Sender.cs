@@ -96,7 +96,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         private async Task<int> Send(List<(OutboxPublishedEntity, ValueTask)> publishTasks, List<OutboxPublishedEntity> entities)
         {
             int batchSize = Math.Max(1, MAX_OUTSTANDING_CONFIRMS / 2);
-            int succededPublishes = 0;
+            int succeededPublishes = 0;
             
             foreach (OutboxPublishedEntity entity in entities)
             {
@@ -109,17 +109,17 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
                     body: body, basicProperties: props, mandatory: false);
                 publishTasks.Add((entity, publishTask));
                 
-                succededPublishes += await MaybeAwaitPublishes(publishTasks, batchSize, logger);
+                succeededPublishes += await MaybeAwaitPublishes(publishTasks, batchSize);
             }
 
             // Await any remaining tasks in case message count was not
             // evenly divisible by batch size.
-            succededPublishes += await MaybeAwaitPublishes(publishTasks, 0, logger);
+            succeededPublishes += await MaybeAwaitPublishes(publishTasks, 0);
             
-            return succededPublishes;
+            return succeededPublishes;
         }
         
-        async Task<int> MaybeAwaitPublishes(List<(OutboxPublishedEntity, ValueTask)> publishTasks, int batchSize, ILogger logger)
+        async Task<int> MaybeAwaitPublishes(List<(OutboxPublishedEntity, ValueTask)> publishTasks, int batchSize)
         {
             int succedeedTasks = 0;
             if (publishTasks.Count >= batchSize)
