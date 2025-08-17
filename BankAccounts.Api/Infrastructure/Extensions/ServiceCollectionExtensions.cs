@@ -86,6 +86,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                     KeyValuePair<string, ModelStateEntry?> error = context.ModelState
                         .First(x => x.Value?.Errors.Count > 0);
 
+                    context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     MbResult<object?> result = MbResult.Failure((int)HttpStatusCode.BadRequest, $"Validation error: {error.Value?.Errors[0].ErrorMessage} {error.Value?.Errors[0].Exception?.Message}");
 
                     return new ObjectResult(result);
