@@ -4,7 +4,6 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -26,7 +25,6 @@ namespace BankAccounts.Api.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "account_type", new[] { "checking", "credit", "deposit" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "currencies", new[] { "eur", "rub", "usd" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "event_type", new[] { "account_opened", "client_blocked", "client_unblocked", "interest_accrued", "money_credited", "money_debited", "transfer_completed" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "transaction_type", new[] { "credit", "debit" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
@@ -119,89 +117,6 @@ namespace BankAccounts.Api.Migrations
                         .HasDatabaseName("ix_transactions_account_id_date");
 
                     b.ToTable("Transactions", (string)null);
-                });
-
-            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity.InboxConsumedEntity", b =>
-                {
-                    b.Property<Guid>("MessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<EventType>("EventType")
-                        .HasColumnType("event_type");
-
-                    b.Property<string>("Handler")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ProcessedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("MessageId");
-
-                    b.ToTable("inbox_consumed", (string)null);
-                });
-
-            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity.OutboxPublishedEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CausationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CorrelationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
-
-                    b.Property<EventType>("EventType")
-                        .HasColumnType("event_type");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("TryCount")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("outbox_published", (string)null);
-                });
-
-            modelBuilder.Entity("BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.DeadLetter.DeadLetterEntity", b =>
-                {
-                    b.Property<Guid>("MessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Error")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<EventType?>("EventType")
-                        .HasColumnType("event_type");
-
-                    b.Property<string>("Handler")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Payload")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ReceivedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("MessageId");
-
-                    b.ToTable("inbox_dead_letters", (string)null);
                 });
 
             modelBuilder.Entity("BankAccounts.Api.Features.Transactions.Transaction", b =>
