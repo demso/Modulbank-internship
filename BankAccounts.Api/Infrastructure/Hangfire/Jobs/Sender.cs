@@ -15,7 +15,12 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
     {
         const ushort MAX_OUTSTANDING_CONFIRMS = 256;
         int MESSAGE_COUNT = 1000;
-        ConnectionFactory factory = new() { HostName = "rabbitmq", UserName = "admin", Password = "admin"};
+        ConnectionFactory factory = new()
+        {
+            HostName = configuration["RabbitMQ:Hostname"]!, 
+            UserName = configuration["RabbitMQ:Username"]!, 
+            Password = configuration["RabbitMQ:Password"]!,
+        };
         private IConnection? connection;
         private IChannel? channel;
         private const string ExchangeName = Receiver.ExchangeName;

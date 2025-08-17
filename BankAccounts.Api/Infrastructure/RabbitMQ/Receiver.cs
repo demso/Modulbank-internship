@@ -19,7 +19,12 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         private const string AntifraudQueueName = "account.antifraud";
         private async Task Init()
         {
-            factory = new ConnectionFactory {  HostName = "rabbitmq", UserName = "admin", Password = "admin" };
+            factory = new ConnectionFactory
+            {
+                HostName = configuration["RabbitMQ:Hostname"]!, 
+                UserName = configuration["RabbitMQ:Username"]!, 
+                Password = configuration["RabbitMQ:Password"]!,
+            };
             connection = await factory.CreateConnectionAsync();
             channel = await connection.CreateChannelAsync();
             
