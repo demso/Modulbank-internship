@@ -68,6 +68,14 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
                     code = HttpStatusCode.Conflict;
                 break;
         }
+
+        switch (realException)
+        {
+            case UserInBlockListException:
+                code = HttpStatusCode.Conflict;
+                message = "Счета пользователя заблокированы";
+                break;
+        }
     }
     
     private static bool CheckIfDbConcurrencyAccessException(Exception ex)
