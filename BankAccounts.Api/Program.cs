@@ -4,6 +4,7 @@ using BankAccounts.Api.Infrastructure.Hangfire;
 using BankAccounts.Api.Middleware;
 using Hangfire;
 using Serilog;
+using Serilog.Events;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -31,6 +32,16 @@ try
     WebApplication app = builder.Build();
 
     await app.MigrateDatabase();
+    
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0} ms";
+        options.GetLevel = (httpContext, elapsed, ex) => ex != null 
+            ? LogEventLevel.Error 
+            : httpContext.Response.StatusCode > 499 
+                ? LogEventLevel.Error 
+                : LogEventLevel.Information;
+    });
 
     app.UseStaticFiles();
 
