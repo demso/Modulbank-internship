@@ -63,12 +63,10 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             List<OutboxPublishedEntity> entities = await dbContext.OutboxPublished.ToListAsync();
             
             int publishedCount = await Send(publishTasks, entities);
-
-
+            
              sw.Stop();
              int count = (await dbContext.OutboxPublished.CountAsync());
              logger.LogInformation($"Published {publishedCount} messages (failed and queued for retry: {count}) in batch in {sw.ElapsedMilliseconds:N0} ms");
-
         }
 
         private async Task<int> Send(List<(OutboxPublishedEntity, ValueTask)> publishTasks, List<OutboxPublishedEntity> entities)
@@ -80,9 +78,12 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
             {
                 string message = entity.Message;
                 var body = Encoding.UTF8.GetBytes(message);
+                
                 props.Headers!["type"] = entity.EventType.ToString();
                 props.Headers["x-correlation-id"] = entity.CorrelationId.ToString();
                 props.Headers["x-causation-id"] = entity.CausationId.ToString();
+                props.Timestamp = new AmqpTimestamp(DateTime.UtcNow.ToBinary());
+                
                 ValueTask publishTask = channel!.BasicPublishAsync(exchange: ExchangeName, routingKey: Event.GetRoute(entity.EventType), 
                     body: body, basicProperties: props, mandatory: false);
                 publishTasks.Add((entity, publishTask));
