@@ -134,10 +134,14 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 
                 return (eventType.Value,  document);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await _channel.BasicNackAsync(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
-                logger.LogInformation("Error while processing message, requeued.");
+                bool shouldRequeue = ea.DeliveryTag < 5;
+                
+                await _channel.BasicNackAsync(deliveryTag: ea.DeliveryTag, multiple: false, requeue: shouldRequeue);
+                logger.LogInformation("Error while processing message, is requeued: {Requeue}, requeue count: {Count}. {Message} \n {Stacktrace}", 
+                   shouldRequeue, ea.DeliveryTag, ex.Message, ex.StackTrace);
+                await Task.Delay(1000);
                 throw;
             }
         }
