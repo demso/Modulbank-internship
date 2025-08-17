@@ -1,8 +1,7 @@
-﻿using BankAccounts.Api.Features.Accounts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration;
+namespace BankAccounts.Api.Features.Accounts;
 /// <summary>
 /// Конфигурация сущности счета <see cref="Account"/>
 /// </summary>

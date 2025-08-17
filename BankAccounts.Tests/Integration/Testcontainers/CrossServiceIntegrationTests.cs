@@ -18,15 +18,20 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BankAccounts.Tests.Integration.Testcontainers;
 /// <summary>
-/// Набор интеграционных тестов. Необходимо собрать образы сервисов BankAccounts.Api и BankAccounts.Identity
+/// Набор интеграционных тестов. Необходимо собрать образы сервисов BankAccounts API и BankAccounts Identity
 /// перед выполнением тестов. Чтобы это сделать, запустите конфигурацию docker-compose или выполните команду
 /// "docker-compose build" в корневой папке решения.
+/// В случае ошибок:
+/// 1. Отключите VPN (502 BadGateway)
+/// 2. Выполните команду <code>docker-compose down -v</code> (Docker container conflict)
 /// </summary>
 /// <param name="output">Вспомогательный объект для вывода логов теста</param>
 public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLifetime
 {
+    // Используйте этот флаг для того чтобы не выключать контейнеры после тестов
+    // (можно, например, посмотреть логи контейнеров в приложении Docker Desktop)
+    private const bool CleanUp = true;
     
-    private const bool CLEAN_UP = true;
     private INetwork _network = null!; 
     private PostgreSqlContainer _bankAccountsDbContainer = null!;
     private IContainer _identityServiceContainer = null!; 
@@ -53,7 +58,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithPassword("password")
             .WithPortBinding(5432, true)
             .WithImage("lithiumkgp/postgres")
-            .WithCleanUp(CLEAN_UP)
+            .WithCleanUp(CleanUp)
             .Build();
         await _bankAccountsDbContainer.StartAsync();
         
@@ -66,7 +71,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithHostname("rabbitmq")
             .WithPortBinding(5672, true)
             .WithPortBinding(15672, true) 
-            .WithCleanUp(CLEAN_UP)
+            .WithCleanUp(CleanUp)
             .Build();
         await _rabbitMqContainer.StartAsync();
         
@@ -76,7 +81,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithName("bankaccounts_identity_test" + Random.Shared.NextInt64())
             .WithImage("lithiumkgp/bankaccounts.identity:latest")
             .WithPortBinding(7045, true)
-            .WithCleanUp(CLEAN_UP)
+            .WithCleanUp(CleanUp)
             .Build();
         await _identityServiceContainer.StartAsync();
 
@@ -89,7 +94,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80))
             .DependsOn(_bankAccountsDbContainer)
             .DependsOn(_rabbitMqContainer)
-            .WithCleanUp(CLEAN_UP)
+            .WithCleanUp(CleanUp)
             .Build();
         await _bankAccountsApiContainer.StartAsync();
 
@@ -340,7 +345,10 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
 
     public async Task DisposeAsync()
     {
-        if (!CLEAN_UP)
+#pragma warning disable CS0162 // Unreachable code detected
+        if (!CleanUp)
+            // ReSharper disable once HeuristicUnreachableCode Оставлено в целях дальнейшего использования при тестах
+
             return;
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract Возможен null в исключительном случае
         _apiHttpClient?.Dispose();
@@ -354,5 +362,6 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         if (_rabbitMqContainer != null) await _rabbitMqContainer.DisposeAsync();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_network != null) await _network.DeleteAsync();
+#pragma warning restore CS0162 // Unreachable code detected
     }
 }

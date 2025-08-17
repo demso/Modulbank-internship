@@ -10,13 +10,19 @@ namespace BankAccounts.Api.Infrastructure.Database.Context;
 /// <summary>
 /// Для миграций
 /// </summary>
+// ReSharper disable once UnusedType.Global Используется при создании миграций
 public class BankAccountsDbContextFactory : IDesignTimeDbContextFactory<BankAccountsDbContext>
 {
+    /// <summary>
+    /// Создаст контекст
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
     public BankAccountsDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<BankAccountsDbContext>();
+        DbContextOptionsBuilder<BankAccountsDbContext> optionsBuilder = new();
         
-        var connectionString = "Host=localhost;Database=bankaccounts;Username=postgres;Password=notpassword";
+        const string connectionString = "Host=localhost;Database=bankaccounts;Username=postgres;Password=password";
 
         optionsBuilder.UseNpgsql(connectionString, options =>
         {

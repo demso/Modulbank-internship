@@ -22,9 +22,17 @@ public interface IBankAccountsDbContext
     /// </summary>
     DbSet<Transaction> Transactions { get; }
    
+    /// <summary>
+    /// События, ожидающие публикации (<see cref="OutboxPublishedEntity"/>)
+    /// </summary>
     DbSet<OutboxPublishedEntity> OutboxPublished { get; }
+    /// <summary>
+    /// Полученные правильные сообщения (<see cref="InboxConsumedEntity"/>)
+    /// </summary>
     DbSet<InboxConsumedEntity> InboxConsumed { get; }
-    
+    /// <summary>
+    /// Полученные неправильные сообщения (<see cref="DeadLetterEntity"/>)
+    /// </summary>
     DbSet<DeadLetterEntity> DeadLetters { get; }
     /// <summary>
     /// Сохранение изменений

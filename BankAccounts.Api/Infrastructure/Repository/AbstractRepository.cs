@@ -8,15 +8,30 @@ using System.Data.Common;
 
 namespace BankAccounts.Api.Infrastructure.Repository
 {
+    /// <summary>
+    /// Абстрактный репозиторий представляющий реализацию некоторых методов
+    /// </summary>
+    /// <param name="dbContext">Контекст</param>
     public abstract class AbstractRepository(IBankAccountsDbContext dbContext) : IBankAccountsServiceRepositoryAsync
     {
         private protected readonly IBankAccountsDbContext DbContext = dbContext;
         
+        /// <summary>
+        /// Сохранение изменение в бд
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
             return await DbContext.SaveChangesAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Добавить в таблицу исходящих сообщений
+        /// </summary>
+        /// <param name="serviceEvent">Событие</param>
+        /// <param name="cancellationToken"></param>
+        /// <typeparam name="T">Тип события</typeparam>
         public async Task AddToOutboxAsync<T>(T serviceEvent, CancellationToken cancellationToken = default) where T : Event
         {
             OutboxPublishedEntity entity = new() { 
@@ -33,6 +48,11 @@ namespace BankAccounts.Api.Infrastructure.Repository
             await SaveChangesAsync(cancellationToken);
         }
         
+        /// <summary>
+        /// Метод для начала транзакции
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<ISimpleTransactionScope> BeginSerializableTransactionAsync(CancellationToken cancellationToken =  default)
         {
             DbConnection connection = DbContext.Database.GetDbConnection();
@@ -48,14 +68,27 @@ namespace BankAccounts.Api.Infrastructure.Repository
         }
     }
 
+    /// <summary>
+    /// Интерфейс представляющий собой простую реализацию TransactionScope для упрощенного управления транзакциями
+    /// </summary>
     public interface ISimpleTransactionScope : IAsyncDisposable
     {
-        public ValueTask DisposeAsync();
+        /// <summary>
+        /// Выполняет транзакцию
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task CommitAsync(CancellationToken cancellationToken = default);
     }
     
+    /// <summary>
+    /// Класс, представляющий собой простую реализацию TransactionScope для упрощенного управления транзакциями
+    /// </summary>
     public class SimpleTransactionScope : ISimpleTransactionScope
     {
+        /// <summary>
+        /// Транзакция базы данных
+        /// </summary>
         public readonly DbTransaction Transaction;
         private readonly IBankAccountsDbContext _dbContext;
         private readonly bool _wasClosed;
@@ -68,6 +101,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
             _wasClosed = wasClosed;
         }
 
+        /// <inheritdoc />
         public async ValueTask DisposeAsync()
         {
             if (_disposed) return;
@@ -77,7 +111,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
                 await _dbContext.Database.UseTransactionAsync(null);
                 if (_wasClosed)
                 {
-                    var connection = _dbContext.Database.GetDbConnection();
+                    DbConnection connection = _dbContext.Database.GetDbConnection();
                     if (connection.State == ConnectionState.Open)
                         await connection.CloseAsync();
                 }
@@ -87,8 +121,10 @@ namespace BankAccounts.Api.Infrastructure.Repository
                 await Transaction.DisposeAsync();
                 _disposed = true;
             }
+            GC.SuppressFinalize(this);
         }
 
+        /// <inheritdoc />
         public async Task CommitAsync(CancellationToken cancellationToken = default)
         {
             await Transaction.CommitAsync(cancellationToken);

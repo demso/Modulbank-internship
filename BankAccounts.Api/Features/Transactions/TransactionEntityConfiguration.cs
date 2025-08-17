@@ -1,8 +1,7 @@
-﻿using BankAccounts.Api.Features.Transactions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BankAccounts.Api.Infrastructure.Database.EntityTypeConfiguration
+namespace BankAccounts.Api.Features.Transactions
 {
     /// <summary>
     /// Конфигурация сущности транзакции <see cref="Transaction"/>

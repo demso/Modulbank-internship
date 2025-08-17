@@ -1,30 +1,37 @@
 ﻿namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared
 {
+    /// <summary>
+    /// Тип события <see cref="Event"/>
+    /// </summary>
     public enum EventType
     {
+        /// <summary>
+        /// Счет открыт
+        /// </summary>
         AccountOpened,
+        /// <summary>
+        /// Начислены проценты
+        /// </summary>
         InterestAccrued,
+        /// <summary>
+        /// Счет пополнен
+        /// </summary>
         MoneyCredited,
+        /// <summary>
+        /// Снятие средств со счета
+        /// </summary>
         MoneyDebited,
+        /// <summary>
+        /// Произведен трансфер средств
+        /// </summary>
         TransferCompleted,
+        /// <summary>
+        /// Клиент заблокирован
+        /// </summary>
         ClientBlocked,
+        /// <summary>
+        /// Клиент разблокирован
+        /// </summary>
         ClientUnblocked
     }
-
-//     public static class Event
-//     {
-//         private static Dictionary<EventType, string> eventMap = new Dictionary<EventType, string>()
-//         {
-//             {EventType.AccountOpened, "account.opened"},
-//             {EventType.InterestAccrued, "money.interest.accrued"},
-//             {EventType.MoneyCredited, "money.credited"},
-//             {EventType.MoneyDebited, "money.debited"},
-//             {EventType.TransferComplited, "transfer.completed"},
-//         };
-//         
-//         public static string GetRoute(EventType type)
-//         {
-//             return eventMap[type];
-//         }
-//     }
  }

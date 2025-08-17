@@ -6,7 +6,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 /// <summary>
 /// Конкретный класс для регистрации ежедневного начисления процентов.
 /// </summary>
-public class JobsRegistrator(IServiceProvider services) : AbstractJobsRegistrator
+public class JobsRegistrator : AbstractJobsRegistrator
 {
     /// <inheritdoc />
     protected override void AddJobs()

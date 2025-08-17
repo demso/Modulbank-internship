@@ -9,7 +9,8 @@ namespace BankAccounts.Api.Infrastructure.Repository.Accounts;
 /// Репозиторий для работы со счетами пользователя <see cref="Account"/>.
 /// </summary>
 /// <param name="dbContext"></param>
-public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext, ILogger<AccountsRepositoryAsync> logger) : AbstractRepository(dbContext), IAccountsRepositoryAsync
+public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext) : AbstractRepository(dbContext)
+    , IAccountsRepositoryAsync
 {
 
     /// <inheritdoc />
@@ -37,9 +38,8 @@ public class AccountsRepositoryAsync(IBankAccountsDbContext dbContext, ILogger<A
     }
 
     /// <inheritdoc />
-    //todo транзакции ef
-    public async Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate,
-        Guid causationId, CancellationToken cancellationToken)
+    public async Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate
+        , CancellationToken cancellationToken)
     {
         Account account = (await DbContext.Accounts.AddAsync(
             new Account

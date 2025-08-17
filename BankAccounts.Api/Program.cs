@@ -33,10 +33,11 @@ try
 
     await app.MigrateDatabase();
     
+    // запись в лог всех http запросов
     app.UseSerilogRequestLogging(options =>
     {
         options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0} ms";
-        options.GetLevel = (httpContext, elapsed, ex) => ex != null 
+        options.GetLevel = (httpContext, _, ex) => ex != null 
             ? LogEventLevel.Error 
             : httpContext.Response.StatusCode > 499 
                 ? LogEventLevel.Error 

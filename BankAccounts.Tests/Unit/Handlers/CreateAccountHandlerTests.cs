@@ -2,7 +2,6 @@
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 using BankAccounts.Api.Features.Accounts.Dtos;
-using BankAccounts.Api.Features.Shared;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.Repository;
@@ -55,7 +54,7 @@ public class CreateAccountHandlerTests
         };
         
         _mockRepository.Setup(r => r.AddAsync(account.OwnerId, account.AccountType, account.Currency, 
-                account.InterestRate, CausationIds.CreateAccount, CancellationToken.None))
+                account.InterestRate, CancellationToken.None))
             .ReturnsAsync(account); 
         
         _mockRepository.Setup(r => r.BeginSerializableTransactionAsync(It.IsAny<CancellationToken>()))
@@ -88,7 +87,7 @@ public class CreateAccountHandlerTests
        Assert.Equal(result.OpenDate, account.OpenDate);
        Assert.Equal(result.CloseDate, account.CloseDate);
        _mockRepository.Verify(r => r.AddAsync(account.OwnerId, account.AccountType, account.Currency,
-           account.InterestRate, CausationIds.CreateAccount,  CancellationToken.None), Times.Once);
+           account.InterestRate, CancellationToken.None), Times.Once);
        _mockMapper.Verify(m => m.Map<AccountDto>(account), Times.Once);
     }
 }

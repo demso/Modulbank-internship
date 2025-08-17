@@ -25,6 +25,6 @@ public interface IAccountsRepositoryAsync : IBankAccountsServiceRepositoryAsync
     /// <summary>
     /// Добавить новый счет.
     /// </summary>
-    Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate, Guid causationId,
+    Task<Account> AddAsync(Guid ownerId, AccountType accountType, Currencies currency, decimal interestRate,
         CancellationToken cancellationToken);
 }

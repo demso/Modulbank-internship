@@ -2,13 +2,25 @@
 
 namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 
+/// <summary>
+/// Абстрактный класс события, создаваемого при определенных условиях
+/// </summary>
 public abstract class Event
 {
-    public Guid EventId { get; set; } = Guid.NewGuid();
-    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
+    /// <summary>
+    /// Id события
+    /// </summary>
+    public Guid EventId { get; } = Guid.NewGuid();
+    /// <summary>
+    /// Время/дата создания 
+    /// </summary>
+    public DateTime OccurredAt { get; } = DateTime.UtcNow;
+    /// <summary>
+    /// Мета-дата
+    /// </summary>
     public required Metadata Metadata { get; init; }
     
-    private static Dictionary<EventType, string> _eventMap = new Dictionary<EventType, string>()
+    private static Dictionary<EventType, string> _eventMap = new()
     {
         {EventType.AccountOpened, "account.opened"},
         {EventType.InterestAccrued, "money.interest.accrued"},
@@ -16,14 +28,25 @@ public abstract class Event
         {EventType.MoneyDebited, "money.debited"},
         {EventType.TransferCompleted, "transfer.completed"},
         {EventType.ClientBlocked, "client.blocked"},
-        {EventType.ClientUnblocked, "client.unblocked"},
+        {EventType.ClientUnblocked, "client.unblocked"}
     };
         
+    /// <summary>
+    /// Вернет путь для публикации события
+    /// </summary>
+    /// <param name="type">Тип события</param>
+    /// <returns>Путь</returns>
     public static string GetRoute(EventType type)
     {
         return _eventMap[type];
     }
 
+    /// <summary>
+    /// Получить тип сообщения по типу объекта
+    /// </summary>
+    /// <param name="type">Объект события</param>
+    /// <returns>Тип события</returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static EventType GetEventType(Event type)
     {
         return type switch

@@ -27,6 +27,7 @@ namespace BankAccounts.Api.Common
         /// <param name="json">Json-текст для десериализации</param>
         /// <typeparam name="T">Тип объекта</typeparam>
         /// <returns>Десериализованный объект</returns>
+        // ReSharper disable once UnusedMember.Global Оставлен на будущее 
         public static T? FromJson<T>(string json)
         {
             return JsonSerializer.Deserialize<T>(json, Options);

@@ -22,8 +22,14 @@ public sealed class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext
     /// Транзакции (<see cref="Transaction"/>)
     /// </summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
+
+    /// <inheritdoc />
     public DbSet<OutboxPublishedEntity>  OutboxPublished => Set<OutboxPublishedEntity>();
+
+    /// <inheritdoc />
     public DbSet<InboxConsumedEntity> InboxConsumed => Set<InboxConsumedEntity>();
+
+    /// <inheritdoc />
     public DbSet<DeadLetterEntity> DeadLetters => Set<DeadLetterEntity>();
 
     /// <inheritdoc />

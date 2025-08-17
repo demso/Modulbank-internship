@@ -23,7 +23,7 @@ public class CreateAccountHandler(IAccountsRepositoryAsync accountsRepository, I
         
         try {
             Account account = await accountsRepository.AddAsync(request.OwnerId, request.AccountType, request.Currency, 
-                request.InterestRate, CausationId, cancellationToken);
+                request.InterestRate, cancellationToken);
             
             await accountsRepository.AddToOutboxAsync(new AccountOpened
             {
