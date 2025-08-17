@@ -16,8 +16,7 @@ public class BankAccountsDbContextFactory : IDesignTimeDbContextFactory<BankAcco
     {
         var optionsBuilder = new DbContextOptionsBuilder<BankAccountsDbContext>();
         
-        // Используйте вашу строку подключения
-        var connectionString = "Host=localhost;Database=bankaccounts;Username=postgres;Password=yourpassword";
+        var connectionString = "Host=localhost;Database=bankaccounts;Username=postgres;Password=notpassword";
 
         optionsBuilder.UseNpgsql(connectionString, options =>
         {
