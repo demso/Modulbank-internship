@@ -149,7 +149,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             try {
                 DeadLetterEntity deadLetter = new()
                 {
-                    RecievedAt = recievedAt,
+                    ReceivedAt = recievedAt,
                     Handler = handler,
                     Payload = message,
                     EventType = eventType,

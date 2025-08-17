@@ -3,7 +3,7 @@
     public class DeadLetterEntity //inbox_dead_letters (message_id, received_at, handler, payload, error).
     {
         public Guid MessageId { get; set; }
-        public DateTime RecievedAt { get; set; }
+        public DateTime ReceivedAt { get; set; }
         public string Handler { get; set; }
         public string Payload { get; set; }
         public EventType? EventType { get; set; }
