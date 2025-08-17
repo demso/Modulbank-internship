@@ -247,6 +247,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         {
             string? id = null;
             string? correlationId = null;
+            string? ownerId = null;
             
             try
             {
@@ -254,13 +255,14 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                     
                 id = root.GetProperty("EventId").GetString();
                 correlationId = root.GetProperty("Metadata").GetProperty("CorrelationId").GetString();
+                ownerId = root.GetProperty("OwnerId").GetString();
             }
             catch (Exception) { /* ignored */ }
             
             TimeSpan? latency = timestamp == null ? null : DateTime.UtcNow - timestamp;
                     
-            logger.LogInformation("Successfully consumed event: id = {id}, type = {type}, " +
-                                  "correlationId = {correlationId}, latency = {latency}", id, 
+            logger.LogInformation("Successfully consumed event: id = {id}, ownerId = {owner}, type = {type}, " +
+                                  "correlationId = {correlationId}, latency = {latency}", id, ownerId,
                 type.ToString(), correlationId, latency); // eventId, type, correlationId, retry, latency
         }
         
