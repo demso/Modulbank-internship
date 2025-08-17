@@ -169,6 +169,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 hasHeaders = headers.Count != 0;
                 
                 eventType = Enum.Parse<EventType>(BytesToString(headers["type"]!));
+                messageId = Guid.Parse((ReadOnlySpan<char>)properties.MessageId);
                 
                 headerCausationId = BytesToString(headers["x-causation-id"]!);
                 headerCorrelationId = BytesToString(headers["x-correlation-id"]!);
@@ -178,7 +179,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                     document.RootElement.GetProperty("Metadata").GetProperty("CausationId").GetString()!;
                 bodyCorrelationId = document.RootElement.GetProperty("Metadata").GetProperty("CorrelationId")
                     .GetString()!;
-
+                
                 if (headerCausationId != bodyCausationId)
                 {
                     reason = "Causation id mismatch";
@@ -210,6 +211,10 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 {
                     if (!hasHeaders)
                         reason = "No headers";
+                    else if (eventType is null)
+                        reason = "No event type";
+                    else if (messageId is null)
+                        reason = "No message id";
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Может быть null в исключительных случаях
                     else if (headerCausationId is null)
                         reason = "No header causation";
