@@ -1,5 +1,6 @@
 ﻿using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts;
+using BankAccounts.Api.Features.Shared.UserBlacklist;
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
@@ -26,7 +27,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace BankAccounts.Api.Infrastructure.Extensions
@@ -63,6 +63,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .AddScoped<IAccountsRepositoryAsync, AccountsRepositoryAsync>()
                 .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
                 .AddSingleton<ICurrencyService, CurrencyService.CurrencyService>()
+                .AddSingleton<IUserBlacklistService, UserBlacklist>()
                 .AddAutoMapper(options => options.AddMaps(Assembly.GetExecutingAssembly()))
                 .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
                 .AddControllers()
@@ -182,11 +183,10 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection SetupRabbitMq(this IServiceCollection services)
+        public static void SetupRabbitMq(this IServiceCollection services)
         {
             services.AddScoped<Sender>();
             services.AddHostedService<Receiver>();
-            return services;
         }
 
         /// <summary>

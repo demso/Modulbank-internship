@@ -2,6 +2,7 @@
 using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
+using BankAccounts.Api.Features.Shared.UserBlacklist;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
@@ -15,19 +16,22 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransaction;
 /// Обработчик команды <see cref="PerformTransactionCommand"/>
 /// </summary>
 public class PerformTransactionHandler(IAccountsRepositoryAsync accountsRepository, ITransactionsRepositoryAsync transactionsRepository, 
-    IMapper mapper) : RequestHandlerBase<PerformTransactionCommand, TransactionDto>
+    IMapper mapper, IUserBlacklistService blacklist) : RequestHandlerBase<PerformTransactionCommand, TransactionDto>
 {
     private static readonly Guid CausationId = CausationIds.PerformTransaction;
     
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransactionCommand request, CancellationToken cancellationToken)
     {
-        Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
-
         await using ISimpleTransactionScope dbTransaction = await transactionsRepository.BeginSerializableTransactionAsync(cancellationToken);
         
         try
         {
+            Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
+            
+            if (blacklist.IsBlacklisted(account.OwnerId))
+                throw new UserInBlockListException(request.OwnerId);
+            
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault Решарпер предлагает непонятный код
             switch (request.TransactionType) {
                 case TransactionType.Debit:
@@ -52,7 +56,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
 
             switch (request.TransactionType) {
                 case TransactionType.Debit:
-                    await transactionsRepository.AddToOutboxAsync(new MoneyCredited()
+                    await transactionsRepository.AddToOutboxAsync(new MoneyCredited
                     {
                         Amount = request.Amount,
                         AccountId = transaction.AccountId,
@@ -60,12 +64,12 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
                         OperationId = transaction.TransactionId,
                         Metadata = new Metadata
                         {
-                            CausationId = CausationId,
+                            CausationId = CausationId
                         }
                     }, cancellationToken);
                     break;
                 case TransactionType.Credit:
-                    await transactionsRepository.AddToOutboxAsync(new MoneyDebited()
+                    await transactionsRepository.AddToOutboxAsync(new MoneyDebited
                     {
                         Amount = request.Amount,
                         AccountId = transaction.AccountId,
@@ -73,7 +77,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
                         OperationId = transaction.TransactionId,
                         Metadata = new Metadata
                         {
-                            CausationId = CausationId,
+                            CausationId = CausationId
                         }
                     }, cancellationToken);
                     break;

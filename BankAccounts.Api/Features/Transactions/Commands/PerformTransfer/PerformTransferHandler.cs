@@ -2,9 +2,10 @@
 using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
+using BankAccounts.Api.Features.Shared.UserBlacklist;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.CurrencyService;
-using BankAccounts.Api.Infrastructure.RabbitMQ.Events;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
@@ -20,8 +21,11 @@ namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 /// </summary>
 public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository, 
     ITransactionsRepositoryAsync transactionsRepository, ICurrencyService currencyService, IMapper mapper, 
-    ILogger<PerformTransferHandler> logger) : RequestHandlerBase<PerformTransferCommand, TransactionDto>
+    ILogger<PerformTransferHandler> logger, IUserBlacklistService blacklist) : RequestHandlerBase<PerformTransferCommand, TransactionDto>
 {
+    /// <summary>
+    /// Id источника
+    /// </summary>
     public static readonly Guid CausationId = CausationIds.PerformTransfer;
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransferCommand request,  CancellationToken cancellationToken)
@@ -39,6 +43,9 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
             
             if (toAccount is null)
                 throw new AccountNotFoundException(request.ToAccountId);
+
+            if (blacklist.IsBlacklisted(fromAccount.OwnerId) || blacklist.IsBlacklisted(toAccount.OwnerId))
+                throw new UserInBlockListException(request.OwnerId);
 
             // Проверяем достаточность средств
             CheckBalance(request, fromAccount);
@@ -76,7 +83,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
 
             await transactionsRepository.AddToOutboxAsync(new TransferCompleted
             {
-                Metadata = new Metadata()
+                Metadata = new Metadata
                 {
                     CausationId = CausationId
                 },
