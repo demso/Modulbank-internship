@@ -25,6 +25,8 @@ namespace BankAccounts.Tests.Integration.Testcontainers;
 /// <param name="output">Вспомогательный объект для вывода логов теста</param>
 public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLifetime
 {
+    
+    private const bool CLEAN_UP = true;
     private INetwork _network = null!; 
     private PostgreSqlContainer _bankAccountsDbContainer = null!;
     private IContainer _identityServiceContainer = null!; 
@@ -51,7 +53,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithPassword("password")
             .WithPortBinding(5432, true)
             .WithImage("lithiumkgp/postgres")
-            .WithCleanUp(true)
+            .WithCleanUp(CLEAN_UP)
             .Build();
         await _bankAccountsDbContainer.StartAsync();
         
@@ -64,7 +66,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithHostname("rabbitmq")
             .WithPortBinding(5672, true)
             .WithPortBinding(15672, true) 
-            .WithCleanUp(true)
+            .WithCleanUp(CLEAN_UP)
             .Build();
         await _rabbitMqContainer.StartAsync();
         
@@ -74,7 +76,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithName("bankaccounts_identity_test" + Random.Shared.NextInt64())
             .WithImage("lithiumkgp/bankaccounts.identity:latest")
             .WithPortBinding(7045, true)
-            .WithCleanUp(true)
+            .WithCleanUp(CLEAN_UP)
             .Build();
         await _identityServiceContainer.StartAsync();
 
@@ -87,7 +89,7 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80))
             .DependsOn(_bankAccountsDbContainer)
             .DependsOn(_rabbitMqContainer)
-            .WithCleanUp(true)
+            .WithCleanUp(CLEAN_UP)
             .Build();
         await _bankAccountsApiContainer.StartAsync();
 
@@ -338,6 +340,8 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
 
     public async Task DisposeAsync()
     {
+        if (!CLEAN_UP)
+            return;
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract Возможен null в исключительном случае
         _apiHttpClient?.Dispose();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
@@ -346,6 +350,8 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
         if (_identityServiceContainer != null) await _identityServiceContainer.DisposeAsync();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_bankAccountsDbContainer != null) await _bankAccountsDbContainer.DisposeAsync();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
+        if (_rabbitMqContainer != null) await _rabbitMqContainer.DisposeAsync();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Возможен null в исключительном случае
         if (_network != null) await _network.DeleteAsync();
     }
