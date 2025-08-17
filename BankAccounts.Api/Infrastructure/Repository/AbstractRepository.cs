@@ -21,7 +21,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
         {
             OutboxPublishedEntity entity = new() { 
                 EventType = Event.GetEventType(serviceEvent), 
-                Message = JsonObjectSerializer.ToJson(serviceEvent), 
+                Message = JsonHelper.ToJson(serviceEvent), 
                 EventId = serviceEvent.EventId,
                 CausationId = serviceEvent.Metadata.CausationId,
                 CorrelationId = serviceEvent.Metadata.CorrelationId,

@@ -36,7 +36,6 @@ namespace BankAccounts.Api.Infrastructure.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
-        public static JsonSerializerOptions JsonOptions = new();
         /// <summary>
         /// Добавит компоненты, не требующие сложной настройки
         /// </summary>
@@ -46,7 +45,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         public static IServiceCollection AddCommonServices(this IServiceCollection services,
             IConfiguration configuration)
         {
-            JsonOptions.Converters.Add(new JsonStringEnumConverter());
+            JsonHelper.Options.Converters.Add(new JsonStringEnumConverter());
             
             services
                 .AddDbContext<BankAccountsDbContext>(optionsBuilder => 
