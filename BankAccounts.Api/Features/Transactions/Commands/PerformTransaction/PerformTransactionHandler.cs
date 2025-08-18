@@ -2,13 +2,13 @@
 using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Features.Shared.UserBlacklist;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
+using BankAccounts.Api.Infrastructure.UserBlacklist;
 
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransaction;
 
@@ -29,7 +29,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
         {
             Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
             
-            if (blacklist.IsBlacklisted(account.OwnerId))
+            if (await blacklist.IsBlacklisted(account.OwnerId))
                 throw new UserInBlockListException(request.OwnerId);
             
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault Решарпер предлагает непонятный код

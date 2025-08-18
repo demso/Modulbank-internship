@@ -2,7 +2,6 @@
 using BankAccounts.Api.Common.Exceptions;
 using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Shared;
-using BankAccounts.Api.Features.Shared.UserBlacklist;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
@@ -10,6 +9,7 @@ using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
+using BankAccounts.Api.Infrastructure.UserBlacklist;
 
 // ReSharper disable once UnusedType.Global Класс используется посредником
 
@@ -44,7 +44,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
             if (toAccount is null)
                 throw new AccountNotFoundException(request.ToAccountId);
 
-            if (blacklist.IsBlacklisted(fromAccount.OwnerId) || blacklist.IsBlacklisted(toAccount.OwnerId))
+            if (await blacklist.IsBlacklisted(fromAccount.OwnerId) || await blacklist.IsBlacklisted(toAccount.OwnerId))
                 throw new UserInBlockListException(request.OwnerId);
 
             // Проверяем достаточность средств
