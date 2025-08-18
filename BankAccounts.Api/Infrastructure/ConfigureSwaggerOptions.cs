@@ -28,7 +28,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                           "3. Скопируйте полученный токен.\n" +
                           "4. Вставьте в поле окна \"Authorize\"\n" +
                           "5. Можно пользоваться сервисом.\n\n\n" +
-                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)"+
+                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)\n"+
                           "RabbitMQ: [http://localhost:15672/](http://localhost:15672/)" ,
             Version = "v1"
         });

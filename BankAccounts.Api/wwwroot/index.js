@@ -222,7 +222,7 @@ window.onload = function () {
 
     const ui = SwaggerUIBundle({
         // ... ваши существующие опции ...
-        url: "/swagger-ui/swagger.json", // Убедитесь, что путь правильный к вашему статическому файлу
+        url: "/swagger/v1/swagger.json", // Убедитесь, что путь правильный к вашему статическому файлу
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
