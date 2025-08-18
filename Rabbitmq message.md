@@ -20,17 +20,18 @@ x-correlation-id  0452b2ec-5e4b-f650-b9ee-78ec1a128888
 x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  ClientBlocked
 PROPERTIES:
-message_id		  0472b2vc-0e4b-f650-b9ee-78ec1a130247
-
+message_id		  a8bc1dca-b39e-426f-83b7-bdb3d9a7e16e
+```
+```json
 {
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "ClientId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "clientId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
@@ -43,17 +44,18 @@ x-correlation-id  0452b2ec-5e4b-f650-b9ee-78ec1a128888
 x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  ClientUnblocked
 PROPERTIES:
-message_id		  0472b2vc-0e9b-f650-b9ee-78ec1a130247
-
+message_id		  0452b2ec-5e4b-f650-b9ee-78ec1a129047
+```
+```json
 {
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "ClientId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "clientId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
@@ -65,20 +67,21 @@ x-correlation-id  0452b2ec-5e4b-f650-b9ee-78ec1a128888
 x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  AccountOpened
 PROPERTIES:
-message_id		  0472b2ec-0e4b-f650-b9ee-78ec1a130247
-
+message_id		  0452b2ec-5e4b-f650-b9ee-08ec1a130247
+```
+```json
 {
-  "AccountId": 1,
-  "OwnerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
-  "Currency": "Rub",
-  "AccountType": "Checking",
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "accountId": 1,
+  "ownerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
+  "currency": "Rub",
+  "accountType": "Checking",
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
@@ -90,20 +93,21 @@ x-correlation-id  0452b2ec-5e4b-f650-b9ee-78ec1a128888
 x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  InterestAccrued
 PROPERTIES:
-message_id		  0479b2ec-0e4b-f650-b9ee-78ec1a130247
-
+message_id		  0479b2ec-0e4b-f650-b9ee-78ec1a133347
+```
+```json
 {
-  "AccountId": 1,
+  "accountId": 1,
   "PeriodFrom": "2024-01-15",
   "PeriodTo": "2025-10-15",
-  "Amount": 300.43,
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "amount": 300.43,
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
@@ -115,21 +119,23 @@ x-correlation-id  0452b2ec-5e4b-f650-b9ee-78ec1a128888
 x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  MoneyCredited
 PROPERTIES:
-message_id		  0472b2ec-1e4b-f680-b9ee-78yc1a130247
-
+message_id		  0452b2ec-5e4b-f650-b9ee-78ec1a538247
+timestamp         5250597465388560401
+```
+```json
 {
-  "AccountId": 1,
-  "OwnerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
-  "Currency": "Rub",
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "Amount": 200.56,
-  "OperationId": 0452b2ec-5e4b-f350-b9ee-78ec1a129043,
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "accountId": 1,
+  "ownerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
+  "currency": "Rub",
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "amount": 200.56,
+  "operationId": "0452b2ec-5e4b-f350-b9ee-78ec1a129043",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
@@ -143,21 +149,22 @@ x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  MoneyDebited
 PROPERTIES:
 message_id		  0472b2ec-1e4b-f680-b5ee-78ec2a130247
-
+```
+```json
 {
-  "AccountId": 1,
-  "OwnerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
-  "Currency": "Rub",
-  "Reason": "reason",
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "Amount": 200.56,
-  "OperationId": 0452b2ec-5e4b-f350-b9ee-78ec1a129043,
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "accountId": 1,
+  "ownerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
+  "currency": "Rub",
+  "reason": "reason",
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "amount": 200.56,
+  "operationId": "0452b2ec-5e4b-f350-b9ee-78ec1a129043",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
@@ -171,23 +178,23 @@ x-correlation-id  0452b2ec-5e4b-f650-b9ee-78ec1a128888
 x-causation-id	  0452b2ec-5e4b-f650-b9ee-78ec1a130247
 type			  TransferCompleted
 PROPERTIES:
-message_id		  0470b2ec-1e4b-m680-b5ee-78ec2a130247
-
+message_id		  0452b2ec-5e4b-f650-b9ff-78ec1a924888
+```
+```json
 {
-  "SourceAccountId": 1,
-  "DestinationAccountId": 2,
-  "OwnerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
-  "Currency": "Rub",
-  "Reason": "reason",
-  "EventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
-  "OccuredAt": "2024-01-15T14:30:45.1234567Z",
-  "Amount": 200.56,
-  "OperationId": 0452b2ec-5e4b-f350-b9ee-78ec1a129043,
-  "Metadata": {
-    "CausationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
-    "CorrelationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
-    "Version": "v1",
-    "Source": "account-service"
+  "sourceaccountId": 1,
+  "destinationaccountId": 2,
+  "ownerId": "0452b2ec-5e4b-f650-b9ee-78ec1a129047",
+  "currency": "Rub",
+  "eventId": "0452b2ec-5e4b-f650-b9ee-78ec1a129043",
+  "occuredAt": "2024-01-15T14:30:45.1234567Z",
+  "amount": 200.56,
+  "transferId": "0452b2ec-5e4b-f350-b9ee-78ec1a129043",
+  "meta": {
+    "causationId": "0452b2ec-5e4b-f650-b9ee-78ec1a130247",
+    "correlationId": "0452b2ec-5e4b-f650-b9ee-78ec1a128888",
+    "version": "v1",
+    "source": "account-service"
   } 
 }
 ```
