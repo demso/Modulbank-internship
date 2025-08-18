@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BankAccounts.Api.Migrations
 {
     [DbContext(typeof(BankAccountsDbContext))]
-    [Migration("20250818174506_AddEventTables")]
+    [Migration("20250818185858_AddEventTables")]
     partial class AddEventTables
     {
         /// <inheritdoc />
