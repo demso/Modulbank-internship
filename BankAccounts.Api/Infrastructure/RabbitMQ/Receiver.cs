@@ -139,15 +139,16 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 bool shouldRequeue = ea.DeliveryTag < 5;
                 
                 await _channel.BasicNackAsync(deliveryTag: ea.DeliveryTag, multiple: false, requeue: shouldRequeue);
-                logger.LogInformation("Error while processing message, is requeued: {Requeue}, requeue count: {Count}. {Message} \n {Stacktrace}", 
-                   shouldRequeue, ea.DeliveryTag, ex.Message, ex.StackTrace);
+                logger.LogInformation("Error while processing message, is requeued: {Requeue}, requeue count: {Count}. " +
+                "{Message} \n {Stacktrace}", shouldRequeue, ea.DeliveryTag, ex.Message, ex.StackTrace);
                 await Task.Delay(1000);
                 throw;
             }
         }
 
         // ReSharper disable once ReturnTypeCanBeNotNullable Может быть null
-        private static string? ValidateMessage(IReadOnlyBasicProperties properties, JsonDocument document, out EventType? eventType, out Guid? messageId)
+        private static string? ValidateMessage(IReadOnlyBasicProperties properties, JsonDocument document, 
+            out EventType? eventType, out Guid? messageId)
         {
             eventType = null;
             messageId = null;
