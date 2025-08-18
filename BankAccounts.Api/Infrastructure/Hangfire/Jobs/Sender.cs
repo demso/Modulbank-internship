@@ -78,6 +78,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
              if (count > 0) // выводим сообщение в случае, если не все сообщения были отправлены
                 logger.LogInformation("Published {PublishedCount} messages (failed and queued for retry: {Count}) " +
                         "in batch in {SwElapsedMilliseconds:N0} ms", publishedCount, count, sw.ElapsedMilliseconds);
+             await dbContext.SaveChangesAsync(CancellationToken.None);
         }
 
         private async Task<int> Send(List<(OutboxPublishedEntity, ValueTask)> publishTasks, List<OutboxPublishedEntity> entities)
