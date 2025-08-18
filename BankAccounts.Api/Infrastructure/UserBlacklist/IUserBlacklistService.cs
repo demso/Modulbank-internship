@@ -1,4 +1,4 @@
-﻿namespace BankAccounts.Api.Features.Shared.UserBlacklist
+﻿namespace BankAccounts.Api.Infrastructure.UserBlacklist
 {
     /// <summary>
     /// Интерфейс для создания черного списка пользователей
@@ -9,17 +9,17 @@
         /// Добавить в список
         /// </summary>
         /// <param name="userId"></param>
-        void AddToList(Guid userId);
+        Task<bool> AddToList(Guid userId);
         /// <summary>
         /// Убрать из списка
         /// </summary>
         /// <param name="userId"></param>
-        void RemoveFromList(Guid userId);
+        Task<bool> RemoveFromList(Guid userId);
         /// <summary>
         /// Проверить есть ли в списке
         /// </summary>
         /// <param name="userId">Id пользователя</param>
         /// <returns>True - есть, false - нет</returns>
-        bool IsBlacklisted(Guid userId);
+        Task<bool> IsBlacklisted(Guid userId);
     }
 }
