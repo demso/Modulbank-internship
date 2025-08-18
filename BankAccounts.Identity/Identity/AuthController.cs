@@ -101,7 +101,7 @@ public class AuthController(
             issuer: configuration["Jwt:Issuer"],
             audience: configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddHours(24),
+            expires: DateTime.Now.AddHours(1),
             signingCredentials: credentials
         );
 
