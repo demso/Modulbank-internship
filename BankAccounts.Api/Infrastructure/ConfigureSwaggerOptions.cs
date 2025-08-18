@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Specific;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Specific;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
@@ -25,7 +28,8 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                           "3. Скопируйте полученный токен.\n" +
                           "4. Вставьте в поле окна \"Authorize\"\n" +
                           "5. Можно пользоваться сервисом.\n\n\n" +
-                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)",
+                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)"+
+                          "RabbitMQ: [http://localhost:15672/](http://localhost:15672/)" ,
             Version = "v1"
         });
 
@@ -63,5 +67,26 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
             apiDescription.TryGetMethodInfo(out MethodInfo? methodInfo)
                 ? methodInfo.Name
                 : null);
+        options.DocumentFilter<EventTypeSchemasDocumentFilter>();
+    }
+    
+    /// <summary>
+    /// Фильтр для добавления пользовательских описаний к схемам событий.
+    /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global Предлагает ерунду
+    public class EventTypeSchemasDocumentFilter : IDocumentFilter
+    {
+        /// <inheritdoc />
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+        {
+            context.SchemaGenerator.GenerateSchema(typeof(AccountOpened), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(TransferCompleted), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(ClientBlocked), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(ClientUnblocked), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(MoneyCredited), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(MoneyDebited), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(Metadata), context.SchemaRepository);
+            context.SchemaGenerator.GenerateSchema(typeof(InterestAccrued), context.SchemaRepository);
+        }
     }
 }
