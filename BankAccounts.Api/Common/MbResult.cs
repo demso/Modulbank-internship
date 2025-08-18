@@ -24,9 +24,10 @@ public record MbResult<T>
         Value = value;
     }
 
-    private MbResult(int statusCode, string? mbError)
+    private MbResult(int statusCode, string? mbError, T? value = default)
     {
         IsSuccess = false;
+        Value = value;
         MbError = mbError;
         StatusCode = statusCode;
     }
@@ -46,8 +47,8 @@ public record MbResult<T>
 
     public static MbResult<T> Success(int code, T value) => new(code, value);
 
-    public static MbResult<T> Failure(int statusCode, string? mbError)
-        => new(statusCode, mbError);
+    public static MbResult<T> Failure(int statusCode, string? mbError,  T? value = default)
+        => new(statusCode, mbError, value);
 }
 
 /// <summary>
