@@ -1,8 +1,9 @@
-﻿using BankAccounts.Api.Features.Shared.UserBlacklist;
-using BankAccounts.Api.Infrastructure.Database.Context;
+﻿using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.DeadLetter;
+using BankAccounts.Api.Infrastructure.UserBlacklist;
+using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -16,7 +17,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
     /// <param name="logger"></param>
     /// <param name="scopeFactory"></param>
     /// <param name="configuration"></param>
-    public class Receiver(ILogger<Receiver> logger, IServiceScopeFactory scopeFactory, IUserBlacklistService blacklist, IConfiguration configuration) 
+    public class Receiver(ILogger<Receiver> logger, IServiceScopeFactory scopeFactory, IConfiguration configuration) 
         : IHostedService
     {
         private ConnectionFactory _factory = null!;
@@ -26,7 +27,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         private const string AuditQueueName = "account.audit";
         private const string AntifraudQueueName = "account.antifraud";
         private const int MajorMessageVersion = 1;
-        
+
         private async Task Init()
         {
             _factory = new ConnectionFactory
@@ -58,49 +59,12 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         }
 
         /// <summary>
-        /// Обработка сообщений о блокировке/разблокировке
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="ea"></param>
-        public async Task ProcessAntifraudMessage(object model, BasicDeliverEventArgs ea)
-        {
-            (EventType, JsonDocument)? result = await ProcessAuditMessage(model, ea);
-            if (result is null)
-                return;
-            
-            EventType eventType = result.Value.Item1;
-            JsonDocument jsonDocument = result.Value.Item2;
-            Guid clientId = jsonDocument.RootElement.GetProperty("ClientId").GetGuid();
-            
-            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault Нужно обработать только 2 случая
-            switch (eventType)
-            {
-                case EventType.ClientBlocked:
-                    ClientBlockedReceived(clientId);
-                    break;
-                case EventType.ClientUnblocked:
-                    ClientUnblockedReceived(clientId);
-                    break;
-            }
-        }
-
-        private void ClientBlockedReceived(Guid userId)
-        {
-            blacklist.AddToList(userId);
-        }
-
-        private void ClientUnblockedReceived(Guid userId)
-        {
-            blacklist.RemoveFromList(userId);
-        }
-
-        /// <summary>
         /// Обработка всех полученных сообщений 
         /// </summary>
         /// <param name="model"></param>
         /// <param name="ea"></param>
         /// <returns></returns>
-        public async Task<(EventType, JsonDocument)?> ProcessAuditMessage(object model, BasicDeliverEventArgs ea)
+        public async Task<(EventType, Guid, JsonDocument)?> ProcessAuditMessage(object model, BasicDeliverEventArgs ea)
         {
             try
             { 
@@ -114,40 +78,203 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                     out EventType? eventType, 
                     out Guid? messageId);
 
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract На всякий случай
                 if (reason != null)
                 {
                     LogDeadLetter(document, eventType, reason);
                     await AddToDeadLetters(dbContext, messageId, document.RootElement.GetRawText(), eventType,
-                        DateTime.UtcNow, "Receiver",
+                        DateTime.UtcNow, "Auditor",
                         reason);
-                    await _channel.BasicNackAsync(deliveryTag: ea.DeliveryTag, multiple: false, requeue: false);
+                    await Nack(deliveryTag: ea.DeliveryTag, requeue: false);
+                    return null;
+                }
+                
+                bool alreadyAdded = await dbContext.InboxConsumed
+                    .AnyAsync(ic => ic.MessageId == messageId!.Value, CancellationToken.None);
+
+                if (alreadyAdded)
+                {
+                    // Сообщение уже обработано ранее, просто подтверждаем его.
+                    logger.LogWarning("Message with MessageId {MessageId} already processed.", messageId);
+                    await Ack(deliveryTag: ea.DeliveryTag);
                     return null;
                 }
 
-                await AddToInbox(dbContext, messageId!.Value, eventType!.Value, DateTime.UtcNow, "Receiver");
+                await AddToInbox(dbContext, messageId!.Value, eventType!.Value, DateTime.UtcNow, "None");
                 
-                await _channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
+                await Ack(deliveryTag: ea.DeliveryTag);
                 
-                long propTimestamp = ea.BasicProperties.Timestamp.UnixTime;
-                DateTime? timestamp = propTimestamp == 0 ? null : DateTime.FromBinary(propTimestamp);
-                LogSuccess(document, eventType.Value, timestamp);
+                LogSuccess(document, eventType.Value, messageId.Value, GetTimestamp(ea));
                 
-                return (eventType.Value,  document);
+                return (eventType.Value, messageId.Value,  document);
             }
             catch (Exception ex)
             {
-                bool shouldRequeue = ea.DeliveryTag < 5;
-                
-                await _channel.BasicNackAsync(deliveryTag: ea.DeliveryTag, multiple: false, requeue: shouldRequeue);
-                logger.LogInformation("Error while processing message, is requeued: {Requeue}, requeue count: {Count}. " +
-                "{Message} \n {Stacktrace}", shouldRequeue, ea.DeliveryTag, ex.Message, ex.StackTrace);
+                await Nack(deliveryTag: ea.DeliveryTag, requeue: !ea.Redelivered);
+                logger.LogInformation("Error while processing message, is requeued: {Requeue}, requeue count: {Count}. {Message} "
+                    , !ea.Redelivered, ea.DeliveryTag, ex.Message);
                 await Task.Delay(1000);
                 throw;
             }
         }
 
+        /// <summary>
+        /// Обработка сообщений о блокировке/разблокировке
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="ea"></param>
+        public async Task ProcessAntifraudMessage(object model, BasicDeliverEventArgs ea)
+        {
+            try
+            { 
+                using IServiceScope scope = scopeFactory.CreateScope();
+                IBankAccountsDbContext dbContext = scope.ServiceProvider.GetRequiredService<IBankAccountsDbContext>();
+                IUserBlacklistService blacklist = scope.ServiceProvider.GetRequiredService<IUserBlacklistService>();
+               
+                (EventType, Guid, JsonDocument)? result = await CheckDeadLetter(dbContext, ea, "Antifraud");
+
+                if (result is null)
+                {
+                    await Nack(ea.DeliveryTag, false);
+                    return;
+                }
+
+                JsonDocument document = result.Value.Item3;
+                EventType eventType = result.Value.Item1;
+                Guid messageId =  result.Value.Item2;
+                
+                List<InboxConsumedEntity> entities = await dbContext.InboxConsumed
+                    .Where(ic => ic.MessageId == messageId).AsNoTracking()
+                    .ToListAsync(CancellationToken.None);
+                
+                int addedOrProcessed = CheckAlreadyAdded(entities);
+                
+                bool isProcessed = addedOrProcessed == 2;
+                bool isAdded = addedOrProcessed == 1;
+
+                if (isProcessed)
+                {
+                    // Сообщение уже обработано ранее, просто подтверждаем его.
+                    logger.LogWarning("Message with MessageId {MessageId} already processed.", messageId);
+                    await Nack(deliveryTag: ea.DeliveryTag, false);
+                    return;
+                }
+
+                Guid clientId = document.RootElement.GetProperty("ClientId").GetGuid();
+                
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault Нужно обработать только 2 случая
+                switch (eventType)
+                {
+                    case EventType.ClientBlocked:
+                        await ClientBlockedReceived(blacklist, clientId);
+                        break;
+                    case EventType.ClientUnblocked:
+                        await ClientUnblockedReceived(blacklist, clientId);
+                        break;
+                }
+                
+                if (isAdded)
+                {
+                    InboxConsumedEntity inboxEntry = entities[0];
+                    inboxEntry.Handler = "Antifraud handler";
+                    dbContext.InboxConsumed.Update(inboxEntry);
+                    await dbContext.SaveChangesAsync(CancellationToken.None);
+                }
+                else
+                {
+                    await AddToInbox(dbContext, messageId, eventType, DateTime.UtcNow, "Antifraud handler");
+                }
+               
+                LogSuccess(document, eventType, messageId, GetTimestamp(ea));
+
+                await Ack(deliveryTag: ea.DeliveryTag);
+            }
+            catch (Exception ex)
+            { 
+                await Nack(deliveryTag: ea.DeliveryTag, requeue: !ea.Redelivered);
+                logger.LogInformation("Error while processing message, is requeued: {Requeue}, requeue count: {Count}. {Message}"
+                    , !ea.Redelivered, ea.DeliveryTag, ex.Message);
+                await Task.Delay(1000);
+                throw;
+            }
+        }
+
+        private async Task ClientBlockedReceived(IUserBlacklistService blacklist, Guid userId)
+        {
+            await blacklist.AddToList(userId);
+            logger.LogInformation("[CLIENT_BLOCK] Client blocked with id "  + userId);
+        }
+
+        private async Task ClientUnblockedReceived(IUserBlacklistService blacklist, Guid userId)
+        {
+            await blacklist.RemoveFromList(userId);
+            logger.LogInformation("[CLIENT_UNBLOCK] Client unblocked with id " + userId);
+        }
+
+
         // ReSharper disable once ReturnTypeCanBeNotNullable Может быть null
-        private static string? ValidateMessage(IReadOnlyBasicProperties properties, JsonDocument document, 
+        private async Task<(EventType, Guid, JsonDocument)?> CheckDeadLetter(IBankAccountsDbContext dbContext, BasicDeliverEventArgs ea, string handler)
+        {
+            byte[] body = ea.Body.ToArray();
+            string message = BytesToString(body);
+            JsonDocument document = JsonDocument.Parse(message);
+
+            string? reason = ValidateMessage(ea.BasicProperties, document, 
+                out EventType? eventType, 
+                out Guid? messageId);
+
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract Может быть null в исключительных случаях
+            // ReSharper disable once InvertIf Предлагает непонятный код
+            if (reason != null)
+            {
+                LogDeadLetter(document, eventType, reason);
+                await AddToDeadLetters(dbContext, messageId, document.RootElement.GetRawText(), eventType,
+                    DateTime.UtcNow, handler,
+                    reason);
+                await Nack(ea.DeliveryTag, false);
+                return null;
+            }
+                
+            return (eventType!.Value, messageId!.Value, document);
+        }
+
+        private DateTime? GetTimestamp(BasicDeliverEventArgs ea)
+        {
+            long propTimestamp = ea.BasicProperties.Timestamp.UnixTime;
+            DateTime? timestamp = propTimestamp == 0 ? null : DateTime.FromBinary(propTimestamp);
+            return timestamp;
+        }
+
+        private async Task Ack(ulong deliveryTag)
+        {
+            await _channel.BasicAckAsync(deliveryTag, multiple: false);
+        }
+
+        private async Task Nack(ulong deliveryTag, bool requeue)
+        {
+            await _channel.BasicNackAsync(deliveryTag: deliveryTag, multiple: false, requeue: requeue);
+        }
+
+        private static int CheckAlreadyAdded(List<InboxConsumedEntity> entities)
+        {
+            int result = 0;
+            
+            bool alreadyAdded = entities.Count != 0;
+            
+            if (alreadyAdded)
+            {
+                result = 1;
+                bool alreadyProcessed = entities[0].Handler != "None";
+                if (alreadyProcessed)
+                {
+                    result = 2;
+                }
+            }
+            
+            return result;
+        }
+
+        private static string ValidateMessage(IReadOnlyBasicProperties properties, JsonDocument document, 
             out EventType? eventType, out Guid? messageId)
         {
             eventType = null;
@@ -244,7 +371,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             return Encoding.UTF8.GetString((byte[]) bytes);
         }
         
-        private void LogSuccess(JsonDocument document, EventType type, DateTime? timestamp)
+        private void LogSuccess(JsonDocument document, EventType type, Guid? messageId, DateTime? timestamp)
         {
             string? id = null;
             string? correlationId = null;
@@ -263,8 +390,8 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             TimeSpan? latency = timestamp == null ? null : DateTime.UtcNow - timestamp;
                     
             logger.LogInformation("Successfully consumed event: id = {id}, ownerId = {owner}, type = {type}, " +
-                                  "correlationId = {correlationId}, latency = {latency}", id, ownerId,
-                type.ToString(), correlationId, latency); // eventId, type, correlationId, retry, latency
+                                  "correlationId = {correlationId}, messageId = {MessageId},latency = {latency}", id, ownerId,
+                type.ToString(), correlationId, messageId, latency); // eventId, type, correlationId, retry, latency
         }
         
         private void LogDeadLetter(JsonDocument document, EventType? type, string reason)
@@ -304,22 +431,18 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         private async Task AddToDeadLetters(IBankAccountsDbContext dbContext, Guid? messageId, string message, EventType? eventType,
             DateTime receivedAt, string handler, string error)
         {
-            try {
-                DeadLetterEntity deadLetter = new()
-                {
-                    MessageId = messageId ?? Guid.NewGuid(),
-                    ReceivedAt = receivedAt,
-                    Handler = handler,
-                    Payload = message,
-                    EventType = eventType,
-                    Error = error
-                };
-                
-                _ = (await dbContext.DeadLetters.AddAsync(deadLetter)).Entity;
-                await dbContext.SaveChangesAsync(CancellationToken.None);
-                
-            } catch (Exception e) { logger.LogError("{Message}",
-                "Failed to add message to dead letters.\n" + e.Message + "\n" + e.StackTrace); }
+            DeadLetterEntity deadLetter = new()
+            {
+                MessageId = messageId ?? Guid.NewGuid(),
+                ReceivedAt = receivedAt,
+                Handler = handler,
+                Payload = message,
+                EventType = eventType,
+                Error = error
+            };
+            
+            _ = (await dbContext.DeadLetters.AddAsync(deadLetter)).Entity;
+            await dbContext.SaveChangesAsync(CancellationToken.None);
         }
         
         /// <summary>
