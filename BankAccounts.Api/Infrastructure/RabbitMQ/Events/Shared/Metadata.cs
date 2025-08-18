@@ -13,16 +13,18 @@
         /// Id для сопоставления сообщения
         /// </summary>
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global Метод set нужен
-        public Guid CorrelationId { get; set; } = Guid.NewGuid();
+        public Guid CorrelationId { get; init; } = Guid.NewGuid();
         /// <summary>
         /// Версия сообщения для совместимости
         /// </summary>
         // ReSharper disable once UnusedMember.Global Используется
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global Используется
         public string Version { get; set; } = "v1";
         /// <summary>
         /// Сервис-источник сообщений
         /// </summary>
         // ReSharper disable once UnusedMember.Global Используется
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global Используется
         public string Source { get; set; } = "account-service";
     }
 }

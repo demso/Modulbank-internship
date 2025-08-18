@@ -202,13 +202,15 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         private async Task ClientBlockedReceived(IUserBlacklistService blacklist, Guid userId)
         {
             await blacklist.AddToList(userId);
-            logger.LogInformation("[CLIENT_BLOCK] Client blocked with id "  + userId);
+            logger.LogInformation("{Message}",
+            "[CLIENT_BLOCK] Client blocked with id "  + userId);
         }
 
         private async Task ClientUnblockedReceived(IUserBlacklistService blacklist, Guid userId)
         {
             await blacklist.RemoveFromList(userId);
-            logger.LogInformation("[CLIENT_UNBLOCK] Client unblocked with id " + userId);
+            logger.LogInformation("{Message}",
+                "[CLIENT_UNBLOCK] Client unblocked with id " + userId);
         }
 
 
@@ -238,7 +240,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             return (eventType!.Value, messageId!.Value, document);
         }
 
-        private DateTime? GetTimestamp(BasicDeliverEventArgs ea)
+        private static DateTime? GetTimestamp(BasicDeliverEventArgs ea)
         {
             long propTimestamp = ea.BasicProperties.Timestamp.UnixTime;
             DateTime? timestamp = propTimestamp == 0 ? null : DateTime.FromBinary(propTimestamp);
@@ -260,17 +262,19 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             int result = 0;
             
             bool alreadyAdded = entities.Count != 0;
-            
-            if (alreadyAdded)
+
+            if (!alreadyAdded)
             {
-                result = 1;
-                bool alreadyProcessed = entities[0].Handler != "None";
-                if (alreadyProcessed)
-                {
-                    result = 2;
-                }
+                return result;
             }
-            
+
+            result = 1;
+            bool alreadyProcessed = entities[0].Handler != "None";
+            if (alreadyProcessed)
+            {
+                result = 2;
+            }
+
             return result;
         }
 
@@ -428,8 +432,8 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             await dbContext.SaveChangesAsync(CancellationToken.None);
         }
         
-        private async Task AddToDeadLetters(IBankAccountsDbContext dbContext, Guid? messageId, string message, EventType? eventType,
-            DateTime receivedAt, string handler, string error)
+        private static async Task AddToDeadLetters(IBankAccountsDbContext dbContext, Guid? messageId, string message,
+            EventType? eventType, DateTime receivedAt, string handler, string error)
         {
             DeadLetterEntity deadLetter = new()
             {
