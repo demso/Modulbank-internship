@@ -26,7 +26,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers;
 /// 2. Выполните команду <code>docker-compose down -v</code> (Docker container conflict)
 /// </summary>
 /// <param name="output">Вспомогательный объект для вывода логов теста</param>
-public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLifetime
+public partial class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLifetime
 {
     // Используйте этот флаг для того чтобы не выключать контейнеры после тестов
     // (можно, например, посмотреть логи контейнеров в приложении Docker Desktop)
@@ -151,10 +151,10 @@ public class CrossServiceIntegrationTests(ITestOutputHelper output) : IAsyncLife
 
         // Регистрация пользователей
         // Пользователь 1
-        using HttpClient apiClientUser1 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
+        using HttpClient apiClientUser1 = await clientHelper.AuthorizeApiHttpClient("test", "password");
 
         // Пользователь 2
-        using HttpClient apiClientUser2 = await clientHelper.AuthorizeApiHttpClient("user1", "password");
+        using HttpClient apiClientUser2 = await clientHelper.AuthorizeApiHttpClient("user2", "password");
 
         // Создание счетов
         int account1Id = await ApiClientHelper.CreateAccount(apiClientUser1);
