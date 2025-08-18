@@ -1,6 +1,5 @@
 ﻿using BankAccounts.Api.Common;
 using BankAccounts.Api.Features.Accounts;
-using BankAccounts.Api.Features.Shared.UserBlacklist;
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
@@ -10,6 +9,7 @@ using BankAccounts.Api.Infrastructure.RabbitMQ;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
+using BankAccounts.Api.Infrastructure.UserBlacklist;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -63,7 +63,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .AddScoped<IAccountsRepositoryAsync, AccountsRepositoryAsync>()
                 .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
                 .AddSingleton<ICurrencyService, CurrencyService.CurrencyService>()
-                .AddSingleton<IUserBlacklistService, UserBlacklist>()
+                .AddScoped<IUserBlacklistService, UserBlacklistService>()
                 .AddAutoMapper(options => options.AddMaps(Assembly.GetExecutingAssembly()))
                 .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
                 .AddControllers()
@@ -157,7 +157,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         {
             services.AddHangfire(config => config.UsePostgreSqlStorage(c =>
                     c.UseNpgsqlConnection(configuration.GetConnectionString("BankAccountsDbContext"))))
-                .AddHangfireServer()
+                .AddHangfireServer(c => c.SchedulePollingInterval = TimeSpan.FromSeconds(10))
                 .AddHostedService<JobsRegistrator>();
             
             return services;
