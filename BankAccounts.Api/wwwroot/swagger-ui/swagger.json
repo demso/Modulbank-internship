@@ -1,0 +1,1401 @@
+{
+    "openapi": "3.0.4",
+    "info": {
+        "title": "Bank Accounts API",
+        "description": "Для авторизации воспользуйтесь [http://localhost:7045](http://localhost:7045)\n1. Зарегистрируйтесь с указанием логина и пароля (Register).\n2. Войдите, также указав логин и пароль (Login).\n3. Скопируйте полученный токен.\n4. Вставьте в поле окна \"Authorize\"\n5. Можно пользоваться сервисом.\n\n\nHangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)",
+        "version": "v1"
+    },
+    "paths": {
+        "/api/Accounts": {
+            "post": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Открывает счет для пользователя",
+                "description": "```\r\nPOST {{address}}/api/accounts \r\n```",
+                "operationId": "CreateAccount",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAccountDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAccountDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAccountDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Успешно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    }
+                }
+            }
+        },
+        "/api/Accounts/all": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Возвращает информацию обо всех счетах пользователя",
+                "description": "```\r\nGET {{address}}/api/accounts \r\n```",
+                "operationId": "GetAllAccounts",
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountDtoListMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Accounts/{accountId}": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Возвращает информацию об определенном счете",
+                "description": "```\r\nGET {{address}}/api/accounts/{id:int} \r\n```",
+                "operationId": "GetAccount",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountDtoMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Обновляет информацию о счете пользователя. Используется, чтобы закрыть счет или поменять процентную ставку на счету.",
+                "description": "```\r\nPATCH {{address}}/api/accounts/{accountId:int} \r\n```",
+                "operationId": "UpdateAccount",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id счета",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "interestRate",
+                        "in": "query",
+                        "description": "Процентная ставка (>= 0)",
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "close",
+                        "in": "query",
+                        "description": "True закрывает аккаунт",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Успешно"
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Accounts/{accountId}/statement": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Возвращает банковскую выписку об операциях по счету",
+                "description": "```\r\nGET {{address}}/api/accounts/{accountId:int}/statement \r\n```",
+                "operationId": "GetStatementForAccount",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id аккаунта",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "fromDate",
+                        "in": "query",
+                        "description": "Начало периода (DateOnly? YYYY-mm-dd)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "toDate",
+                        "in": "query",
+                        "description": "Конец периода (DateOnly? YYYY-mm-dd)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankStatementMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/health/Health": {
+            "get": {
+                "tags": [
+                    "Healthcheck"
+                ],
+                "summary": "Проверка, работает ли сервис",
+                "operationId": "Health",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/api/health/Ready": {
+            "get": {
+                "tags": [
+                    "Healthcheck"
+                ],
+                "summary": "Проверка на готовность обрабатывать запросы",
+                "operationId": "Ready",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ObjectMbResult"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ObjectMbResult"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ObjectMbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/accounts/{accountId}/transactions": {
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Производит транзакцию",
+                "description": "```\r\nPOST {{address}}/api/accounts/transactions \r\n```",
+                "operationId": "PerformTransaction",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformTransactionDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformTransactionDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformTransactionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionDtoMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Успешно"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Возвращает все транзакции по счету или только за определенный период",
+                "description": "```\r\nGET {{address}}/api/accounts/{accountId:int}/transactions \r\n```",
+                "operationId": "GetTransactionsForAccount",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id счета",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "fromDate",
+                        "in": "query",
+                        "description": "Начало периода (DateOnly YYYY-mm-dd nullable)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "toDate",
+                        "in": "query",
+                        "description": "Конец периода (DateOnly YYYY-mm-dd nullable)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionDtoListMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит текущему пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/accounts/transfer": {
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Производит трансфер денежных средств с одного счета на другой",
+                "description": "```\r\nPOST {{address}}/api/accounts/transfer \r\n```",
+                "operationId": "PerformTransfer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformTransferDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformTransferDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformTransferDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionDtoMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Исходный счет не существует или не принадлежит текущему пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Успешно"
+                    }
+                }
+            }
+        },
+        "/api/accounts/transactions/{transactionId}": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Возвращает информацию о транзакции",
+                "description": "```\r\nGET {{address}}/api/accounts/transactions/{transactionId:guid} \r\n```",
+                "operationId": "GetTransaction",
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionDtoMbResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "404": {
+                        "description": "Счет не существует или не принадлежит текущему пользователю",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MbResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AccountDto": {
+                "type": "object",
+                "properties": {
+                    "accountId": {
+                        "type": "integer",
+                        "description": "Id счета",
+                        "format": "int32"
+                    },
+                    "accountType": {
+                        "$ref": "#/components/schemas/AccountType"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "balance": {
+                        "type": "number",
+                        "description": "Баланс",
+                        "format": "double"
+                    },
+                    "interestRate": {
+                        "type": "number",
+                        "description": "Процентная ставка",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "openDate": {
+                        "type": "string",
+                        "description": "Дата и время открытия",
+                        "format": "date-time"
+                    },
+                    "closeDate": {
+                        "type": "string",
+                        "description": "Дата и время закрытия",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "DTO для передачи данных о счете"
+            },
+            "AccountDtoListMbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AccountDto"
+                        },
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Класс для возврата данных о результатах операции клиенту."
+            },
+            "AccountDtoMbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "$ref": "#/components/schemas/AccountDto"
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Класс для возврата данных о результатах операции клиенту."
+            },
+            "AccountOpened": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "accountId": {
+                        "type": "integer",
+                        "description": "Id счета",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "ownerId": {
+                        "type": "string",
+                        "description": "Id владельца",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "accountType": {
+                        "$ref": "#/components/schemas/AccountType"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Событие, генерируемое при открытии счета <seealso cref=\"T:BankAccounts.Api.Features.Accounts.Commands.CreateAccount.CreateAccountHandler\" />"
+            },
+            "AccountOperation": {
+                "type": "object",
+                "properties": {
+                    "dateTime": {
+                        "type": "string",
+                        "description": "Время проведения",
+                        "format": "date-time"
+                    },
+                    "counterPartyId": {
+                        "type": "integer",
+                        "description": "Счет получателя (если есть)",
+                        "format": "int32"
+                    },
+                    "sum": {
+                        "type": "number",
+                        "description": "Сумма",
+                        "format": "double"
+                    },
+                    "afterBalance": {
+                        "type": "number",
+                        "description": "Баланс после операции",
+                        "format": "double"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Описание",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Операция по счету"
+            },
+            "AccountType": {
+                "enum": [
+                    "Checking",
+                    "Deposit",
+                    "Credit"
+                ],
+                "type": "string",
+                "description": "Тип аккаунта"
+            },
+            "BankStatement": {
+                "type": "object",
+                "properties": {
+                    "accountId": {
+                        "type": "integer",
+                        "description": "Id аккаунта",
+                        "format": "int32"
+                    },
+                    "username": {
+                        "type": "string",
+                        "description": "Имя пользователя",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "creationDateTime": {
+                        "type": "string",
+                        "description": "Время создания выписки",
+                        "format": "date-time"
+                    },
+                    "operations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AccountOperation"
+                        },
+                        "description": "Операции",
+                        "nullable": true
+                    },
+                    "startBalance": {
+                        "type": "number",
+                        "description": "Баланс на начало периода",
+                        "format": "double"
+                    },
+                    "endBalance": {
+                        "type": "number",
+                        "description": "Баланс на конец периода",
+                        "format": "double"
+                    },
+                    "startPeriod": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "endPeriod": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Выписка о банковских операциях по счету"
+            },
+            "BankStatementMbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "$ref": "#/components/schemas/BankStatement"
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Класс для возврата данных о результатах операции клиенту."
+            },
+            "ClientBlocked": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "clientId": {
+                        "type": "string",
+                        "description": "Id клиента",
+                        "format": "uuid"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Сообщение о том, что счета клиента заблокированы"
+            },
+            "ClientUnblocked": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "clientId": {
+                        "type": "string",
+                        "description": "Id клиента",
+                        "format": "uuid"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Сообщение о том, что счета клиента разблокированы"
+            },
+            "CreateAccountDto": {
+                "type": "object",
+                "properties": {
+                    "accountType": {
+                        "$ref": "#/components/schemas/AccountType"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "interestRate": {
+                        "type": "number",
+                        "description": "Процентная ставка",
+                        "format": "double",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Запись для передачи данных о создаваемом счете"
+            },
+            "Currencies": {
+                "enum": [
+                    "Rub",
+                    "Usd",
+                    "Eur"
+                ],
+                "type": "string",
+                "description": "Валюты, доступные в банковском сервисе"
+            },
+            "InterestAccrued": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "accountId": {
+                        "type": "integer",
+                        "description": "ID счета",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "periodFrom": {
+                        "type": "string",
+                        "description": "Начало периода",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "periodTo": {
+                        "type": "string",
+                        "description": "Конец периода",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Количество средств",
+                        "format": "double",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Событие, вызываемое при начислении процентов <seealso cref=\"T:BankAccounts.Api.Infrastructure.Hangfire.Jobs.AccrueInterestJob\" />"
+            },
+            "MbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Используем этот класс если запрос не возвращает ничего кроме статус-кода."
+            },
+            "Metadata": {
+                "required": [
+                    "causationId"
+                ],
+                "type": "object",
+                "properties": {
+                    "causationId": {
+                        "type": "string",
+                        "description": "Id причины события",
+                        "format": "uuid"
+                    },
+                    "correlationId": {
+                        "type": "string",
+                        "description": "Id для сопоставления сообщения",
+                        "format": "uuid"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Версия сообщения для совместимости",
+                        "nullable": true
+                    },
+                    "source": {
+                        "type": "string",
+                        "description": "Сервис-источник сообщений",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Мета информация для события BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.Event"
+            },
+            "MoneyCredited": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "accountId": {
+                        "type": "integer",
+                        "description": "Id счета",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Количество средств",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "operationId": {
+                        "type": "string",
+                        "description": "Id операции",
+                        "format": "uuid",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Событие, вызываемое в случае начисления средств на счет <seealso cref=\"T:BankAccounts.Api.Features.Transactions.Commands.PerformTransaction.PerformTransactionHandler\" />"
+            },
+            "MoneyDebited": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "accountId": {
+                        "type": "integer",
+                        "description": "Id счета",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Количество средств",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "operationId": {
+                        "type": "string",
+                        "description": "Id операции",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "reason": {
+                        "type": "string",
+                        "description": "Причина снятия средств",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Событие, вызываемое в случае снятия средств со счета <seealso cref=\"T:BankAccounts.Api.Features.Transactions.Commands.PerformTransaction.PerformTransactionHandler\" />>"
+            },
+            "ObjectMbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Класс для возврата данных о результатах операции клиенту."
+            },
+            "PerformTransactionDto": {
+                "type": "object",
+                "properties": {
+                    "transactionType": {
+                        "$ref": "#/components/schemas/TransactionType"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Сумма денежных средств",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Описание",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "DTO для передачи проведения транзакции"
+            },
+            "PerformTransferDto": {
+                "type": "object",
+                "properties": {
+                    "fromAccountId": {
+                        "type": "integer",
+                        "description": "Исходный счет",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "toAccountId": {
+                        "type": "integer",
+                        "description": "Счет назначения",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Сумма денежных средств",
+                        "format": "double",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "DTO для передачи данных о требуемом трансфере"
+            },
+            "TransactionDto": {
+                "type": "object",
+                "properties": {
+                    "transactionId": {
+                        "type": "string",
+                        "description": "Id транзакции",
+                        "format": "uuid"
+                    },
+                    "accountId": {
+                        "type": "integer",
+                        "description": "Id счета",
+                        "format": "int32"
+                    },
+                    "counterpartyAccountId": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Сумма денежных средств",
+                        "format": "double"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "transactionType": {
+                        "$ref": "#/components/schemas/TransactionType"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Описание",
+                        "nullable": true
+                    },
+                    "dateTime": {
+                        "type": "string",
+                        "description": "Дата и время проведения транзакции",
+                        "format": "date-time"
+                    }
+                },
+                "additionalProperties": false,
+                "description": "DTO для передачи данных о транзакции"
+            },
+            "TransactionDtoListMbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TransactionDto"
+                        },
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Класс для возврата данных о результатах операции клиенту."
+            },
+            "TransactionDtoMbResult": {
+                "type": "object",
+                "properties": {
+                    "isSuccess": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32",
+                        "readOnly": true
+                    },
+                    "value": {
+                        "$ref": "#/components/schemas/TransactionDto"
+                    },
+                    "mbError": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Класс для возврата данных о результатах операции клиенту."
+            },
+            "TransactionType": {
+                "enum": [
+                    "Debit",
+                    "Credit"
+                ],
+                "type": "string",
+                "description": "Перечисление с типами транзакции"
+            },
+            "TransferCompleted": {
+                "required": [
+                    "metadata"
+                ],
+                "type": "object",
+                "properties": {
+                    "eventId": {
+                        "type": "string",
+                        "description": "Id события",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "description": "Время/дата создания",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "sourceAccountId": {
+                        "type": "integer",
+                        "description": "Id счета источника",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "destinationAccountId": {
+                        "type": "integer",
+                        "description": "Id счета назначения",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Количество средств",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currencies"
+                    },
+                    "transferId": {
+                        "type": "string",
+                        "description": "Id трансфера",
+                        "format": "uuid",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Событие, вызываемое в случае проведения трансфера <seealso cref=\"T:BankAccounts.Api.Features.Transactions.Commands.PerformTransfer.PerformTransferHandler\" />"
+            }
+        },
+        "securitySchemes": {
+            "AuthToken": {
+                "type": "http",
+                "description": "Authorization token",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "AuthToken": [ ]
+        }
+    ]
+}
