@@ -38,8 +38,8 @@ namespace BankAccounts.Api.Infrastructure.Repository
                 EventType = Event.GetEventType(serviceEvent), 
                 Message = JsonHelper.ToJson(serviceEvent), 
                 EventId = serviceEvent.EventId,
-                CausationId = serviceEvent.Metadata.CausationId,
-                CorrelationId = serviceEvent.Metadata.CorrelationId,
+                CausationId = serviceEvent.Meta.CausationId,
+                CorrelationId = serviceEvent.Meta.CorrelationId,
                 Created = serviceEvent.OccurredAt 
             };
             

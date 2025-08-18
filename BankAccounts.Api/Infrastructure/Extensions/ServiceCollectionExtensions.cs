@@ -27,6 +27,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace BankAccounts.Api.Infrastructure.Extensions
@@ -46,6 +47,8 @@ namespace BankAccounts.Api.Infrastructure.Extensions
             IConfiguration configuration)
         {
             JsonHelper.Options.Converters.Add(new JsonStringEnumConverter());
+            JsonHelper.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            JsonHelper.Options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             
             services
                 .AddDbContext<BankAccountsDbContext>(optionsBuilder => 

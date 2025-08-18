@@ -18,7 +18,7 @@ public abstract class Event
     /// <summary>
     /// Мета-дата
     /// </summary>
-    public required Metadata Metadata { get; init; }
+    public required Metadata Meta { get; init; }
     
     private static Dictionary<EventType, string> _eventMap = new()
     {

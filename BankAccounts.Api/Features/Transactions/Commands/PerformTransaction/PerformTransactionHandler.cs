@@ -62,7 +62,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
                         AccountId = transaction.AccountId,
                         Currency = transaction.Currency,
                         OperationId = transaction.TransactionId,
-                        Metadata = new Metadata
+                        Meta = new Metadata
                         {
                             CausationId = CausationId
                         }
@@ -75,7 +75,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
                         AccountId = transaction.AccountId,
                         Currency = transaction.Currency,
                         OperationId = transaction.TransactionId,
-                        Metadata = new Metadata
+                        Meta = new Metadata
                         {
                             CausationId = CausationId
                         }

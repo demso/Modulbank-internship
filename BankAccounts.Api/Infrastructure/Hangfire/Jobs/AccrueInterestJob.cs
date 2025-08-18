@@ -51,7 +51,7 @@ public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBan
                     {
                         AccountId = accountId,
                         Amount = result,
-                        Metadata = new Metadata { CausationId = CausationId },
+                        Meta = new Metadata { CausationId = CausationId },
                         PeriodFrom = DateOnly.FromDateTime(DateTime.UtcNow), // начисление за одни сутки
                         PeriodTo = DateOnly.FromDateTime(DateTime.UtcNow)
                     });

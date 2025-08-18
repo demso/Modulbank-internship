@@ -31,7 +31,7 @@ public class CreateAccountHandler(IAccountsRepositoryAsync accountsRepository, I
                 OwnerId = account.OwnerId, 
                 AccountType = account.AccountType, 
                 Currency = account.Currency,
-                Metadata = new Metadata
+                Meta = new Metadata
                 {
                     CausationId = CausationId
                 }

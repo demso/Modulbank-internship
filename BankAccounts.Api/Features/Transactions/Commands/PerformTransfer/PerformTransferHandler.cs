@@ -83,7 +83,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
 
             await transactionsRepository.AddToOutboxAsync(new TransferCompleted
             {
-                Metadata = new Metadata
+                Meta = new Metadata
                 {
                     CausationId = CausationId
                 },

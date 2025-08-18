@@ -88,7 +88,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             Guid guid2 = Guid.NewGuid();
             string message = JsonHelper.ToJson(new ClientBlocked
             {
-                Metadata = new Metadata
+                Meta = new Metadata
                 {
                     CausationId = guid1,
                     CorrelationId = guid2,
@@ -116,7 +116,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             Guid guid2 = Guid.NewGuid();
             string message = JsonHelper.ToJson(new ClientUnblocked
             {
-                Metadata = new Metadata
+                Meta = new Metadata
                 {
                     CausationId = guid1,
                     CorrelationId = guid2,
