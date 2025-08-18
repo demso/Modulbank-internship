@@ -3,6 +3,7 @@ using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.DeadLetter;
+using BankAccounts.Api.Infrastructure.UserBlacklist;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -31,6 +32,11 @@ public sealed class BankAccountsDbContext(DbContextOptions<BankAccountsDbContext
 
     /// <inheritdoc />
     public DbSet<DeadLetterEntity> DeadLetters => Set<DeadLetterEntity>();
+
+    /// <summary>
+    /// Черный список заблокированных пользователей
+    /// </summary>
+    public DbSet<UserEntity> BlockedUsers => Set<UserEntity>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

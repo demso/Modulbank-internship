@@ -3,6 +3,7 @@ using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Published.Entity;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared.DeadLetter;
+using BankAccounts.Api.Infrastructure.UserBlacklist;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -34,6 +35,10 @@ public interface IBankAccountsDbContext
     /// Полученные неправильные сообщения (<see cref="DeadLetterEntity"/>)
     /// </summary>
     DbSet<DeadLetterEntity> DeadLetters { get; }
+    /// <summary>
+    /// Черный список заблокированных пользователей
+    /// </summary>
+    DbSet<UserEntity>  BlockedUsers { get; }
     /// <summary>
     /// Сохранение изменений
     /// </summary>
