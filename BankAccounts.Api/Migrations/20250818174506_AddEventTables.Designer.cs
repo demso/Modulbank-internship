@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BankAccounts.Api.Migrations
 {
     [DbContext(typeof(BankAccountsDbContext))]
-    [Migration("20250817195851_AddEventTables")]
+    [Migration("20250818174506_AddEventTables")]
     partial class AddEventTables
     {
         /// <inheritdoc />
@@ -222,6 +222,23 @@ namespace BankAccounts.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("inbox_dead_letters", (string)null);
+                });
+
+            modelBuilder.Entity("BankAccounts.Api.Infrastructure.UserBlacklist.UserEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("BlockedUsers");
                 });
 
             modelBuilder.Entity("BankAccounts.Api.Features.Transactions.Transaction", b =>

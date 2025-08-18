@@ -22,6 +22,18 @@ namespace BankAccounts.Api.Migrations
                 .OldAnnotation("Npgsql:Enum:transaction_type", "credit,debit");
 
             migrationBuilder.CreateTable(
+                name: "BlockedUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlockedUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "inbox_consumed",
                 columns: table => new
                 {
@@ -72,6 +84,12 @@ namespace BankAccounts.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BlockedUsers_UserId",
+                table: "BlockedUsers",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_inbox_consumed_MessageId",
                 table: "inbox_consumed",
                 column: "MessageId",
@@ -87,6 +105,9 @@ namespace BankAccounts.Api.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BlockedUsers");
+
             migrationBuilder.DropTable(
                 name: "inbox_consumed");
 

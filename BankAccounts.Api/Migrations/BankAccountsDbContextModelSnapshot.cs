@@ -221,6 +221,23 @@ namespace BankAccounts.Api.Migrations
                     b.ToTable("inbox_dead_letters", (string)null);
                 });
 
+            modelBuilder.Entity("BankAccounts.Api.Infrastructure.UserBlacklist.UserEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("BlockedUsers");
+                });
+
             modelBuilder.Entity("BankAccounts.Api.Features.Transactions.Transaction", b =>
                 {
                     b.HasOne("BankAccounts.Api.Features.Accounts.Account", "Account")
