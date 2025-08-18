@@ -31,6 +31,6 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Entity
         /// <summary>
         /// Имя обработчика, который обработал сообщение.
         /// </summary>
-        public required string Handler { get; init; }
+        public required string Handler { get; set; }
     }
 }
