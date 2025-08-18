@@ -62,13 +62,11 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             for (int i = 0; i < numberOfTransfers; i++)
             {
                 // Создаем локальную копию для захвата в замыкании
-                HttpClient clientCopy = transferClient;
-                PerformTransferDto dtoCopy = transferDto;
                 HttpResponseMessage? response = null;
                 try
                 {
                     // Выполняем перевод
-                    response = await clientCopy.PostAsJsonAsync("/api/accounts/transfer", dtoCopy); 
+                    response = await transferClient.PostAsJsonAsync("/api/accounts/transfer", transferDto); 
                 }
                 catch (Exception ex)
                 {
@@ -77,8 +75,6 @@ namespace BankAccounts.Tests.Integration.Testcontainers
                 responses.Add(response);
                 
             }
-
-            // Ожидание завершения всех переводов
            
             DateTime endTime = DateTime.UtcNow;
             output.WriteLine($"Все переводы завершены за {endTime - startTime}");

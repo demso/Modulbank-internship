@@ -45,9 +45,9 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             Assert.True(matchConsumed);
         }
 
-        [GeneratedRegex(@"Successfully consumed event.+AccountOpened")]
+        [GeneratedRegex("Successfully consumed event.+AccountOpened")]
         private static partial Regex MessageConsumed();
-        [GeneratedRegex(@"Successfully published event.+AccountOpened")]
+        [GeneratedRegex("Successfully published event.+AccountOpened")]
         private static partial Regex MessagePublished();
     }
 }
