@@ -28,8 +28,9 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                           "3. Скопируйте полученный токен.\n" +
                           "4. Вставьте в поле окна \"Authorize\"\n" +
                           "5. Можно пользоваться сервисом.\n\n\n" +
-                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)\n"+
-                          "RabbitMQ: [http://localhost:15672/](http://localhost:15672/)" ,
+                          "Или воспользуйтесь бесконечными токенами из файла (также указаны идентификаторы): [Endless tokens](https://github.com/demso/Modulbank-internship/blob/task/fourth/Endless%20tokens.md) \n\n"+
+                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)\n\n"+
+                          "RabbitMQ: [http://localhost:15672/](http://localhost:15672/) \n\n[Примеры сообщений](https://github.com/demso/Modulbank-internship/blob/task/fourth/Rabbitmq%20message.md)\n",
             Version = "v1"
         });
 
