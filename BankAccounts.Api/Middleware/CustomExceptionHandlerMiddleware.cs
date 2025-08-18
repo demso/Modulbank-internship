@@ -75,6 +75,10 @@ public class CustomExceptionHandlerMiddleware(ILogger<CustomExceptionHandlerMidd
                 code = HttpStatusCode.Conflict;
                 message = "Счета пользователя заблокированы";
                 break;
+            case BadRequestException:
+                code = HttpStatusCode.BadRequest;
+                message = realException.Message;
+                break;
         }
     }
     
