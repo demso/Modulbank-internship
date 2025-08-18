@@ -1,5 +1,4 @@
-﻿using BankAccounts.Api.Common;
-using BankAccounts.Api.Features.Transactions;
+﻿using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Features.Transactions.Dtos;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Specific;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
@@ -7,6 +6,8 @@ using RabbitMQ.Client;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace BankAccounts.Tests.Integration.Testcontainers
@@ -16,6 +17,8 @@ namespace BankAccounts.Tests.Integration.Testcontainers
         private IConnection _connection = null!;
         private IChannel _channel = null!;
 
+        public static readonly JsonSerializerOptions Options = new();
+        
         [Fact]
         public async Task ClientBlockTest_ClientBlockedPreventsDebit()
         {
@@ -81,12 +84,20 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             HttpResponseMessage performTransactionResponse = await apiClientUser.PostAsJsonAsync($"/api/accounts/{accountId}/transactions", performTransactionDto);
             return performTransactionResponse;
         }
+        
+        public static string ToJson(object obj)
+        {
+            return JsonSerializer.Serialize(obj, Options);
+        }
 
         private async Task SendClientBlockedMessage()
         {
+            Options.Converters.Add(new JsonStringEnumConverter());
+            Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            Options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             Guid guid1 = Guid.NewGuid();
             Guid guid2 = Guid.NewGuid();
-            string message = JsonHelper.ToJson(new ClientBlocked
+            string message = ToJson(new ClientBlocked
             {
                 Meta = new Metadata
                 {
@@ -114,7 +125,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
         {
             Guid guid1 = Guid.NewGuid();
             Guid guid2 = Guid.NewGuid();
-            string message = JsonHelper.ToJson(new ClientUnblocked
+            string message = ToJson(new ClientUnblocked
             {
                 Meta = new Metadata
                 {

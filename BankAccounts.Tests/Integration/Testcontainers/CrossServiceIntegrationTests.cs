@@ -107,6 +107,8 @@ public partial class CrossServiceIntegrationTests(ITestOutputHelper output) : IA
         ushort bankApiPort = _bankAccountsApiContainer.GetMappedPublicPort(80);
         _apiHttpClient = new HttpClient();
         _apiHttpClient.BaseAddress = new Uri($"http://localhost:{bankApiPort}/");
+        
+
     }
 
     /// <summary>
