@@ -46,8 +46,6 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             
             // Начальное пополнение
             await PerformTransaction(apiClientUser1, accountId, TransactionType.Debit, 300);
-            
-            //await WaitMessageConsumed(TransactionPerformedReg());
 
             // Act
             // Отправляем сообщение о блокировке
@@ -56,9 +54,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             await WaitMessageConsumed(ClientBlockedReg());
             
             // Пробуем снять средства
-            HttpResponseMessage response1 = await PerformTransaction(apiClientUser1, accountId, TransactionType.Credit, 100);
-            // Ждем обработки API
-            //await WaitMessageConsumed(TransactionPerformedReg());
+            HttpResponseMessage response1 = await PerformTransaction(apiClientUser1, accountId, TransactionType.Credit, 100); ;
 
             // Отправляем сообщение о разблокировке
             await SendClientUnblockedMessage();
@@ -160,7 +156,6 @@ namespace BankAccounts.Tests.Integration.Testcontainers
                 string stdout = logs.Item1;
                 matchNotConsumed = !regex.IsMatch(stdout);
             }
-            await Task.Delay(1000);
         }
         
     }
