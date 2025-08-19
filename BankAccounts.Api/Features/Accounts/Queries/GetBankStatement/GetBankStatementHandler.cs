@@ -18,7 +18,7 @@ public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository
         Account account = await GetValidAccount(accountsRepository, request.AccountId, request.OwnerId, cancellationToken);
 
         DateOnly toDate = request.ToDate ?? DateOnly.FromDateTime(DateTime.Now);
-        // Получаем все транзакции по счету с даты request.FromDate
+        // Получаем все транзакции по счету с даты request FromDate
         List<TransactionDto> entities = await GetTransactionsFromDate(request.OwnerId, request.AccountId, request.FromDate, cancellationToken);
         // Сортируем транзакции, чтобы в начале были последние
         SortTransactionsFromLatestToEarliest(entities);
@@ -34,7 +34,7 @@ public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository
             decimal sum = GetTransactionSum(transaction); //вычисляем сумму транзакции на основании типа транзакции
             decimal afterOperationBalance = startBalance;
 
-            if (DateOnly.FromDateTime(transaction.DateTime) <= toDate) // в коллекцию добавляем только операции, совершенные в указанный период
+            if (DateOnly.FromDateTime(transaction.DateTime.ToLocalTime()) <= toDate) // в коллекцию добавляем только операции, совершенные в указанный период
             {
                 if (!startBalanceSet)
                 {
@@ -43,7 +43,7 @@ public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository
                 }
                 startBalance -= sum;
                 operations.Add(new AccountOperation(
-                        transaction.DateTime,
+                        transaction.DateTime.ToLocalTime(),
                         transaction.CounterpartyAccountId,
                         sum,
                         afterOperationBalance,
@@ -61,7 +61,7 @@ public class GetBankStatementHandler(IAccountsRepositoryAsync accountsRepository
             account.AccountId, 
             request.Username, 
             account.Currency, 
-            DateTime.UtcNow,
+            DateTime.Now,
             operations, 
             startBalance,
             endBalance,
