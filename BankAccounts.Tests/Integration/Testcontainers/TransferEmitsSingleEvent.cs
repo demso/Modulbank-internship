@@ -9,7 +9,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
     public partial class CrossServiceIntegrationTests
     {
         [Fact]
-        public async Task ParallelTransferTests_TransferEmitsSingleEvent()
+        public async Task TransferTest_TransferEmitsSingleEvent()
         {
             using ApiClientHelper clientHelper = new(_identityHttpClient, _apiHttpClient);
 
