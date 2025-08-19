@@ -66,20 +66,28 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             if (_connection is null || _connection.IsOpen == false || _channel is null || _channel.IsClosed == false)
                await Init();
             
-            Stopwatch sw = Stopwatch.StartNew();
+			try {
+				Stopwatch sw = Stopwatch.StartNew();
 
-            List<(OutboxPublishedEntity, ValueTask)> publishTasks = [];
+				List<(OutboxPublishedEntity, ValueTask)> publishTasks = [];
 
-            List<OutboxPublishedEntity> entities = await dbContext.OutboxPublished.ToListAsync();
-            
-            int publishedCount = await Send(publishTasks, entities);
-            
-             sw.Stop();
-             int count = await dbContext.OutboxPublished.CountAsync();
-             if (count > 0) // выводим сообщение в случае, если не все сообщения были отправлены
-                logger.LogInformation("Published {PublishedCount} messages (failed and queued for retry: {Count}) " +
-                        "in batch in {SwElapsedMilliseconds:N0} ms", publishedCount, count, sw.ElapsedMilliseconds);
-             await dbContext.SaveChangesAsync(CancellationToken.None);
+				List<OutboxPublishedEntity> entities = await dbContext.OutboxPublished.ToListAsync();
+				
+				int publishedCount = await Send(publishTasks, entities);
+				
+				 sw.Stop();
+				 int count = await dbContext.OutboxPublished.CountAsync();
+				 if (count > 0) // выводим сообщение в случае, если не все сообщения были отправлены
+					logger.LogInformation("Published {PublishedCount} messages (failed and queued for retry: {Count}) " +
+							"in batch in {SwElapsedMilliseconds:N0} ms", publishedCount, count, sw.ElapsedMilliseconds);
+			}
+            finally
+            {
+                _channel?.Dispose();
+                _connection?.Dispose();
+            }
+			
+			await dbContext.SaveChangesAsync(CancellationToken.None);
         }
 
         private async Task<int> Send(List<(OutboxPublishedEntity, ValueTask)> publishTasks, List<OutboxPublishedEntity> entities)
