@@ -12,6 +12,10 @@
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZDcyYTE3NS0xNDczLTQ2OTUtOWNjZC01NjNlOWFhMmM1MGIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoic3RyaW5nIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIwNDUyYjJlYy01ZTRiLWY2NTAtYjllZS03OGVjMWExMjkwNDciLCJleHAiOjE3NTU2MjMyMDcsImlzcyI6IkJhbmtBY2NvdW50QXV0aG9yaXphdGlvbiIsImF1ZCI6IkJhbmtBY2NvdW50c1dlYkFQSSJ9.bUaOzAkN8IS_-el7EkaPgAz3eKyZxlsmeGuW7SDb2wI
 ```
 
+#### Пример заполнения сообщения
+
+![ClientBlocked message](https://github.com/user-attachments/assets/ff56ebc0-3cb2-45ee-a588-c4a65e8f0868)
+
 ### ClientBlocked
 ```
 Routing key: client.blocked
