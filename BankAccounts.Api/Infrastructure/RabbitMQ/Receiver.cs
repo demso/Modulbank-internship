@@ -92,7 +92,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 if (alreadyAdded)
                 {
                     // Сообщение уже обработано ранее, просто подтверждаем его.
-                    logger.LogWarning("Message with MessageId {MessageId} already added ({handler}).", messageId, handler);
+                    LogMessageProcessed(messageId, handler);
                     await Ack(deliveryTag: ea.DeliveryTag);
                     return;
                 }
@@ -106,8 +106,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             catch (Exception ex)
             {
                 await Nack(deliveryTag: ea.DeliveryTag, requeue: !ea.Redelivered);
-                logger.LogWarning("Error while processing message, is requeued: {Requeue} ({handler}). {Message} "
-                    , handler, !ea.Redelivered, ex.Message);
+                LogError(!ea.Redelivered, ex.Message, handler);
                 await Task.Delay(1000);
                 throw;
             }
@@ -129,7 +128,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                
                 (EventType, Guid, JsonDocument)? result = await CheckDeadLetter(dbContext, ea, handler);
 
-                if (result is null)
+                if (result is null) // Сообщение некорректно
                 {
                     await Ack(ea.DeliveryTag);
                     return;
@@ -151,8 +150,8 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 if (isProcessed)
                 {
                     // Сообщение уже обработано ранее, просто подтверждаем его.
-                    logger.LogInformation("Message with MessageId {MessageId} already processed ({Handler}).", messageId, handler);
-                    await Nack(deliveryTag: ea.DeliveryTag, false);
+                    LogMessageProcessed(messageId, handler);
+                    await Ack(deliveryTag: ea.DeliveryTag);
                     return;
                 }
 
@@ -188,8 +187,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             catch (Exception ex)
             { 
                 await Nack(deliveryTag: ea.DeliveryTag, requeue: !ea.Redelivered);
-                logger.LogWarning("Error while processing message ({handler}), is requeued: {Requeue}. {Message}"
-                    ,handler ,!ea.Redelivered, ex.Message);
+                LogError(!ea.Redelivered, ex.Message, handler);
                 await Task.Delay(1000);
                 throw;
             }
@@ -417,7 +415,18 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                     
             logger.LogWarning("Consumed \"dead letter\" event: id = {id}, type = {type}, " +
                               "correlationId = {correlationId}, reason = {reason}, handler = {handler}", id, 
-                type.ToString(), correlationId, reason, handler); // eventId, type, correlationId, retry, latency
+                type.ToString(), correlationId, reason, handler);
+        }
+
+        private void LogError(bool redelivered, string error, string handler)
+        {
+            logger.LogWarning("Error while processing message ({handler}), is requeued: {Requeue}. {Message}"
+                , handler, redelivered, error);
+        }
+
+        private void LogMessageProcessed(Guid messageId, string handler)
+        {
+            logger.LogInformation("Message with MessageId {MessageId} already processed ({Handler}).", messageId, handler);
         }
 
         private static async Task AddToInbox(IBankAccountsDbContext dbContext, Guid messageId, EventType eventType, 
@@ -497,16 +506,6 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 arguments: null
             );
             await _channel.QueueBindAsync(AccountNotificationsQueueName, _exchangeName, "money.*");
-
-
-            //foreach (EventType type in Enum.GetValues<EventType>())
-            //{
-            //    if (type is EventType.ClientBlocked or EventType.ClientUnblocked)
-            //        continue;
-                
-            //    await _channel.QueueDeclareAsync(queue: $"test_{type.ToString()}", durable: true, false, false);
-            //    await _channel.QueueBindAsync($"test_{type.ToString()}", _exchangeName, Event.GetRoute(type));
-            //}
         }
 
         /// <inheritdoc />
