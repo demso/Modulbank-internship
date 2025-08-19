@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System.Globalization;
 using Testcontainers.PostgreSql;
 
 namespace BankAccounts.Tests.Integration.Testcontainers;
@@ -36,6 +37,6 @@ public class DatabaseIntegrationTests : IAsyncLifetime
         object? result = await cmd.ExecuteScalarAsync();
 
         //Assert
-        Assert.Equal(1, Convert.ToInt32(result));
+        Assert.Equal(1, Convert.ToInt32(result, new NumberFormatInfo()));
     }
 }
