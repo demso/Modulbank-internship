@@ -45,7 +45,7 @@ public class AccrueInterestJob(IAccountsRepositoryAsync accountsRepository, IBan
                 command.Parameters.AddWithValue("account_id", accountId);
                 await using NpgsqlDataReader reader = await command.ExecuteReaderAsync();
                 await reader.ReadAsync();
-                int result = reader.GetInt32(0);
+                decimal result = reader.GetDecimal(0);
                 await reader.CloseAsync();
                 if (result != 0)
                     await accountsRepository.AddToOutboxAsync(new InterestAccrued
