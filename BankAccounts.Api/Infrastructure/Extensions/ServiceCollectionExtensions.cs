@@ -3,7 +3,6 @@ using BankAccounts.Api.Features.Accounts;
 using BankAccounts.Api.Features.Transactions;
 using BankAccounts.Api.Infrastructure.CurrencyService;
 using BankAccounts.Api.Infrastructure.Database.Context;
-using BankAccounts.Api.Infrastructure.Hangfire.Jobs;
 using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 using BankAccounts.Api.Infrastructure.RabbitMQ;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
