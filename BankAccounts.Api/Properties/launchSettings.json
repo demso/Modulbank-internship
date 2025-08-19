@@ -16,7 +16,7 @@
             "launchBrowser": true,
             "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
             "publishAllPorts": true
-        },
+        }
         //"CustomDockerCompose": {
         //    "commandName": "Executable",
         //    "executablePath": "powershell.exe",

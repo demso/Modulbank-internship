@@ -89,6 +89,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
         /// <summary>
         /// Транзакция базы данных
         /// </summary>
+        // ReSharper disable once MemberCanBePrivate.Global Не нужно
         public readonly DbTransaction Transaction;
         private readonly IBankAccountsDbContext _dbContext;
         private readonly bool _wasClosed;

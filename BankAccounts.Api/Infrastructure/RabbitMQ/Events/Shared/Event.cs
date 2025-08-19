@@ -20,7 +20,7 @@ public abstract class Event
     /// </summary>
     public required Metadata Meta { get; init; }
     
-    private static Dictionary<EventType, string> _eventMap = new()
+    private static readonly Dictionary<EventType, string> EventMap = new()
     {
         {EventType.AccountOpened, "account.opened"},
         {EventType.InterestAccrued, "money.interest.accrued"},
@@ -38,7 +38,7 @@ public abstract class Event
     /// <returns>Путь</returns>
     public static string GetRoute(EventType type)
     {
-        return _eventMap[type];
+        return EventMap[type];
     }
 
     /// <summary>

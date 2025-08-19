@@ -75,6 +75,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     /// Фильтр для добавления пользовательских описаний к схемам событий.
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global Предлагает ерунду
+    // ReSharper disable once MemberCanBePrivate.Global Не нужно
     public class EventTypeSchemasDocumentFilter : IDocumentFilter
     {
         /// <inheritdoc />

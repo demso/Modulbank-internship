@@ -17,7 +17,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
         private IConnection _connection = null!;
         private IChannel _channel = null!;
 
-        public static readonly JsonSerializerOptions Options = new();
+        private static readonly JsonSerializerOptions Options = new();
         
         [Fact]
         public async Task ClientBlockTest_ClientBlockedPreventsDebit()
@@ -77,15 +77,15 @@ namespace BankAccounts.Tests.Integration.Testcontainers
         private static partial Regex ClientBlockedReg();
         [GeneratedRegex("CLIENT_UNBLOCK")]
         private static partial Regex ClientUnblockedReg();
-        
-        internal static async Task<HttpResponseMessage> PerformTransaction(HttpClient apiClientUser, int accountId, TransactionType transactionType, decimal amount)
+
+        private static async Task<HttpResponseMessage> PerformTransaction(HttpClient apiClientUser, int accountId, TransactionType transactionType, decimal amount)
         {
             PerformTransactionDto performTransactionDto = new(transactionType, amount, "");
             HttpResponseMessage performTransactionResponse = await apiClientUser.PostAsJsonAsync($"/api/accounts/{accountId}/transactions", performTransactionDto);
             return performTransactionResponse;
         }
-        
-        public static string ToJson(object obj)
+
+        private static string ToJson(object obj)
         {
             return JsonSerializer.Serialize(obj, Options);
         }
