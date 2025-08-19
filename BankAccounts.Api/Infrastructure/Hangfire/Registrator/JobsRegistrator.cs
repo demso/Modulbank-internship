@@ -1,4 +1,5 @@
 ﻿using BankAccounts.Api.Infrastructure.Hangfire.Jobs;
+using BankAccounts.Api.Infrastructure.RabbitMQ;
 using Hangfire;
 
 namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;

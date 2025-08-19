@@ -7,7 +7,7 @@ using RabbitMQ.Client;
 using System.Diagnostics;
 using System.Text;
 
-namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
+namespace BankAccounts.Api.Infrastructure.RabbitMQ
 {
     
     /// <summary>
@@ -19,7 +19,8 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
     public class Sender(ILogger<Sender> logger, IBankAccountsDbContext dbContext, IConfiguration configuration)
     {
         private const ushort MaxOutstandingConfirms = 256;
-        private ConnectionFactory _factory = new()
+
+        private readonly ConnectionFactory _factory = new()
         {
             HostName = configuration["RabbitMQ:Hostname"]!, 
             UserName = configuration["RabbitMQ:Username"]!, 
@@ -28,7 +29,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         private IConnection? _connection;
         private IChannel? _channel;
         private readonly string _exchangeName = configuration["RabbitMQ:ExchangeName"]!;
-        private BasicProperties _props = new()
+        private readonly BasicProperties _props = new()
         {
             Persistent = true,
             Headers = new Dictionary<string, object?>()
@@ -37,7 +38,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
         /// <summary>
         /// Инициализация подключения и канала
         /// </summary>
-        public async Task Init()
+        private async Task Init()
         {
             _connection = await _factory.CreateConnectionAsync();
             
@@ -113,11 +114,11 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
 
         private async Task<int> MaybeAwaitPublishes(List<(OutboxPublishedEntity, ValueTask)> publishTasks, int batchSize)
         {
-            int succedeedTasks = 0;
+            int succeededTasks = 0;
             
             if (publishTasks.Count < batchSize)
             {
-                return succedeedTasks;
+                return succeededTasks;
             }
 
             foreach ((OutboxPublishedEntity entity, ValueTask pt)  in publishTasks)
@@ -127,7 +128,7 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
                     await pt;
                     dbContext.OutboxPublished.Remove(entity);
                     await dbContext.SaveChangesAsync(CancellationToken.None);
-                    succedeedTasks++;
+                    succeededTasks++;
                     LogSuccess(entity);
                 }
                 catch (Exception)
@@ -139,14 +140,14 @@ namespace BankAccounts.Api.Infrastructure.Hangfire.Jobs
                 }
             }
             publishTasks.Clear();
-            return succedeedTasks;
+            return succeededTasks;
         }
 
         private void LogSuccess(OutboxPublishedEntity entity)
         {
-            logger.LogInformation("Successfully published event: id = {id}, type = {type}, " +
+            logger.LogInformation("[MESSAGE_PUBLISHED] Successfully published event: id = {id}, type = {type}, " +
                                   "correlationId = {correlationId}, retry = {retry}, latency = {latency}", entity.EventId, 
-                entity.EventType.ToString(), entity.CorrelationId, entity.TryCount, DateTime.UtcNow - entity.Created); // eventId, type, correlationId, retry, latency
+                entity.EventType.ToString(), entity.CorrelationId, entity.TryCount, DateTime.UtcNow - entity.Created);
         }
     }
 }
