@@ -78,7 +78,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task CommitAsync(CancellationToken cancellationToken = default);
+        Task CommitAsync(CancellationToken cancellationToken = default);
     }
     
     /// <summary>
