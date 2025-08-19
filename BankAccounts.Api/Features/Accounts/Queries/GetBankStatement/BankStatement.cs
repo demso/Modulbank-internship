@@ -14,6 +14,8 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 /// <param name="Operations">Операции</param>
 /// <param name="StartBalance">Баланс на начало периода</param>
 /// <param name="EndBalance">Баланс на конец периода</param>
+/// <param name="StartPeriod">Начало периода</param>
+/// <param name="EndPeriod">Конец периода</param>
 public record BankStatement(
     int AccountId,
     string Username,

@@ -7,6 +7,7 @@ namespace BankAccounts.Api.Features.Transactions.Dtos;
 /// </summary>
 /// <param name="TransactionId">Id транзакции</param>
 /// <param name="AccountId">Id счета</param>
+/// <param name="CounterpartyAccountId">Id второго счета при трансфере</param>
 /// <param name="Amount">Сумма денежных средств</param>
 /// <param name="Currency">Валюта</param>
 /// <param name="TransactionType">Тип транзакции</param>

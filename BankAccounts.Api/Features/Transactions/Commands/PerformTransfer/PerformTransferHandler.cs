@@ -26,6 +26,7 @@ public class PerformTransferHandler(IAccountsRepositoryAsync accountsRepository,
     /// <summary>
     /// Id источника
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global Не нужно
     public static readonly Guid CausationId = CausationIds.PerformTransfer;
     /// <inheritdoc />
     public override async Task<TransactionDto> Handle(PerformTransferCommand request,  CancellationToken cancellationToken)

@@ -6,6 +6,7 @@ namespace BankAccounts.Api.Features.Accounts.Queries.GetBankStatement;
 /// Запрос выписки
 /// </summary>
 /// <param name="OwnerId">Id владельца</param>
+/// <param name="Username">Имя пользователя</param>
 /// <param name="AccountId">Id счета</param>
 /// <param name="FromDate">Начало периода (может быть null)</param>
 /// <param name="ToDate">Конец периода (может быть null)</param>
