@@ -2,41 +2,42 @@
 using System.Globalization;
 using Testcontainers.PostgreSql;
 
-namespace BankAccounts.Tests.Integration.Testcontainers;
-
-public class DatabaseIntegrationTests : IAsyncLifetime
+namespace BankAccounts.Tests.Integration.Testcontainers
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("lithiumkgp/postgres:latest")
-        .WithDatabase("testdb")
-        .WithUsername("user")
-        .WithPassword("password")
-        .Build();
-    private string _connectionString = null!;
-
-    public async Task InitializeAsync()
+    public class DatabaseIntegrationTests : IAsyncLifetime
     {
-        await _container.StartAsync();
-        _connectionString = _container.GetConnectionString();
-    }
+        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
+            .WithImage("lithiumkgp/postgres:latest")
+            .WithDatabase("testdb")
+            .WithUsername("user")
+            .WithPassword("password")
+            .Build();
+        private string _connectionString = null!;
 
-    public async Task DisposeAsync()
-    {
-        await _container.StopAsync();
-    }
+        public async Task InitializeAsync()
+        {
+            await _container.StartAsync();
+            _connectionString = _container.GetConnectionString();
+        }
 
-    [Fact]
-    public async Task Can_Connect_To_Database()
-    {
-        // Arrange
-        await using  NpgsqlConnection connection = new(_connectionString);
-        await connection.OpenAsync();
-        await using NpgsqlCommand cmd = new("SELECT 1", connection);
+        public async Task DisposeAsync()
+        {
+            await _container.StopAsync();
+        }
+
+        [Fact]
+        public async Task Can_Connect_To_Database()
+        {
+            // Arrange
+            await using  NpgsqlConnection connection = new(_connectionString);
+            await connection.OpenAsync();
+            await using NpgsqlCommand cmd = new("SELECT 1", connection);
         
-        // Act
-        object? result = await cmd.ExecuteScalarAsync();
+            // Act
+            object? result = await cmd.ExecuteScalarAsync();
 
-        //Assert
-        Assert.Equal(1, Convert.ToInt32(result, new NumberFormatInfo()));
+            //Assert
+            Assert.Equal(1, Convert.ToInt32(result, new NumberFormatInfo()));
+        }
     }
 }

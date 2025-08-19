@@ -1,19 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BankAccounts.Identity.Identity;
-
-/// <summary>
-/// Конфигурация сущбности пользователя
-/// </summary>
-public class BankUserConfiguration : IEntityTypeConfiguration<BankUser>
+namespace BankAccounts.Identity.Identity
 {
     /// <summary>
-    /// Конфигурирует пользовательскую сущьность. Пользователь имеет первичный ключ по Id
+    /// Конфигурация сущности пользователя
     /// </summary>
-    /// <param name="builder"></param>
-    public void Configure(EntityTypeBuilder<BankUser> builder)
+    public class BankUserConfiguration : IEntityTypeConfiguration<BankUser>
     {
-        builder.HasKey(x => x.Id);
+        /// <summary>
+        /// Конфигурирует пользовательскую сущность. Пользователь имеет первичный ключ по Id
+        /// </summary>
+        /// <param name="builder"></param>
+        public void Configure(EntityTypeBuilder<BankUser> builder)
+        {
+            builder.HasKey(x => x.Id);
+        }
     }
 }

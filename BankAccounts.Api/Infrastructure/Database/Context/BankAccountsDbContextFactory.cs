@@ -5,33 +5,34 @@ using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace BankAccounts.Api.Infrastructure.Database.Context;
-
-/// <summary>
-/// Для миграций
-/// </summary>
-// ReSharper disable once UnusedType.Global Используется при создании миграций
-public class BankAccountsDbContextFactory : IDesignTimeDbContextFactory<BankAccountsDbContext>
+namespace BankAccounts.Api.Infrastructure.Database.Context
 {
     /// <summary>
-    /// Создаст контекст
+    /// Для миграций
     /// </summary>
-    /// <param name="args"></param>
-    /// <returns></returns>
-    public BankAccountsDbContext CreateDbContext(string[] args)
+// ReSharper disable once UnusedType.Global Используется при создании миграций
+    public class BankAccountsDbContextFactory : IDesignTimeDbContextFactory<BankAccountsDbContext>
     {
-        DbContextOptionsBuilder<BankAccountsDbContext> optionsBuilder = new();
-        
-        const string connectionString = "Host=localhost;Database=bankaccounts;Username=postgres;Password=password";
-
-        optionsBuilder.UseNpgsql(connectionString, options =>
+        /// <summary>
+        /// Создаст контекст
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public BankAccountsDbContext CreateDbContext(string[] args)
         {
-            options.MapEnum<Currencies>();
-            options.MapEnum<TransactionType>();
-            options.MapEnum<AccountType>();
-            options.MapEnum<EventType>();
-        });
+            DbContextOptionsBuilder<BankAccountsDbContext> optionsBuilder = new();
         
-        return new BankAccountsDbContext(optionsBuilder.Options);
+            const string connectionString = "Host=localhost;Database=bankaccounts;Username=postgres;Password=password";
+
+            optionsBuilder.UseNpgsql(connectionString, options =>
+            {
+                options.MapEnum<Currencies>();
+                options.MapEnum<TransactionType>();
+                options.MapEnum<AccountType>();
+                options.MapEnum<EventType>();
+            });
+        
+            return new BankAccountsDbContext(optionsBuilder.Options);
+        }
     }
 }

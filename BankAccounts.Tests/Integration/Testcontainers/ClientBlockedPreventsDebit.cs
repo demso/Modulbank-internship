@@ -54,7 +54,7 @@ namespace BankAccounts.Tests.Integration.Testcontainers
             await WaitMessageConsumed(ClientBlockedReg());
             
             // Пробуем снять средства
-            HttpResponseMessage response1 = await PerformTransaction(apiClientUser1, accountId, TransactionType.Credit, 100); ;
+            HttpResponseMessage response1 = await PerformTransaction(apiClientUser1, accountId, TransactionType.Credit, 100);
 
             // Отправляем сообщение о разблокировке
             await SendClientUnblockedMessage();

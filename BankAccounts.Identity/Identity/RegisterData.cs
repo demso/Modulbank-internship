@@ -2,23 +2,24 @@
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global Свойства используются
 
-namespace BankAccounts.Identity.Identity;
-
-/// <summary>
-/// Класс, представляющий собой информацию, необходимую для регистрации пользователя
-/// </summary>
-public class RegisterData
+namespace BankAccounts.Identity.Identity
 {
     /// <summary>
-    /// Логин
+    /// Класс, представляющий собой информацию, необходимую для регистрации пользователя
     /// </summary>
-    [Required]
-    public string? Username { get; init; }
-    /// <summary>
-    /// Пароль
-    /// </summary>
-    [Required]
-    [DataType(DataType.Password)]
-    public string? Password { get; init; }
+    public class RegisterData
+    {
+        /// <summary>
+        /// Логин
+        /// </summary>
+        [Required]
+        public string? Username { get; init; }
+        /// <summary>
+        /// Пароль
+        /// </summary>
+        [Required]
+        [DataType(DataType.Password)]
+        public string? Password { get; init; }
+    }
 }
 

@@ -1,25 +1,26 @@
-﻿namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
-
-/// <summary>
-/// Абстрактный класс для классов регистрации фоновых заданий Hangfire.
-/// </summary>
-public abstract class AbstractJobsRegistrator : IHostedService
+﻿namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator
 {
     /// <summary>
-    /// Метод для добавления фоновых заданий Hangfire.
+    /// Абстрактный класс для классов регистрации фоновых заданий Hangfire.
     /// </summary>
-    protected abstract void AddJobs();
-
-    /// <inheritdoc />
-    public Task StartAsync(CancellationToken cancellationToken)
+    public abstract class AbstractJobsRegistrator : IHostedService
     {
-        AddJobs();
-        return Task.CompletedTask;
-    }
+        /// <summary>
+        /// Метод для добавления фоновых заданий Hangfire.
+        /// </summary>
+        protected abstract void AddJobs();
 
-    /// <inheritdoc />
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
+        /// <inheritdoc />
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            AddJobs();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

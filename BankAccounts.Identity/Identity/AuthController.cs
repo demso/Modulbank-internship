@@ -7,119 +7,120 @@ using System.Security.Cryptography;
 using System.Text;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-namespace BankAccounts.Identity.Identity;
-
-/// <summary>
-/// Контроллер аутентификации
-/// </summary>
-[ApiController]
-[Route("api/[controller]/[action]")]
-public class AuthController(
-    SignInManager<BankUser> signInManager,
-    UserManager<BankUser> userManager,
-    AuthDbContext dbContext,
-    IConfiguration configuration)
-    : ControllerBase
+namespace BankAccounts.Identity.Identity
 {
     /// <summary>
-    /// Регистрирует пользователя
+    /// Контроллер аутентификации
     /// </summary>
-    /// <remarks>
-    /// <code>
-    /// POST {{address}}/api/auth/register </code>
-    /// </remarks>
-    /// <returns>string message</returns>
-    /// <response code="200">Успешно</response>
-    /// <response code="500">Ошибка при регистрации</response>
-    [HttpPost]
-    [ProducesResponseType(typeof(ActionResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Register(RegisterData data)
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    public class AuthController(
+        SignInManager<BankUser> signInManager,
+        UserManager<BankUser> userManager,
+        AuthDbContext dbContext,
+        IConfiguration configuration)
+        : ControllerBase
     {
-        BankUser user = new()
+        /// <summary>
+        /// Регистрирует пользователя
+        /// </summary>
+        /// <remarks>
+        /// <code>
+        /// POST {{address}}/api/auth/register </code>
+        /// </remarks>
+        /// <returns>string message</returns>
+        /// <response code="200">Успешно</response>
+        /// <response code="500">Ошибка при регистрации</response>
+        [HttpPost]
+        [ProducesResponseType(typeof(ActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Register(RegisterData data)
         {
-            UserName = data.Username
-        };
+            BankUser user = new()
+            {
+                UserName = data.Username
+            };
 
-        IdentityResult result = await userManager.CreateAsync(user, data.Password!);
-        if (!result.Succeeded)
-        {
-            string errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
-            return StatusCode(500, errorMessage);
+            IdentityResult result = await userManager.CreateAsync(user, data.Password!);
+            if (!result.Succeeded)
+            {
+                string errorMessage = string.Join("\n | ", result.Errors.Select(error => error.Description));
+                return StatusCode(500, errorMessage);
+            }
+
+            await signInManager.SignInAsync(user, false);
+
+            await dbContext.SaveChangesAsync();
+
+            return Ok("Register succeed.");
         }
 
-        await signInManager.SignInAsync(user, false);
+        /// <summary>
+        /// Аутентифицирует пользователя. Возвращает токен, используйте его для доступа к операциям сервиса BankAccountsAPI.
+        /// </summary>
+        /// <remarks>
+        /// <code>
+        /// POST {{address}}/api/auth/login </code>
+        /// </remarks>
+        /// <returns>Токен</returns>
+        /// <response code="200">Успешно</response>
+        ///  <response code="404">Пользователь не зарегистрирован</response>
+        /// <response code="400">Ошибка входа</response>
+        [HttpPost]
+        [ProducesResponseType(typeof(ActionResult), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Login(LoginData data) {
+            BankUser? user = await userManager.FindByNameAsync(data.Username!);
+            if (user == null)
+                return NotFound("User is not registered");
 
-        await dbContext.SaveChangesAsync();
+            SignInResult result = await signInManager.PasswordSignInAsync(data.Username!,
+                data.Password!, false, false);
+            if (!result.Succeeded)
+                return StatusCode(400, "Login failed");
 
-        return Ok("Register succeed.");
-    }
+            string token = GenerateJwtToken(user);
 
-    /// <summary>
-    /// Аутентифицирует пользователя. Возвращает токен, используйте его для доступа к операциям сервиса BankAccountsAPI.
-    /// </summary>
-    /// <remarks>
-    /// <code>
-    /// POST {{address}}/api/auth/login </code>
-    /// </remarks>
-    /// <returns>Токен</returns>
-    /// <response code="200">Успешно</response>
-    ///  <response code="404">Пользователь не зарегистрирован</response>
-    /// <response code="400">Ошибка входа</response>
-    [HttpPost]
-    [ProducesResponseType(typeof(ActionResult), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Login(LoginData data) {
-        BankUser? user = await userManager.FindByNameAsync(data.Username!);
-        if (user == null)
-            return NotFound("User is not registered");
+            return Ok(token);
+        }
 
-        SignInResult result = await signInManager.PasswordSignInAsync(data.Username!,
-            data.Password!, false, false);
-        if (!result.Succeeded)
-            return StatusCode(400, "Login failed");
+        private string GenerateJwtToken(BankUser user)
+        {
+            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
-        string token = GenerateJwtToken(user);
+            Claim[] claims =
+            [
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(ClaimTypes.Name, user.UserName!),
+                new(ClaimTypes.NameIdentifier, CreateGuidFromString(user.UserName!).ToString())
+            ];
 
-        return Ok(token);
-    }
+            JwtSecurityToken token = new(
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: credentials
+            );
 
-    private string GenerateJwtToken(BankUser user)
-    {
-        SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
-        SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
-        Claim[] claims =
-        [
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name, user.UserName!),
-            new(ClaimTypes.NameIdentifier, CreateGuidFromString(user.UserName!).ToString())
-        ];
+        private static Guid CreateGuidFromString(string input)
+        {
+            byte[] hash = SHA1.HashData(Encoding.UTF8.GetBytes(input));
 
-        JwtSecurityToken token = new(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddHours(1),
-            signingCredentials: credentials
-        );
+            // Берём первые 16 байт для GUID
+            byte[] guidBytes = new byte[16];
+            Array.Copy(hash, guidBytes, 16);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+            // Устанавливаем версию GUID (RFC 4122)
+            guidBytes[6] = (byte)((guidBytes[6] & 0x0F) | 0x50);
+            guidBytes[8] = (byte)((guidBytes[8] & 0x3F) | 0x80);
 
-    private static Guid CreateGuidFromString(string input)
-    {
-        byte[] hash = SHA1.HashData(Encoding.UTF8.GetBytes(input));
-
-        // Берём первые 16 байт для GUID
-        byte[] guidBytes = new byte[16];
-        Array.Copy(hash, guidBytes, 16);
-
-        // Устанавливаем версию GUID (RFC 4122)
-        guidBytes[6] = (byte)((guidBytes[6] & 0x0F) | 0x50);
-        guidBytes[8] = (byte)((guidBytes[8] & 0x3F) | 0x80);
-
-        return new Guid(guidBytes);
+            return new Guid(guidBytes);
+        }
     }
 }

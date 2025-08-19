@@ -1,20 +1,21 @@
-﻿namespace BankAccounts.Api.Infrastructure.CurrencyService;
-
-/// <summary>
-/// Валюты, доступные в банковском сервисе
-/// </summary>
-public enum Currencies
+﻿namespace BankAccounts.Api.Infrastructure.CurrencyService
 {
     /// <summary>
-    /// рубли
+    /// Валюты, доступные в банковском сервисе
     /// </summary>
-    Rub,
-    /// <summary>
-    /// доллары
-    /// </summary>
-    Usd,
-    /// <summary>
-    /// евро
-    /// </summary>
-    Eur
+    public enum Currencies
+    {
+        /// <summary>
+        /// рубль
+        /// </summary>
+        Rub,
+        /// <summary>
+        /// доллары
+        /// </summary>
+        Usd,
+        /// <summary>
+        /// евро
+        /// </summary>
+        Eur
+    }
 }

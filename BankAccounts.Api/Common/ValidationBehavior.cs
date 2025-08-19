@@ -2,27 +2,29 @@
 using FluentValidation.Results;
 using MediatR;
 
-namespace BankAccounts.Api.Common;
-/// <summary>
-/// Класс для настройки поведения валидаторов
-/// </summary>
-public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
-    : IPipelineBehavior<TRequest, TResponse> where TRequest :IRequest<TResponse>
+namespace BankAccounts.Api.Common
 {
-    /// <inheritdoc />
-    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    /// <summary>
+    /// Класс для настройки поведения валидаторов
+    /// </summary>
+    public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
+        : IPipelineBehavior<TRequest, TResponse> where TRequest :IRequest<TResponse>
     {
-        ValidationContext<TRequest> context = new(request);
-        ValidationFailure? failure = validators
-            .Select(validator => validator.Validate(context))
-            .SelectMany(result => result.Errors)
-            .FirstOrDefault(failure => failure != null); //вернем только первую ошибку
-
-        if (failure is not null)
+        /// <inheritdoc />
+        public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            throw new ValidationException(new List<ValidationFailure> { failure });
-        }
+            ValidationContext<TRequest> context = new(request);
+            ValidationFailure? failure = validators
+                .Select(validator => validator.Validate(context))
+                .SelectMany(result => result.Errors)
+                .FirstOrDefault(failure => failure != null); //вернем только первую ошибку
 
-        return next(cancellationToken);
+            if (failure is not null)
+            {
+                throw new ValidationException(new List<ValidationFailure> { failure });
+            }
+
+            return next(cancellationToken);
+        }
     }
 }

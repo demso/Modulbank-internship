@@ -5,67 +5,68 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Testcontainers.PostgreSql;
 
-namespace BankAccounts.Tests.Integration.Testcontainers;
-
-/// <summary>
-/// Тест работы Entity Framework с контекстом <see cref="BankAccountsDbContext" /> и базой данных Postgres
-/// </summary>
-public class EfRepositoryTests : IAsyncLifetime
+namespace BankAccounts.Tests.Integration.Testcontainers
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("lithiumkgp/postgres:latest")
-        .Build();
-    private BankAccountsDbContext _context = null!;
-
-    public async Task InitializeAsync()
+    /// <summary>
+    /// Тест работы Entity Framework с контекстом <see cref="BankAccountsDbContext" /> и базой данных Postgres
+    /// </summary>
+    public class EfRepositoryTests : IAsyncLifetime
     {
-        await _container.StartAsync();
+        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
+            .WithImage("lithiumkgp/postgres:latest")
+            .Build();
+        private BankAccountsDbContext _context = null!;
 
-        DbContextOptions<BankAccountsDbContext> options = new DbContextOptionsBuilder<BankAccountsDbContext>()
-            .UseNpgsql(_container.GetConnectionString())
-            .Options;
+        public async Task InitializeAsync()
+        {
+            await _container.StartAsync();
 
-        _context = new BankAccountsDbContext(options);
+            DbContextOptions<BankAccountsDbContext> options = new DbContextOptionsBuilder<BankAccountsDbContext>()
+                .UseNpgsql(_container.GetConnectionString())
+                .Options;
+
+            _context = new BankAccountsDbContext(options);
         
-        // Необходимо для создания индекса
-        const string sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
-        await _context.Database.ExecuteSqlRawAsync(sql);
+            // Необходимо для создания индекса
+            const string sql = "CREATE EXTENSION IF NOT EXISTS btree_gist;"; 
+            await _context.Database.ExecuteSqlRawAsync(sql);
         
-        await _context.Database.EnsureCreatedAsync(); 
-    }
+            await _context.Database.EnsureCreatedAsync(); 
+        }
         
-    public async Task DisposeAsync()
-    {
-        await _context.DisposeAsync();
-        await _container.StopAsync();
-    }
+        public async Task DisposeAsync()
+        {
+            await _context.DisposeAsync();
+            await _container.StopAsync();
+        }
 
     
-    /// <summary>
-    /// Проверка, сможет ли Entity Framework добавить счет в базу данных
-    /// </summary>
-    [Fact]
-    public async Task Can_Add_Account()
-    {
-        // Arrange
-        Account account = new()
+        /// <summary>
+        /// Проверка, сможет ли Entity Framework добавить счет в базу данных
+        /// </summary>
+        [Fact]
+        public async Task Can_Add_Account()
         {
-            OwnerId = Guid.NewGuid(),
-            AccountType = AccountType.Checking,
-            Currency = Currencies.Rub,
-            InterestRate = 2.5m
-        };
+            // Arrange
+            Account account = new()
+            {
+                OwnerId = Guid.NewGuid(),
+                AccountType = AccountType.Checking,
+                Currency = Currencies.Rub,
+                InterestRate = 2.5m
+            };
         
-        // Act
-        EntityEntry<Account> returnedAccount = _context.Accounts.Add(account);
-        await _context.SaveChangesAsync();
+            // Act
+            EntityEntry<Account> returnedAccount = _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
 
-        // Assert
-        Account? saved = await _context.Accounts.FindAsync(returnedAccount.Entity.AccountId);
-        Assert.NotNull(saved);
-        Assert.Equal(2.5m, saved.InterestRate);
-        Assert.Equal(account.OwnerId, saved.OwnerId);
-        Assert.Equal(account.AccountType, saved.AccountType);
-        Assert.Equal(account.Currency, saved.Currency);
+            // Assert
+            Account? saved = await _context.Accounts.FindAsync(returnedAccount.Entity.AccountId);
+            Assert.NotNull(saved);
+            Assert.Equal(2.5m, saved.InterestRate);
+            Assert.Equal(account.OwnerId, saved.OwnerId);
+            Assert.Equal(account.AccountType, saved.AccountType);
+            Assert.Equal(account.Currency, saved.Currency);
+        }
     }
 }

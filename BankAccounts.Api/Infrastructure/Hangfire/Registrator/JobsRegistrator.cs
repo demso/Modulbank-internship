@@ -2,17 +2,18 @@
 using BankAccounts.Api.Infrastructure.RabbitMQ;
 using Hangfire;
 
-namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator;
-
-/// <summary>
-/// Конкретный класс для регистрации ежедневного начисления процентов.
-/// </summary>
-public class JobsRegistrator : AbstractJobsRegistrator
+namespace BankAccounts.Api.Infrastructure.Hangfire.Registrator
 {
-    /// <inheritdoc />
-    protected override void AddJobs()
+    /// <summary>
+    /// Конкретный класс для регистрации ежедневного начисления процентов.
+    /// </summary>
+    public class JobsRegistrator : AbstractJobsRegistrator
     {
-        RecurringJob.AddOrUpdate<AccrueInterestJob>("accrueInterest", obj => obj.Job(), Cron.Daily);
-        RecurringJob.AddOrUpdate<Sender>("send_events", obj => obj.Job(), "*/10 * * * * *");
+        /// <inheritdoc />
+        protected override void AddJobs()
+        {
+            RecurringJob.AddOrUpdate<AccrueInterestJob>("accrueInterest", obj => obj.Job(), Cron.Daily);
+            RecurringJob.AddOrUpdate<Sender>("send_events", obj => obj.Job(), "*/10 * * * * *");
+        }
     }
 }

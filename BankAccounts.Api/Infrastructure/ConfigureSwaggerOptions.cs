@@ -6,89 +6,90 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
-namespace BankAccounts.Api.Infrastructure;
-
-/// <summary>
-/// Класс для конфигурации Swagger
-/// </summary>
-public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+namespace BankAccounts.Api.Infrastructure
 {
     /// <summary>
-    /// Метод конфигурации
+    /// Класс для конфигурации Swagger
     /// </summary>
-    /// <param name="options"></param>
-    public void Configure(SwaggerGenOptions options)
+    public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
-        options.SwaggerDoc("v1", new OpenApiInfo
+        /// <summary>
+        /// Метод конфигурации
+        /// </summary>
+        /// <param name="options"></param>
+        public void Configure(SwaggerGenOptions options)
         {
-            Title = "Bank Accounts API",
-            Description = "Для авторизации воспользуйтесь [http://localhost:7045](http://localhost:7045)\n" +
-                          "1. Зарегистрируйтесь с указанием логина и пароля (Register).\n" +
-                          "2. Войдите, также указав логин и пароль (Login).\n" +
-                          "3. Скопируйте полученный токен.\n" +
-                          "4. Вставьте в поле окна \"Authorize\"\n" +
-                          "5. Можно пользоваться сервисом.\n\n\n" +
-                          "Или воспользуйтесь бесконечными токенами из файла (также указаны идентификаторы): [Endless tokens](https://github.com/demso/Modulbank-internship/blob/task/fourth/Endless%20tokens.md) \n\n"+
-                          "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)\n\n"+
-                          "RabbitMQ: [http://localhost:15672/](http://localhost:15672/) \n\n[Примеры сообщений](https://github.com/demso/Modulbank-internship/blob/task/fourth/Rabbitmq%20message.md)\n",
-            Version = "v1"
-        });
-
-        string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-        options.IncludeXmlComments(xmlPath);
-
-        options.AddSecurityDefinition("AuthToken",
-            new OpenApiSecurityScheme
+            options.SwaggerDoc("v1", new OpenApiInfo
             {
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = "bearer",
-                Name = "Authorization",
-                Description = "Authorization token"
+                Title = "Bank Accounts API",
+                Description = "Для авторизации воспользуйтесь [http://localhost:7045](http://localhost:7045)\n" +
+                              "1. Зарегистрируйтесь с указанием логина и пароля (Register).\n" +
+                              "2. Войдите, также указав логин и пароль (Login).\n" +
+                              "3. Скопируйте полученный токен.\n" +
+                              "4. Вставьте в поле окна \"Authorize\"\n" +
+                              "5. Можно пользоваться сервисом.\n\n\n" +
+                              "Или воспользуйтесь бесконечными токенами из файла (также указаны идентификаторы): [Endless tokens](https://github.com/demso/Modulbank-internship/blob/task/fourth/Endless%20tokens.md) \n\n"+
+                              "Hangfire Dashboard: [http://localhost:80/hangfire](http://localhost:80/hangfire)\n\n"+
+                              "RabbitMQ: [http://localhost:15672/](http://localhost:15672/) \n\n[Примеры сообщений](https://github.com/demso/Modulbank-internship/blob/task/fourth/Rabbitmq%20message.md)\n",
+                Version = "v1"
             });
 
-        options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
+            string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            options.IncludeXmlComments(xmlPath);
+
+            options.AddSecurityDefinition("AuthToken",
                 new OpenApiSecurityScheme
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "AuthToken"
-                    }
-                },
-                []
-            }
-        });
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "bearer",
+                    Name = "Authorization",
+                    Description = "Authorization token"
+                });
 
-        options.CustomOperationIds(apiDescription =>
-            apiDescription.TryGetMethodInfo(out MethodInfo? methodInfo)
-                ? methodInfo.Name
-                : null);
-        options.DocumentFilter<EventTypeSchemasDocumentFilter>();
-    }
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "AuthToken"
+                        }
+                    },
+                    []
+                }
+            });
+
+            options.CustomOperationIds(apiDescription =>
+                apiDescription.TryGetMethodInfo(out MethodInfo? methodInfo)
+                    ? methodInfo.Name
+                    : null);
+            options.DocumentFilter<EventTypeSchemasDocumentFilter>();
+        }
     
-    /// <summary>
-    /// Фильтр для добавления пользовательских описаний к схемам событий.
-    /// </summary>
-    // ReSharper disable once ClassNeverInstantiated.Global Предлагает ерунду
-    // ReSharper disable once MemberCanBePrivate.Global Не нужно
-    public class EventTypeSchemasDocumentFilter : IDocumentFilter
-    {
-        /// <inheritdoc />
-        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+        /// <summary>
+        /// Фильтр для добавления пользовательских описаний к схемам событий.
+        /// </summary>
+        // ReSharper disable once ClassNeverInstantiated.Global Предлагает ерунду
+        // ReSharper disable once MemberCanBePrivate.Global Не нужно
+        public class EventTypeSchemasDocumentFilter : IDocumentFilter
         {
-            context.SchemaGenerator.GenerateSchema(typeof(AccountOpened), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(TransferCompleted), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(ClientBlocked), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(ClientUnblocked), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(MoneyCredited), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(MoneyDebited), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(Metadata), context.SchemaRepository);
-            context.SchemaGenerator.GenerateSchema(typeof(InterestAccrued), context.SchemaRepository);
+            /// <inheritdoc />
+            public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+            {
+                context.SchemaGenerator.GenerateSchema(typeof(AccountOpened), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(TransferCompleted), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(ClientBlocked), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(ClientUnblocked), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(MoneyCredited), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(MoneyDebited), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(Metadata), context.SchemaRepository);
+                context.SchemaGenerator.GenerateSchema(typeof(InterestAccrued), context.SchemaRepository);
+            }
         }
     }
 }
