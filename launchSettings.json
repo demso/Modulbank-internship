@@ -1,3 +1,16 @@
 {
-
+  "profiles": {
+    "Docker Compose Start": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "None",
+      "composeLaunchServiceName": "bankaccounts.api",
+      "serviceActions": {
+        "bankaccounts.api": "StartDebugging",
+        "bankaccounts.db": "StartWithoutDebugging",
+        "bankaccounts.identity": "StartWithoutDebugging",
+        "rabbitmq": "StartWithoutDebugging"
+      }
+    }
+  }
 }

@@ -60,12 +60,19 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3900864e_002Debfe_002D448d_002Db2a0_002D1f379426141d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateAccountCommandValidatorTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/Exceptions/=Global/@EntryIndexedValue">True</s:Boolean>
 	
 	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=37AB964D6E4D424BBE2530F92DA37EEB/Field/=NAMESPACE/InitialRange/@EntryValue">-1</s:Int64>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=37AB964D6E4D424BBE2530F92DA37EEB/Text/@EntryValue">$HEADER$namespace $NAMESPACE$;
 
 public record $RECORD$($END$);
 </s:String>
+	<s:String x:Key="/Default/RunConfigs/Active/@EntryValue">11FBB48E56F07646AE7D21F9B9400101</s:String>
+	<s:Boolean x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/DefaultAction/@EntryValue">run</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/Name/@EntryValue">docker-compose2</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/ProjectGuid/@EntryValue">9DEDDD818B1503E35F6277A2896D2A5A</s:String>
+	<s:String x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/Type/@EntryValue">project</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=acebdfc/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=astextplain/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=bcbab/@EntryIndexedValue">True</s:Boolean>
@@ -117,6 +124,7 @@ public record $RECORD$($END$);
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=shemas/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=sourceaccount/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=svoigb/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Testcontainers/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=testuser/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=uyhg/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=wdkzzn/@EntryIndexedValue">True</s:Boolean>

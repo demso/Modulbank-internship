@@ -17,23 +17,14 @@
             "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
             "publishAllPorts": true
         },
-        "ApiIdentityPostgres": {
-            "commandName": "Executable",
-            "executablePath": "powershell.exe",
-            "commandLineArgs": "./BankaccountsApi_and_Posgres.bat",
-            "workingDirectory": "$(SolutionDir)",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
-        },
-        "CustomDockerCompose": {
-            "commandName": "Executable",
-            "executablePath": "powershell.exe",
-            "commandLineArgs": "./doccomp.bat",
-            "workingDirectory": "$(SolutionDir)",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
-        }
+        //"CustomDockerCompose": {
+        //    "commandName": "Executable",
+        //    "executablePath": "powershell.exe",
+        //    "commandLineArgs": "./doccomp.bat",
+        //    "workingDirectory": "$(SolutionDir)",
+        //    "environmentVariables": {
+        //        "ASPNETCORE_ENVIRONMENT": "Development"
+        //    }
+        //}
     }  
 }

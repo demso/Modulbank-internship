@@ -29,3 +29,4 @@ dlldata.c
 /BankAccounts.Identity/keys
 /BankAccounts.Api/BankAccounts.Api.csproj.user
 /BankAccounts.Identity/BankAccounts.Identity.csproj.user
+/doccomp.bat
