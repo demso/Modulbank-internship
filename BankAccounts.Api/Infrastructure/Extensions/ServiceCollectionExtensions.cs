@@ -6,6 +6,9 @@ using BankAccounts.Api.Infrastructure.Database.Context;
 using BankAccounts.Api.Infrastructure.Hangfire.Registrator;
 using BankAccounts.Api.Infrastructure.RabbitMQ;
 using BankAccounts.Api.Infrastructure.RabbitMQ.Events.Shared;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Receiver;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Receiver.Handlers.Antifraud;
+using BankAccounts.Api.Infrastructure.RabbitMQ.Receiver.Handlers.Audit;
 using BankAccounts.Api.Infrastructure.Repository.Accounts;
 using BankAccounts.Api.Infrastructure.Repository.Transactions;
 using BankAccounts.Api.Infrastructure.UserBlacklist;
@@ -66,6 +69,8 @@ namespace BankAccounts.Api.Infrastructure.Extensions
                 .AddScoped<ITransactionsRepositoryAsync, TransactionsRepositoryAsync>()
                 .AddSingleton<ICurrencyService, CurrencyService.CurrencyService>()
                 .AddScoped<IUserBlacklistService, UserBlacklistService>()
+                .AddScoped<IAuditMessageHandler, AuditMessageHandler>()
+                .AddScoped<IAntifraudMessageHandler, AntifraudMessageHandler>()
                 .AddAutoMapper(options => options.AddMaps(Assembly.GetExecutingAssembly()))
                 .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
                 .AddControllers()
@@ -188,7 +193,7 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         public static void SetupRabbitMq(this IServiceCollection services)
         {
             services.AddScoped<Sender>();
-            services.AddHostedService<Receiver>();
+            services.AddHostedService<ReceiverService>();
         }
 
         /// <summary>
