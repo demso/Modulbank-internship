@@ -26,6 +26,8 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         private readonly string _exchangeName = configuration["RabbitMQ:ExchangeName"]!;
         private const string AuditQueueName = "account.audit";
         private const string AntifraudQueueName = "account.antifraud";
+        private const string AccountCrmQueueName = "account.crm";
+        private const string AccountNotificationsQueueName = "account.notifications";
         private const int MajorMessageVersion = 1;
 
         private async Task Init()
@@ -64,34 +66,28 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         /// <param name="model"></param>
         /// <param name="ea"></param>
         /// <returns></returns>
-        public async Task ProcessAuditMessage(object model, BasicDeliverEventArgs ea)
+        private async Task ProcessAuditMessage(object model, BasicDeliverEventArgs ea)
         {
             const string handler = "None";
             try
             { 
                 using IServiceScope scope = scopeFactory.CreateScope();
                 IBankAccountsDbContext dbContext = scope.ServiceProvider.GetRequiredService<IBankAccountsDbContext>();
-                byte[] body = ea.Body.ToArray();
-                string message = BytesToString(body);
-                JsonDocument document = JsonDocument.Parse(message);
 
-                string? reason = ValidateMessage(ea.BasicProperties, document, 
-                    out EventType? eventType, 
-                    out Guid? messageId);
+                (EventType, Guid, JsonDocument)? result = await CheckDeadLetter(dbContext, ea, handler);
 
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract На всякий случай
-                if (reason != null)
+                if (result is null)
                 {
-                    LogDeadLetter(document, eventType, reason, handler);
-                    await AddToDeadLetters(dbContext, messageId, document.RootElement.GetRawText(), eventType,
-                        DateTime.UtcNow, handler,
-                        reason);
-                    await Nack(deliveryTag: ea.DeliveryTag, requeue: false);
+                    await Ack(ea.DeliveryTag);
                     return;
                 }
-                
+
+                JsonDocument document = result.Value.Item3;
+                EventType eventType = result.Value.Item1;
+                Guid messageId = result.Value.Item2;
+
                 bool alreadyAdded = await dbContext.InboxConsumed
-                    .AnyAsync(ic => ic.MessageId == messageId!.Value, CancellationToken.None);
+                    .AnyAsync(ic => ic.MessageId == messageId, CancellationToken.None);
 
                 if (alreadyAdded)
                 {
@@ -101,16 +97,16 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                     return;
                 }
 
-                await AddToInbox(dbContext, messageId!.Value, eventType!.Value, DateTime.UtcNow, handler);
+                await AddToInbox(dbContext, messageId, eventType, DateTime.UtcNow, handler);
                 
                 await Ack(deliveryTag: ea.DeliveryTag);
                 
-                LogSuccess(document, eventType.Value, messageId.Value, GetTimestamp(ea), handler);
+                LogSuccess(document, eventType, messageId, GetTimestamp(ea), handler);
             }
             catch (Exception ex)
             {
                 await Nack(deliveryTag: ea.DeliveryTag, requeue: !ea.Redelivered);
-                logger.LogInformation("Error while processing message, is requeued: {Requeue} ({handler}). {Message} "
+                logger.LogWarning("Error while processing message, is requeued: {Requeue} ({handler}). {Message} "
                     , handler, !ea.Redelivered, ex.Message);
                 await Task.Delay(1000);
                 throw;
@@ -122,7 +118,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         /// </summary>
         /// <param name="model"></param>
         /// <param name="ea"></param>
-        public async Task ProcessAntifraudMessage(object model, BasicDeliverEventArgs ea)
+        private async Task ProcessAntifraudMessage(object model, BasicDeliverEventArgs ea)
         {
             const string handler = "Antifraud";
             try
@@ -135,7 +131,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
 
                 if (result is null)
                 {
-                    await Nack(ea.DeliveryTag, false);
+                    await Ack(ea.DeliveryTag);
                     return;
                 }
 
@@ -155,7 +151,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 if (isProcessed)
                 {
                     // Сообщение уже обработано ранее, просто подтверждаем его.
-                    logger.LogWarning("Message with MessageId {MessageId} already processed ({Handler}).", messageId, handler);
+                    logger.LogInformation("Message with MessageId {MessageId} already processed ({Handler}).", messageId, handler);
                     await Nack(deliveryTag: ea.DeliveryTag, false);
                     return;
                 }
@@ -192,7 +188,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             catch (Exception ex)
             { 
                 await Nack(deliveryTag: ea.DeliveryTag, requeue: !ea.Redelivered);
-                logger.LogInformation("Error while processing message ({handler}), is requeued: {Requeue}. {Message}"
+                logger.LogWarning("Error while processing message ({handler}), is requeued: {Requeue}. {Message}"
                     ,handler ,!ea.Redelivered, ex.Message);
                 await Task.Delay(1000);
                 throw;
@@ -400,7 +396,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             
             TimeSpan? latency = timestamp == null ? null : DateTime.UtcNow - timestamp;
                     
-            logger.LogInformation("Successfully consumed event: id = {id}, ownerId = {owner}, type = {type}, " +
+            logger.LogInformation("[MESSAGE_CONSUMED] Successfully consumed event: id = {id}, ownerId = {owner}, type = {type}, " +
                                   "correlationId = {correlationId}, messageId = {MessageId},latency = {latency}, handler = {hanler}",
                 id, ownerId, type.ToString(), correlationId, messageId, latency, handler); 
         }
@@ -419,8 +415,8 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
             }
             catch (Exception) {/* ignored */ }
                     
-            logger.LogInformation("Consumed \"dead letter\" event: id = {id}, type = {type}, " +
-                                  "correlationId = {correlationId}, reason = {reason}, handler = {handler}", id, 
+            logger.LogWarning("Consumed \"dead letter\" event: id = {id}, type = {type}, " +
+                              "correlationId = {correlationId}, reason = {reason}, handler = {handler}", id, 
                 type.ToString(), correlationId, reason, handler); // eventId, type, correlationId, retry, latency
         }
 
@@ -473,7 +469,6 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 exclusive: false, 
                 autoDelete: false,
                 arguments: null);
-            
             await _channel.QueueBindAsync(AntifraudQueueName, _exchangeName, "client.#");
 
             await _channel.QueueDeclareAsync(
@@ -483,17 +478,35 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
                 autoDelete: false,
                 arguments: null
             );
-            
             await _channel.QueueBindAsync(AuditQueueName, _exchangeName, "#");
-            
-            foreach (EventType type in Enum.GetValues<EventType>())
-            {
-                if (type is EventType.ClientBlocked or EventType.ClientUnblocked)
-                    continue;
+
+            await _channel.QueueDeclareAsync(
+                queue: AccountCrmQueueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null
+            );
+            await _channel.QueueBindAsync(AccountCrmQueueName, _exchangeName, "account.*");
+
+            await _channel.QueueDeclareAsync(
+                queue: AccountNotificationsQueueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null
+            );
+            await _channel.QueueBindAsync(AccountNotificationsQueueName, _exchangeName, "money.*");
+
+
+            //foreach (EventType type in Enum.GetValues<EventType>())
+            //{
+            //    if (type is EventType.ClientBlocked or EventType.ClientUnblocked)
+            //        continue;
                 
-                await _channel.QueueDeclareAsync(queue: $"test_{type.ToString()}", durable: true, false, false);
-                await _channel.QueueBindAsync($"test_{type.ToString()}", _exchangeName, Event.GetRoute(type));
-            }
+            //    await _channel.QueueDeclareAsync(queue: $"test_{type.ToString()}", durable: true, false, false);
+            //    await _channel.QueueBindAsync($"test_{type.ToString()}", _exchangeName, Event.GetRoute(type));
+            //}
         }
 
         /// <inheritdoc />
