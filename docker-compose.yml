@@ -40,7 +40,7 @@ services:
       - "7045:7045"
 
   rabbitmq:
-    image: rabbitmq:4-management
+    image: lithiumkgp/rabbitmq:latest
     container_name: rabbitmq
     ports:
       - "15672:15672"

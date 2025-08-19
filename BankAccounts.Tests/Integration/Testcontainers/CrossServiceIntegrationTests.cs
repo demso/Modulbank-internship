@@ -64,7 +64,7 @@ public partial class CrossServiceIntegrationTests(ITestOutputHelper output) : IA
         
         _rabbitMqContainer = new RabbitMqBuilder()
             .WithNetwork(_network) 
-            .WithImage("rabbitmq:4-management")
+            .WithImage("lithiumkgp/rabbitmq:latest")
             .WithName("rabbitmq_test" + Random.Shared.NextInt64())
             .WithUsername("admin")
             .WithPassword("admin")
