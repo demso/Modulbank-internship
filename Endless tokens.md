@@ -1,6 +1,6 @@
 ## Бесконечные токены пользователей для тестов с использованием событий (с Guid) 
 
-### Username: test  Password: <ANY>
+### Username: test  Password: [ANY]
 
 Guid: `e58f4aa9-b1cc-a65b-9c4c-0873d391e987`
 
