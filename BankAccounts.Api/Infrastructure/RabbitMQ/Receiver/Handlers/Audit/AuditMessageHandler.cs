@@ -25,10 +25,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ.Receiver.Handlers.Audit
                     = await CheckAndSaveIfDeadLetterAck(channel, dbContext, ea, handler);
 
                 if (result is null) // Это мертвое письмо
-                {
-                    await Ack(channel, ea.DeliveryTag);
                     return;
-                }
 
                 JsonDocument document = result.Value.Item3;
                 EventType eventType = result.Value.Item1;
