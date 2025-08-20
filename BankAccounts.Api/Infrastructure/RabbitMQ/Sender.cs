@@ -63,7 +63,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ
         [AutomaticRetry(Attempts = 0)]
         public async Task Job()
         {
-            if (_connection is null || _connection.IsOpen == false || _channel is null || _channel.IsClosed == false)
+            if (_connection is null || !_connection.IsOpen || _channel is null || !_channel.IsClosed)
                await Init();
             
 			try {

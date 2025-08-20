@@ -10,7 +10,7 @@ namespace BankAccounts.Api.Infrastructure.Repository
         /// <summary>
         /// Метод для сохранения изменений в базе данных асинхронно.
         /// </summary>
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Добавит событие в таблицу outbox_published для публикации позже
@@ -19,14 +19,14 @@ namespace BankAccounts.Api.Infrastructure.Repository
         /// <param name="cancellationToken"></param>
         /// <typeparam name="T">Тип события</typeparam>
         /// <returns></returns>
-        public Task AddToOutboxAsync<T>(T serviceEvent, CancellationToken cancellationToken = default) where T : Event;
+        Task AddToOutboxAsync<T>(T serviceEvent, CancellationToken cancellationToken = default) where T : Event;
 
         /// <summary>
         /// Метод для начала транзакции базы данных
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<ISimpleTransactionScope>
+        Task<ISimpleTransactionScope>
             BeginSerializableTransactionAsync(CancellationToken cancellationToken = default);
     }
 }

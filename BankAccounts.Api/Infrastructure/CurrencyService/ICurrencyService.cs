@@ -13,6 +13,6 @@
         /// <param name="to">Тип валюты в которую преобразуем (<see cref="Currencies"/>)</param>
         /// <returns>decimal</returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public decimal Convert(decimal sum, Currencies from, Currencies to);
+        decimal Convert(decimal sum, Currencies from, Currencies to);
     }
 }

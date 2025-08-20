@@ -11,7 +11,8 @@ namespace BankAccounts.Api.Common
         : IPipelineBehavior<TRequest, TResponse> where TRequest :IRequest<TResponse>
     {
         /// <inheritdoc />
-        public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, 
+            CancellationToken cancellationToken)
         {
             ValidationContext<TRequest> context = new(request);
             ValidationFailure? failure = validators
@@ -19,12 +20,8 @@ namespace BankAccounts.Api.Common
                 .SelectMany(result => result.Errors)
                 .FirstOrDefault(failure => failure != null); //вернем только первую ошибку
 
-            if (failure is not null)
-            {
-                throw new ValidationException(new List<ValidationFailure> { failure });
-            }
-
-            return next(cancellationToken);
+            return failure is not null ? 
+                throw new ValidationException(new List<ValidationFailure> { failure }) : next(cancellationToken);
         }
     }
 }

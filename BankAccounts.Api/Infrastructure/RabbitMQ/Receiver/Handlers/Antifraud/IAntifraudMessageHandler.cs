@@ -13,6 +13,6 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ.Receiver.Handlers.Antifraud
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="ea"></param>
-        public Task ProcessAntifraudMessage(IChannel channel, BasicDeliverEventArgs ea);
+        Task ProcessAntifraudMessage(IChannel channel, BasicDeliverEventArgs ea);
     }
 }

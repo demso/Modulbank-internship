@@ -14,6 +14,6 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ.Receiver.Handlers.Audit
         /// <param name="channel"></param>
         /// <param name="ea"></param>
         /// <returns></returns>
-        public Task ProcessAuditMessage(IChannel channel, BasicDeliverEventArgs ea);
+        Task ProcessAuditMessage(IChannel channel, BasicDeliverEventArgs ea);
     }
 }
