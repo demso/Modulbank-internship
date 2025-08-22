@@ -7,7 +7,7 @@ namespace BankAccounts.Api.Features.Accounts;
 /// <summary>
 /// Профиль для сопоставления типов
 /// </summary>
-// ReSharper disable once UnusedType.Global Класс используется маппером
+// ReSharper disable once UnusedType.Global Класс используется mapper
 // ReSharper disable once UnusedMember.Global
 public class AccountsMappingProfile : Profile 
 {

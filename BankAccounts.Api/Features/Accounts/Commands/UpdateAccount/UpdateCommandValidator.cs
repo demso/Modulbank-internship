@@ -3,14 +3,14 @@
 namespace BankAccounts.Api.Features.Accounts.Commands.UpdateAccount;
 
 /// <summary>
-/// Валидатор команды <see cref="UpdateAccountCommand"/>
+/// Проверяющий команды <see cref="UpdateAccountCommand"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global 
 public class UpdateCommandValidator : AbstractValidator<UpdateAccountCommand>
 {
     /// <summary>
-    /// Создание валидатора и настройка правил
+    /// Создание проверяющего и настройка правил
     /// </summary>
     public UpdateCommandValidator()
     {

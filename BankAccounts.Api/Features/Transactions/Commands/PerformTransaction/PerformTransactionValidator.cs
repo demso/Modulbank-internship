@@ -3,14 +3,14 @@
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransaction;
 
 /// <summary>
-/// Валидатор команды <see cref="PerformTransactionCommand"/>
+/// Проверяющий команды <see cref="PerformTransactionCommand"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global
 public class PerformTransactionValidator : AbstractValidator<PerformTransactionCommand>
 {
     /// <summary>
-    /// Создание валидатора и задание правил валидации
+    /// Создание проверяющего и задание правил валидации
     /// </summary>
     public PerformTransactionValidator()
     {

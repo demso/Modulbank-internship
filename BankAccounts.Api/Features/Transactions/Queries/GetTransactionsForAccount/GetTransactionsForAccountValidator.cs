@@ -3,14 +3,14 @@
 namespace BankAccounts.Api.Features.Transactions.Queries.GetTransactionsForAccount;
 
 /// <summary>
-/// Валидатор команды <see cref="GetTransactionsForAccountQuery"/>
+/// Проверяющий команды <see cref="GetTransactionsForAccountQuery"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global
 public class GetTransactionsForAccountValidator : AbstractValidator<GetTransactionsForAccountQuery>
 {
     /// <summary>
-    /// Создание валидатора и настройка правил
+    /// Создание проверяющего и настройка правил
     /// </summary>
     public GetTransactionsForAccountValidator()
     {

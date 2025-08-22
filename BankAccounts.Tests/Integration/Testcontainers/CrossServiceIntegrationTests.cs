@@ -92,7 +92,13 @@ namespace BankAccounts.Tests.Integration.Testcontainers
                 .WithImage("lithiumkgp/bankaccounts.api:latest") 
                 .WithPortBinding(80, true)
                 .WithEnvironment("ConnectionStrings__BankAccountsDbContext", DbConnectionString)
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80))
+                //.WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80))
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(80, strategy =>
+                {
+                    strategy.WithInterval(TimeSpan.FromSeconds(5));
+                    strategy.WithRetries(50);
+                    strategy.WithTimeout(TimeSpan.FromMinutes(30));
+                }))
                 .DependsOn(_bankAccountsDbContainer)
                 .DependsOn(_rabbitMqContainer)
                 .WithCleanUp(CleanUp)

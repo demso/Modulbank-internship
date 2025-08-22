@@ -9,7 +9,7 @@ namespace BankAccounts.Api.Common
     /// <summary>
     /// Класс для возврата данных о результатах операции клиенту.
     /// </summary>
-    /// <typeparam name="T">Тип данных аозвращаемого значения</typeparam>
+    /// <typeparam name="T">Тип данных возвращаемого значения</typeparam>
     public record MbResult<T>
     {
         public bool IsSuccess { get; }

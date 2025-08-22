@@ -11,7 +11,7 @@ namespace BankAccounts.Api.Infrastructure.RabbitMQ.Events.Consumed.Specific
         /// <summary>
         /// Id клиента
         /// </summary>
-        // ReSharper disable once UnusedMember.Global Ичпользуется
+        // ReSharper disable once UnusedMember.Global Используется
         // ReSharper disable once UnusedAutoPropertyAccessor.Global Используется
         public Guid ClientId { get; set; }
     }

@@ -10,7 +10,7 @@ namespace BankAccounts.Api.Features.Accounts.Dtos;
 /// </summary>
 /// <param name="AccountType">Тип счета</param>
 /// <param name="Currency">Валюта</param>
-/// <param name="InterestRate">Прочентная ставка</param>
+/// <param name="InterestRate">Процентная ставка</param>
 public record CreateAccountDto(
     [Required] AccountType? AccountType,
     [Required] Currencies? Currency,

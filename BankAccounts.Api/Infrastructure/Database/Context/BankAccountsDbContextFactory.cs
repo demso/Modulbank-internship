@@ -11,6 +11,7 @@ namespace BankAccounts.Api.Infrastructure.Database.Context
     /// Для миграций
     /// </summary>
 // ReSharper disable once UnusedType.Global Используется при создании миграций
+    // ReSharper disable once UnusedMember.Global Используется
     public class BankAccountsDbContextFactory : IDesignTimeDbContextFactory<BankAccountsDbContext>
     {
         /// <summary>

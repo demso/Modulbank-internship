@@ -32,7 +32,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
             if (await blacklist.IsBlacklisted(account.OwnerId))
                 throw new UserInBlockListException(request.OwnerId);
             
-            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault Решарпер предлагает непонятный код
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault Расширение предлагает непонятный код
             switch (request.TransactionType) {
                 case TransactionType.Debit:
                     account.Balance += request.Amount;
@@ -40,7 +40,7 @@ public class PerformTransactionHandler(IAccountsRepositoryAsync accountsReposito
                 case TransactionType.Credit:
                     if (account.AccountType is AccountType.Checking or AccountType.Deposit &&
                         account.Balance - request.Amount < 0)
-                        throw new BadRequestException("Баланс после транзакции не может быть < 0, т.к. счет не является кредитным.");
+                        throw new BadRequestException("Баланс после транзакции не может быть < 0, счет не является кредитным.");
                     account.Balance -= request.Amount;
                     break;
             }

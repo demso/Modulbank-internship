@@ -3,7 +3,7 @@
 namespace BankAccounts.Api.Features.Transactions.Commands.PerformTransfer;
 
 /// <summary>
-/// Валидатор команды <see cref="PerformTransferCommand"/>
+/// Проверяющий команды <see cref="PerformTransferCommand"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 // ReSharper disable once UnusedMember.Global

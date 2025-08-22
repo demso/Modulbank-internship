@@ -4,13 +4,13 @@ namespace BankAccounts.Api.Features.Accounts.Commands.CreateAccount;
 
 
 /// <summary>
-/// Валидатор команды <see cref="CreateAccountCommand"/>
+/// Проверяющий команды <see cref="CreateAccountCommand"/>
 /// </summary>
 // ReSharper disable once UnusedType.Global Класс используется посредником
 public class CreateAccountValidator : AbstractValidator<CreateAccountCommand>
 {
     /// <summary>
-    /// Создание валидатора и настройка правил
+    /// Создание проверяющего и настройка правил
     /// </summary>
     public CreateAccountValidator()
     {

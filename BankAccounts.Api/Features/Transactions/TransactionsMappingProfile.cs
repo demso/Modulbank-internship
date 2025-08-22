@@ -8,7 +8,7 @@ namespace BankAccounts.Api.Features.Transactions;
 /// <summary>
 /// Профиль для сопоставления типов для работы с транзакциями.
 /// </summary>
-// ReSharper disable once UnusedType.Global Класс используется маппером
+// ReSharper disable once UnusedType.Global Класс используется mapper
 // ReSharper disable once UnusedMember.Global
 public class TransactionsMappingProfile : Profile
 {

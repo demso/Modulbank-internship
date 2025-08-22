@@ -204,9 +204,9 @@ namespace BankAccounts.Api.Infrastructure.Extensions
         /// <returns></returns>
         public static IServiceCollection SetupSerilog(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSerilog((servicess, lc) => lc
+            services.AddSerilog((servicesS, lc) => lc
                 .ReadFrom.Configuration(configuration)
-                .ReadFrom.Services(servicess)
+                .ReadFrom.Services(servicesS)
                 .Enrich.FromLogContext()
                 .WriteTo.Console(new ExpressionTemplate(
                     // Include trace and span ids when present.
