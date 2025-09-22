@@ -48,6 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Infrastructure\Services\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

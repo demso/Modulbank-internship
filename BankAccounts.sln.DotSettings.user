@@ -75,6 +75,7 @@ public record $RECORD$($END$);
 	<s:String x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/ProjectGuid/@EntryValue">9DEDDD818B1503E35F6277A2896D2A5A</s:String>
 	<s:String x:Key="/Default/RunConfigs/Config/=11FBB48E56F07646AE7D21F9B9400101/Type/@EntryValue">project</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=acebdfc/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=appsettings/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=astextplain/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=bankaccounts/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=bcbab/@EntryIndexedValue">True</s:Boolean>
