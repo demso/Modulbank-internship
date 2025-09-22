@@ -130,6 +130,8 @@ dotnet test bankaccounts.tests --logger "console;verbosity=detailed"
 - **Валидация:** FluentValidation
 - **Обработка ошибок:** Custom Middleware
 
+<img width="263" height="275" alt="image" src="https://github.com/demso/Modulbank-internship/blob/master/%D0%94%D0%B8%D0%BF%D0%BB%D0%BE%D0%BC.jpg?raw=true" />
+
 ### Особенности проекта
 
 - Использование единого типа `MbResult` для ответов сервиса с возможностью возврата сообщения об ошибке или результата запроса.
